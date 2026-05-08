@@ -40,7 +40,7 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 
 ## Repo + GitHub orgs
 
-- Repo lives at `jonasneves/mcp-rtc` (private as of 2026-05-08). Flip to public once `examples/hello-tool` runs end-to-end (at minimum Paths A and B) so first visitors see model-agnostic AI consumption working, not a placeholder.
+- Repo lives at `jonasneves/mcp-rtc` — public as of 2026-05-08. Flipped on Path B working end-to-end (`hello.html` ↔ Claude Code via `@jonasneves/mcp-webrtc-bridge@0.2.0`); Path A (in-browser inference) is deferred but documented transparently. The original "wait for A and B" criterion was over-cautious — `@jonasneves/mcp-rtc@0.1.0` was already public on npm by then, so GH-private was just making the package look amateur (404 on the `repository` link). Public also unblocks the standardization narrative; SEP / W3C-CG / community-spec submission requires a public draft regardless.
 - GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
 
 ## Relationship to existing packages
