@@ -6,9 +6,11 @@ Provides server- and client-side Transport classes that conform to the `@modelco
 
 ## Status
 
-**Scaffolded.** Implementation lands as the spec stabilizes. The shape will closely follow `@jonasneves/mcp-webrtc` (current reference impl, slated for supersession by this package once parity is reached).
+**Node entry: ported.** Browser entry: in progress. Both will share the same source where it's runtime-agnostic, with thin runtime-specific shims for `RTCPeerConnection` and key-pair persistence.
 
-## Planned exports
+The Node entry is functionally a port of `@jonasneves/mcp-webrtc` aligned with the spec; consumers of that package can swap dependencies once published. mcp-webrtc will be deprecated in favor of this package once browser parity lands.
+
+## Exports
 
 ```js
 import {

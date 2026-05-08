@@ -1,8 +1,10 @@
-// @jonasneves/mcp-rtc — reference implementation of the MCP-over-WebRTC
-// transport defined in ../../../SPEC.md.
-//
-// Status: scaffolded. Implementation lands as the spec stabilizes.
-// In the meantime, see @jonasneves/mcp-webrtc (current de-facto reference)
-// for the shape this package will land in.
+// MCP transport classes implementing the @modelcontextprotocol/sdk
+// Transport interface.
+export { WebRTCServerTransport } from './server-transport.mjs';
+export { WebRTCClientTransport } from './client-transport.mjs';
 
-export {};
+// Lower-level substrate primitives (host(), join()). Useful when consuming
+// the WebRTC layer directly without the MCP wrapping — e.g. when riding ad-
+// hoc envelopes over the same lobby for systems that haven't migrated their
+// wire format to MCP yet.
+export { join, host } from './lib/transport.mjs';

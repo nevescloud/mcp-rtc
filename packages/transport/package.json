@@ -16,5 +16,14 @@
     "directory": "packages/transport"
   },
   "publishConfig": { "access": "public" },
-  "private": true
+  "private": true,
+  "peerDependencies": {
+    "@modelcontextprotocol/sdk": ">=1.0.0"
+  },
+  "dependencies": {
+    "node-datachannel": "^0.32.3"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
 }
