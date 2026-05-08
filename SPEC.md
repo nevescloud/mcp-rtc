@@ -1,10 +1,10 @@
 # MCP over WebRTC
 
-**Specification, draft 0.1 (pre-SEP).**
+**Specification, draft 0.1.**
 
 **Author:** Jonas Neves
 **Status:** Draft. Open for revision via Issues.
-**Targets:** [Model Context Protocol](https://github.com/modelcontextprotocol) ecosystem; submission as a SEP intended once the draft stabilizes.
+**Targets:** Implementers in the [Model Context Protocol](https://github.com/modelcontextprotocol) ecosystem. The standardization path (SEP, W3C-CG draft, or documented reference) is not decided.
 
 ## 1. Abstract
 

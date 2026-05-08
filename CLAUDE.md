@@ -1,16 +1,33 @@
 # mcp-rtc — repo notes
 
-Spec + reference implementation for **MCP over WebRTC**, plus a browser bridge library that exposes a remote MCP-RTC server to local Claude via WebMCP.
+Wire mapping for **MCP over WebRTC**, plus a browser bridge that exposes a remote MCP-RTC server to local Claude via WebMCP.
 
 ## Strategic intent
 
-This is **standard-track work**, not a product repo. The artifact priority is:
+Standard-track work, not a product. Artifact priority:
 
-1. **`SPEC.md`** — the protocol specification. Designed to be submittable as a SEP to the MCP working group once it stabilizes. Tone: dry, precise, RFC-shaped. *Do not* turn it into a marketing document or weave product narratives through it.
-2. **`packages/transport`** — reference implementation that follows the spec. Its existence proves the spec is implementable; it's also the adoption vehicle for users who don't want to write their own.
-3. **`packages/bridge-tab`** — application-layer pattern (browser tab as WebMCP↔mcp-rtc adapter). Distinct contribution layered on top of the spec. Generalizable beyond confer-canvas.
+1. **`packages/bridge-tab`** — the headline. The novel piece without prior art: a browser tab as WebMCP↔mcp-rtc adapter so any local Claude calls a remote browser-tab MCP server with no install. This is what developers will actually want.
+2. **`SPEC.md`** — the wire-format and connection-lifecycle contract. Tone: dry, precise, RFC-shaped. *Do not* turn it into a marketing document. Necessary infrastructure but not where the novelty lives.
+3. **`packages/transport`** — reference implementation. Proves the spec is implementable; adoption vehicle for users who don't want to write their own.
 
-The repo's audience is **MCP/web-platform developers**, not "advisory-room buyers" or "confer customers." Confer (the canvas product) is one downstream consumer. Other downstream consumers we'd like to see: any P2P web service that wants to be Claude-callable from any local Claude (multi-machine collaboration tools, mobile-app↔desktop bridges, IoT-via-WebRTC, etc.).
+The repo's audience is MCP and web-platform implementers. Confer (the canvas product) is one downstream consumer; the goal is for there to be others.
+
+## Positioning landscape (don't relitigate)
+
+The agent-protocol field as of 2026-05 is more crowded and more coordinated than it looks. These are the durable findings from the 2026-05-08 scout pass:
+
+**The metaphor stack is locked.** The dominant framing across Anthropic, Microsoft, Google, and the LF agent ecosystem: "MCP = USB-C for AI; A2A = HTTP for AI agents; NLWeb = HTML to MCP/A2A's HTTP." New metaphors fight a coordinated mental model, not a vacuum. Substrate specs that brand-frame (Semantic Web, Web of Trust) eat a credibility tax; ones that stay clinical (gRPC, QUIC, CoAP) get adopted on ergonomics. **README and SPEC tone: descriptive, not metaphorical.** "Internet of Tools" framing was considered and rejected — see below.
+
+**Adjacent territory is taken.**
+- *"Internet of Agents"* — Cisco's `agntcy`, Linux Foundation-backed. Owns the "Internet of [X]" naming slot in agent-protocol discourse.
+- *Decentralized peer-to-peer agents* — Agent Network Protocol (ANP), W3C-CG-tracked, uses W3C DIDs, has a published whitepaper (arxiv 2508.00007). Owns the "decentralized" positioning.
+- *Canonical agent protocols* per arxiv 2505.02279 survey: MCP, ACP, A2A, ANP. A fifth protocol has to earn its place explicitly.
+
+**Our actual differentiator is narrower than initial framing suggested:** *transport-level NAT-traversing browser-native peer connectivity for already-existing MCP servers.* Specifically — any browser tab becomes a discoverable, addressable MCP endpoint with no public URL. Don't claim more than that. Don't position as "decentralized agents" (ANP) or "Internet of [X]" (agntcy) or as "another transport" (see next).
+
+**SEP transport window is closed in this cycle.** Anthropic's [Dec 2025 transport post](https://blog.modelcontextprotocol.io/posts/2025-12-19-mcp-transport-future/) and 2026 roadmap state explicitly: no more official transports this cycle. SEP-1287 (WebSocket) and SEP-1005 (postMessage) are competing for limited slots. Submitting another transport SEP into a stated closed window is bad strategy. Alternative paths: W3C-CG community draft (where ANP lives), informal RFC, or "documented reference impl, no formal track." Decide later — don't optimize for SEP submission today.
+
+**Pattern to keep in mind:** when shipping in adjacent-to-canonical work, the existing field defines positioning, not your intent. Audit the metaphor stack, naming claims, and standardization tracks before claiming any of them. Restraint signals seriousness.
 
 ## Naming discipline
 
@@ -19,12 +36,12 @@ The repo's audience is **MCP/web-platform developers**, not "advisory-room buyer
 - **Reference impl** is `@jonasneves/mcp-rtc`. Same name as the repo — implementation = reference.
 - **Bridge library** is `@jonasneves/mcp-rtc-bridge-tab`. Domain-suffix names what it does (a browser tab as bridge).
 
-Don't introduce branded names for this work. Confer can have a brand; substrate work shouldn't.
+Don't introduce branded names. Confer can have a brand; substrate work shouldn't.
 
 ## Repo + GitHub orgs
 
 - Repo lives at `jonasneves/mcp-rtc` (private as of 2026-05-08). Flip to public once `examples/echo` runs end-to-end so first visitors see something working, not a placeholder.
-- GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral standard-track home" (e.g., before SEP submission, or if outside contributors arrive). The other two orgs are name-defense / redirect targets so search traffic for adjacent terms can be funneled here.
+- GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
 
 ## Relationship to existing packages
 
@@ -35,22 +52,24 @@ Don't introduce branded names for this work. Confer can have a brand; substrate 
 
 ## How a fresh session should pick up
 
-1. Read `SPEC.md` first — that's the canonical artifact.
-2. Read this file and `README.md` for repo intent.
-3. Refer to existing `@jonasneves/mcp-webrtc` (in `~/Github/jonasneves/mcp-webrtc`) as the de-facto reference for what the implementation looks like — `mcp-rtc` will likely vendor or adapt that code with cleanup as the spec stabilizes.
-4. The bridge-tab pattern hasn't been built anywhere yet. Reference: see the WebMCP API docs and confer's existing canvas-as-MCP-server logic for the shape.
+1. Read this file's "Positioning landscape" section before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
+2. Read `SPEC.md` — the canonical wire-format artifact.
+3. Read `README.md` and the example READMEs for current shape.
+4. Refer to `@jonasneves/mcp-webrtc` (at `~/Github/jonasneves/mcp-webrtc`) as the de-facto reference impl — `mcp-rtc` will vendor or adapt that code as the spec stabilizes.
+5. The bridge-tab pattern hasn't been built anywhere yet. Reference: WebMCP API docs and confer's existing canvas-as-MCP-server logic.
 
 ## What lives elsewhere
 
-- **`@jonasneves/mcp-webrtc`** at `~/Github/jonasneves/mcp-webrtc` — current reference impl, will be superseded.
-- **`signal.neevs.io`** — public lobby; the recommended Layer 2 reference.
-- **`pip-relay`** at `~/Github/jonasneves/pip-relay` — Layer 2 reference impl (lobby + pair-request).
-- **`confer/public/canvas.html`** at `~/Github/jonasneves/confer` — the first downstream consumer of `bridge-tab` (when both are built).
+- `@jonasneves/mcp-webrtc` at `~/Github/jonasneves/mcp-webrtc` — current reference impl, will be superseded.
+- `signal.neevs.io` — public lobby; the recommended Layer 2 reference.
+- `pip-relay` at `~/Github/jonasneves/pip-relay` — Layer 2 reference impl (lobby + pair-request).
+- `confer/public/canvas.html` at `~/Github/jonasneves/confer` — the first downstream consumer of `bridge-tab` (when both are built).
 
 ## Roadmap
 
 1. **Stabilize the spec.** Get SPEC.md to a draft someone outside the project could read and implement from. Iterate based on review.
-2. **Implement `packages/transport`.** Vendor / port from `@jonasneves/mcp-webrtc`, clean up, align with spec. Both Node + browser entry points.
-3. **Implement `packages/bridge-tab`.** Browser-side library. Drop-in: `<script src=".../bridge-tab.js">` + a small init call, get a tab that re-exposes a remote mcp-rtc server's tools as WebMCP tools.
-4. **Migrate confer canvas to consume bridge-tab.** First real downstream user.
-5. **Submit SEP.** Once spec is stable and reference impl exists, file with the MCP working group.
+2. **Implement `packages/bridge-tab` first** *(reordered — this is the headline)*. Browser-side library. Drop-in: a script tag plus a small init call, get a tab that re-exposes a remote mcp-rtc server's tools as WebMCP tools. This is the piece that gives the repo its claim.
+3. **Implement `packages/transport`.** Vendor / port from `@jonasneves/mcp-webrtc`, clean up, align with spec. Both Node and browser entry points. (bridge-tab depends on the browser entry point.)
+4. **Build `examples/echo`.** Smallest possible end-to-end. Once this runs, the repo is ready to flip public.
+5. **Migrate confer canvas to consume bridge-tab.** First real downstream user.
+6. **Watch standardization paths.** Don't pre-commit. Decide between SEP / W3C-CG / informal RFC once there are real implementers asking for it.
