@@ -1,0 +1,20 @@
+{
+  "name": "@jonasneves/mcp-rtc",
+  "version": "0.0.0",
+  "description": "Reference implementation of the MCP-over-WebRTC transport (see SPEC.md). Implements the @modelcontextprotocol/sdk Transport interface for both server and client, in Node and browser.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "files": ["src/", "README.md"],
+  "engines": { "node": ">=22" },
+  "keywords": ["mcp", "model-context-protocol", "webrtc", "transport", "p2p"],
+  "author": "Jonas Neves",
+  "license": "MIT",
+  "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/transport#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonasneves/mcp-rtc.git",
+    "directory": "packages/transport"
+  },
+  "publishConfig": { "access": "public" },
+  "private": true
+}

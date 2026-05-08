@@ -1,0 +1,19 @@
+{
+  "name": "@jonasneves/mcp-rtc-bridge-tab",
+  "version": "0.0.0",
+  "description": "Browser library that takes a remote MCP-RTC server's tools and re-exposes them via WebMCP, so any local Claude (with a Chrome extension) can call them — no Node bridge required.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "files": ["src/", "README.md"],
+  "keywords": ["mcp", "model-context-protocol", "webrtc", "webmcp", "browser", "bridge", "p2p"],
+  "author": "Jonas Neves",
+  "license": "MIT",
+  "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/bridge-tab#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonasneves/mcp-rtc.git",
+    "directory": "packages/bridge-tab"
+  },
+  "publishConfig": { "access": "public" },
+  "private": true
+}
