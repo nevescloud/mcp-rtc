@@ -1,12 +1,9 @@
-// Persistent device key + sign/verify primitives.
-// Node: file at ~/.config/mcp-rtc/peer-key.json (override with MCP_RTC_KEY_PATH env).
-// crypto.subtle, btoa, atob, TextEncoder are global in Node 22+.
+// Persistent device key + sign/verify primitives. Runtime-agnostic;
+// the actual read/write of the JWK pair is done by ./platform.mjs.
+// crypto.subtle, btoa, atob, TextEncoder are global in Node 22+ and
+// in browsers.
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join, dirname } from 'node:path';
-
-const STORAGE_PATH = process.env.MCP_RTC_KEY_PATH || join(homedir(), '.config/mcp-rtc/peer-key.json');
+import { storage } from './platform.mjs';
 
 let _keyPair = null;
 let _pubkeyB64 = null;
@@ -28,22 +25,8 @@ function _b64decode(s) {
   return out;
 }
 
-async function _readStored() {
-  try {
-    const text = await readFile(STORAGE_PATH, 'utf-8');
-    return JSON.parse(text);
-  } catch { return null; }
-}
-
-async function _writeStored(data) {
-  try {
-    await mkdir(dirname(STORAGE_PATH), { recursive: true });
-    await writeFile(STORAGE_PATH, JSON.stringify(data));
-  } catch { /* best-effort, like browser localStorage */ }
-}
-
 async function _loadOrCreate() {
-  const stored = await _readStored();
+  const stored = await storage.read();
   if (stored) {
     try {
       const privateKey = await crypto.subtle.importKey(
@@ -66,7 +49,7 @@ async function _loadOrCreate() {
   try {
     const privateJwk = await crypto.subtle.exportKey('jwk', pair.privateKey);
     const publicJwk = await crypto.subtle.exportKey('jwk', pair.publicKey);
-    await _writeStored({ privateKey: privateJwk, publicKey: publicJwk });
+    await storage.write({ privateKey: privateJwk, publicKey: publicJwk });
   } catch { /* persist best-effort */ }
   return pair;
 }

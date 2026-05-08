@@ -1,15 +1,15 @@
 // WebRTC transport substrate. Both visitor (join) and host sides.
 // Implements Layers 1–3 of ../../../../SPEC.md (transport, signaling,
-// identity). Uses node-datachannel/polyfill for RTCPeerConnection in Node;
-// WebSocket and fetch are global in Node 22+. The browser entry replaces
-// the polyfill import with native RTCPeerConnection.
+// identity). RTCPeerConnection comes from ./platform.mjs (Node:
+// node-datachannel/polyfill; browser: native via window). WebSocket and
+// fetch are global in Node 22+ and in browsers.
 //
 // Pairing happens in a fixed lobby (`<lobbyNamespace>:<siteId>`). Each
 // accepted pair-request returns an ephemeral room id used to negotiate
 // the WebRTC offer/answer + ICE. After the data channel opens, all traffic
 // flows peer-to-peer.
 
-import { RTCPeerConnection } from 'node-datachannel/polyfill';
+import { RTCPeerConnection } from './platform.mjs';
 import { roomLobby } from './room-lobby.mjs';
 import { pairRequestClient } from './pair-request.mjs';
 
