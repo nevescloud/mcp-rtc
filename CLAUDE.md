@@ -21,6 +21,11 @@ The repo's audience is **MCP/web-platform developers**, not "advisory-room buyer
 
 Don't introduce branded names for this work. Confer can have a brand; substrate work shouldn't.
 
+## Repo + GitHub orgs
+
+- Repo lives at `jonasneves/mcp-rtc` (private as of 2026-05-08). Flip to public once `examples/echo` runs end-to-end so first visitors see something working, not a placeholder.
+- GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral standard-track home" (e.g., before SEP submission, or if outside contributors arrive). The other two orgs are name-defense / redirect targets so search traffic for adjacent terms can be funneled here.
+
 ## Relationship to existing packages
 
 `@jonasneves/mcp-webrtc` (existing) shipped first as a reference impl with confer-specific naming. It still works and has consumers (`@jonasneves/confer-mcp`, `@jonasneves/confer-agent`, `@jonasneves/mcp-webrtc-bridge`). When `@jonasneves/mcp-rtc` reaches feature parity:
