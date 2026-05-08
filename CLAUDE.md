@@ -40,7 +40,7 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 
 ## Repo + GitHub orgs
 
-- Repo lives at `jonasneves/mcp-rtc` (private as of 2026-05-08). Flip to public once `examples/echo` runs end-to-end so first visitors see something working, not a placeholder.
+- Repo lives at `jonasneves/mcp-rtc` (private as of 2026-05-08). Flip to public once `examples/hello-tool` runs end-to-end (at minimum Paths A and B) so first visitors see model-agnostic AI consumption working, not a placeholder.
 - GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
 
 ## Relationship to existing packages
@@ -70,6 +70,6 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 1. **Stabilize the spec.** Get SPEC.md to a draft someone outside the project could read and implement from. Iterate based on review.
 2. **Implement `packages/bridge-tab` first** *(reordered — this is the headline)*. Browser-side library. Drop-in: a script tag plus a small init call, get a tab that re-exposes a remote mcp-rtc server's tools as WebMCP tools. This is the piece that gives the repo its claim.
 3. **Implement `packages/transport`.** Vendor / port from `@jonasneves/mcp-webrtc`, clean up, align with spec. Both Node and browser entry points. (bridge-tab depends on the browser entry point.)
-4. **Build `examples/echo`.** Smallest possible end-to-end. Once this runs, the repo is ready to flip public.
+4. **Build `examples/hello-tool`.** Browser tab as MCP server with one tool, three consumption paths: (A) in-browser inference via WebLLM/Gemini Nano — proves model-agnostic, no vendor in loop; (B) Claude Code via existing `@jonasneves/mcp-webrtc-bridge` — works today; (C) Claude.ai/Desktop via bridge-tab + Anthropic Chrome extension — the headline pattern. Ship A and B for v0.1; C lands when bridge-tab does. Once A and B run, the repo is ready to flip public.
 5. **Migrate confer canvas to consume bridge-tab.** First real downstream user.
 6. **Watch standardization paths.** Don't pre-commit. Decide between SEP / W3C-CG / informal RFC once there are real implementers asking for it.
