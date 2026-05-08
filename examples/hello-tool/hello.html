@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hello-tool · mcp-rtc</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f5f7; --ink: #1d1d1f; --ink-muted: #6e6e73;
+    --surface: #fff; --border: rgba(0,0,0,0.10); --accent: #006d51;
+    --code-bg: rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1a1d20; --ink: #e9ecef; --ink-muted: #adb5bd;
+            --surface: #262a2e; --border: rgba(255,255,255,0.10);
+            --accent: #66b288; --code-bg: rgba(255,255,255,0.08); }
+  }
+  body { background: var(--bg); color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, sans-serif;
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+    background: var(--surface); }
+  header h1 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-muted); font-weight: 500; margin: 0; }
+  .copy-prompt { font: inherit; font-size: 12px; padding: 0.3rem 0.65rem;
+    border-radius: 6px; background: var(--code-bg); color: inherit;
+    border: 1px solid var(--border); cursor: copy;
+    transition: color 0.15s, border-color 0.15s; text-align: left; line-height: 1.3; }
+  .copy-prompt:hover { color: var(--ink); border-color: var(--accent); }
+  .copy-prompt.copied { color: var(--accent); border-color: var(--accent); }
+  .copy-prompt.copied::after { content: ' ✓'; }
+  .copy-prompt b { font-weight: 600; margin-right: 0.4rem; opacity: 0.7; }
+  #status { color: var(--ink-muted); font-size: 12px; margin-left: auto; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 0.375rem; vertical-align: middle; }
+  .dot.idle { background: #999; opacity: 0.4; }
+  .dot.ok   { background: var(--accent); }
+  main { flex: 1; min-height: 0; padding: 1rem; overflow-y: auto; }
+  .card { background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.25rem; max-width: 560px;
+    margin: 1rem auto; }
+  .card h2 { margin: 0 0 0.5rem; font-size: 14px; }
+  .card p { margin: 0.5rem 0; color: var(--ink-muted); font-size: 13px; }
+  .card code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 12px; }
+  #log { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+    background: var(--code-bg); border-radius: 6px; padding: 0.5rem 0.75rem;
+    max-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
+  #log .ts { color: var(--ink-muted); margin-right: 0.5rem; }
+  #log .row { padding: 0.1rem 0; }
+  #log .row.in  { color: var(--accent); }
+  #log .row.out { color: var(--ink); }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "@jonasneves/mcp-rtc": "../../packages/transport/src/index.mjs",
+    "zod":         "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
+    "zod/v4":      "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
+    "zod/v3":      "https://esm.sh/zod@4.4.3/v3",
+    "zod/v4-mini": "https://esm.sh/zod@4.4.3/v4-mini"
+  }
+}
+</script>
+</head>
+<body>
+  <header>
+    <h1>hello-tool</h1>
+    <button id="cmd" class="copy-prompt" type="button">
+      <b>tell Claude:</b><span id="cmd-text">…</span>
+    </button>
+    <span id="status"><span class="dot idle"></span><span id="status-text">starting…</span></span>
+  </header>
+  <main>
+    <div class="card">
+      <h2>This tab is an MCP server.</h2>
+      <p>It exposes one tool, <code>get_greeting</code>, that returns a fresh
+        greeting with a random adjective + noun. Any AI on the other end of
+        the <code>mcp-rtc</code> protocol can call it.</p>
+      <p>Three ways to consume — see the <a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/hello-tool/README.md">README</a>.</p>
+      <div id="log" aria-live="polite"></div>
+    </div>
+  </main>
+
+<script type="module">
+import { McpServer } from 'https://esm.sh/@modelcontextprotocol/sdk@1.29.0/server/mcp?external=zod&deps=zod@4.4.3';
+import * as z from 'zod/v4';
+import { WebRTCServerTransport } from '@jonasneves/mcp-rtc';
+
+// ── site id ─────────────────────────────────────────────────────
+const url = new URL(location);
+let SITE = url.searchParams.get('site');
+if (!SITE) {
+  SITE = 'hi-' + Math.random().toString(36).slice(2, 8);
+  url.searchParams.set('site', SITE);
+  history.replaceState({}, '', url);
+}
+
+// ── DOM helpers ─────────────────────────────────────────────────
+const cmdEl = document.getElementById('cmd');
+const cmdTextEl = document.getElementById('cmd-text');
+const statusText = document.getElementById('status-text');
+const dotEl = document.querySelector('#status .dot');
+const logEl = document.getElementById('log');
+
+cmdTextEl.textContent = `connect to ${SITE} and call get_greeting`;
+cmdEl.addEventListener('click', () => {
+  navigator.clipboard.writeText(cmdTextEl.textContent).catch(() => {});
+  cmdEl.classList.add('copied');
+  setTimeout(() => cmdEl.classList.remove('copied'), 1200);
+});
+
+function setStatus(text, kind = 'idle') {
+  statusText.textContent = text;
+  dotEl.className = 'dot ' + kind;
+}
+function logRow(direction, text) {
+  const row = document.createElement('div');
+  row.className = 'row ' + direction;
+  const ts = new Date().toLocaleTimeString();
+  row.innerHTML = `<span class="ts">${ts}</span>${text}`;
+  logEl.appendChild(row);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+// ── tool impl ───────────────────────────────────────────────────
+const ADJECTIVES = ['electric','calm','tiny','vast','curious','sleepy','spry','grumpy','radiant','smooth'];
+const NOUNS      = ['ferret','library','horizon','typewriter','marble','meadow','compass','lantern','postcard','river'];
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+const server = new McpServer({ name: 'hello-tool', version: '0.0.1' });
+server.tool(
+  'get_greeting',
+  'Returns a fresh greeting from this browser tab. Two random words make each call verifiable as having actually reached the tab.',
+  {},
+  async () => {
+    const text = `Hello! The tab says: ${pick(ADJECTIVES)} ${pick(NOUNS)}.`;
+    logRow('out', text);
+    return { content: [{ type: 'text', text }] };
+  }
+);
+
+// ── transport ───────────────────────────────────────────────────
+setStatus('lobby + waiting for client', 'idle');
+const transport = new WebRTCServerTransport({ siteId: SITE });
+await server.connect(transport);
+logRow('in', `server up · siteId=${SITE}`);
+setStatus('listening', 'ok');
+</script>
+</body>
+</html>
