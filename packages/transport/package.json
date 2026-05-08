@@ -4,15 +4,6 @@
   "description": "Reference implementation of the MCP-over-WebRTC transport (see SPEC.md). Implements the @modelcontextprotocol/sdk Transport interface for both server and client, in Node and browser.",
   "type": "module",
   "main": "src/index.mjs",
-  "browser": {
-    "./src/lib/platform.mjs": "./src/lib/platform.browser.mjs"
-  },
-  "exports": {
-    ".": {
-      "browser": "./src/index.mjs",
-      "default": "./src/index.mjs"
-    }
-  },
   "files": [
     "src/",
     "README.md"

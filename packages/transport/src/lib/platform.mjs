@@ -1,33 +1,55 @@
-// Node platform module. Exports the runtime-specific bits the rest of
-// the transport substrate needs:
+// Runtime-agnostic platform module. Exposes the bits the rest of the
+// transport substrate needs (RTCPeerConnection, key-pair storage) and
+// resolves them lazily based on the runtime.
 //
-//   - RTCPeerConnection: from node-datachannel/polyfill
-//   - storage: file-backed JSON read/write at ~/.config/mcp-rtc/peer-key.json
+// Node: RTCPeerConnection from node-datachannel/polyfill; key-pair stored
+//   at ~/.config/mcp-rtc/peer-key.json (override with MCP_RTC_KEY_PATH).
+// Browser: native window.RTCPeerConnection; key-pair stored in
+//   localStorage under 'mcp-rtc:peer-key'.
 //
-// The browser sibling (platform.browser.mjs) exports the same shape using
-// native RTCPeerConnection and localStorage. Bundlers / CDNs substitute the
-// browser file via the package.json "browser" field.
+// Node deps are gated behind `typeof window === 'undefined'` so bundlers
+// targeting browsers eliminate the branch and never try to resolve
+// node:fs / node-datachannel.
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { RTCPeerConnection as NDCRTCPeerConnection } from 'node-datachannel/polyfill';
+const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
-export const RTCPeerConnection = NDCRTCPeerConnection;
+let _RTCPeerConnection;
+let _storage;
 
-const STORAGE_PATH = process.env.MCP_RTC_KEY_PATH || join(homedir(), '.config/mcp-rtc/peer-key.json');
+if (isBrowser) {
+  _RTCPeerConnection = window.RTCPeerConnection;
+  _storage = {
+    async read() {
+      try {
+        const text = window.localStorage.getItem('mcp-rtc:peer-key');
+        return text ? JSON.parse(text) : null;
+      } catch { return null; }
+    },
+    async write(data) {
+      try { window.localStorage.setItem('mcp-rtc:peer-key', JSON.stringify(data)); }
+      catch { /* quota / private mode — best-effort */ }
+    },
+  };
+} else {
+  const { RTCPeerConnection: NDC } = await import('node-datachannel/polyfill');
+  const { readFile, writeFile, mkdir } = await import('node:fs/promises');
+  const { homedir } = await import('node:os');
+  const { join, dirname } = await import('node:path');
+  const STORAGE_PATH = process.env.MCP_RTC_KEY_PATH || join(homedir(), '.config/mcp-rtc/peer-key.json');
+  _RTCPeerConnection = NDC;
+  _storage = {
+    async read() {
+      try { return JSON.parse(await readFile(STORAGE_PATH, 'utf-8')); }
+      catch { return null; }
+    },
+    async write(data) {
+      try {
+        await mkdir(dirname(STORAGE_PATH), { recursive: true });
+        await writeFile(STORAGE_PATH, JSON.stringify(data));
+      } catch { /* best-effort, like browser localStorage */ }
+    },
+  };
+}
 
-export const storage = {
-  async read() {
-    try {
-      const text = await readFile(STORAGE_PATH, 'utf-8');
-      return JSON.parse(text);
-    } catch { return null; }
-  },
-  async write(data) {
-    try {
-      await mkdir(dirname(STORAGE_PATH), { recursive: true });
-      await writeFile(STORAGE_PATH, JSON.stringify(data));
-    } catch { /* best-effort, like browser localStorage */ }
-  },
-};
+export const RTCPeerConnection = _RTCPeerConnection;
+export const storage = _storage;
