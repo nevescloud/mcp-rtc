@@ -55,15 +55,15 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 1. Read this file's "Positioning landscape" section before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
 2. Read `SPEC.md` — the canonical wire-format artifact.
 3. Read `README.md` and the example READMEs for current shape.
-4. Refer to `@jonasneves/mcp-webrtc` (at `~/Github/jonasneves/mcp-webrtc`) as the de-facto reference impl — `mcp-rtc` will vendor or adapt that code as the spec stabilizes.
-5. The bridge-tab pattern hasn't been built anywhere yet. Reference: WebMCP API docs and confer's existing canvas-as-MCP-server logic.
+4. Refer to `@jonasneves/mcp-webrtc` as the de-facto reference impl predating this package; `mcp-rtc` was ported from it and will continue to absorb its consumers as it reaches feature parity.
+5. The bridge-tab pattern hasn't been built anywhere yet. Reference: WebMCP API docs and confer's existing canvas-as-MCP-server logic (in the confer repo, peer-to-peer collaboration product that's the first downstream consumer).
 
 ## What lives elsewhere
 
-- `@jonasneves/mcp-webrtc` at `~/Github/jonasneves/mcp-webrtc` — current reference impl, will be superseded.
+- `@jonasneves/mcp-webrtc` (npm) — current reference impl this package was ported from; will be superseded.
 - `signal.neevs.io` — public lobby; the recommended Layer 2 reference.
-- `pip-relay` at `~/Github/jonasneves/pip-relay` — Layer 2 reference impl (lobby + pair-request).
-- `confer/public/canvas.html` at `~/Github/jonasneves/confer` — the first downstream consumer of `bridge-tab` (when both are built).
+- `@jonasneves/pip-relay` (npm) — Layer 2 reference impl (lobby + pair-request), this package's substrate.
+- confer's `canvas.html` — the first downstream consumer of `bridge-tab` (when both are built).
 
 ## Roadmap
 

@@ -105,7 +105,7 @@ The Host listens for `<app>-request` ads, decides whether to accept, and publish
 
 Both peers connect to the ephemeral room over WebSocket. SDP offers, answers, and ICE candidates are exchanged through the ephemeral room as opaque signaling frames. Once peering completes, the data channel opens and Layer 1 takes over.
 
-The reference implementation uses [pip-relay](https://github.com/jonasneves/pip-relay)'s lobby + pair-request modules for this layer. Other compliant implementations MAY use any equivalent.
+The reference implementation uses the lobby + pair-request modules from [`@jonasneves/pip-relay`](https://www.npmjs.com/package/@jonasneves/pip-relay) for this layer. Other compliant implementations MAY use any equivalent.
 
 ## 8. Layer 3: Identity (pluggable; recommended pattern)
 
@@ -157,5 +157,5 @@ These implementations do not interoperate, primarily because Layer 2 differs acr
 
 Builds on:
 - The [Model Context Protocol](https://github.com/modelcontextprotocol) specification by Anthropic and contributors.
-- [stoa](https://github.com/jonasneves/stoa) / [pip-relay](https://github.com/jonasneves/pip-relay) for the lobby + pair-request signaling pattern.
+- [`@jonasneves/pip-relay`](https://www.npmjs.com/package/@jonasneves/pip-relay) for the lobby + pair-request signaling pattern.
 - Prior MCP-over-WebRTC implementations (see [§ prior art](#prior-art)) for demonstrating the architectural shape works.
