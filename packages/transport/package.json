@@ -4,9 +4,20 @@
   "description": "Reference implementation of the MCP-over-WebRTC transport (see SPEC.md). Implements the @modelcontextprotocol/sdk Transport interface for both server and client, in Node and browser.",
   "type": "module",
   "main": "src/index.mjs",
-  "files": ["src/", "README.md"],
-  "engines": { "node": ">=22" },
-  "keywords": ["mcp", "model-context-protocol", "webrtc", "transport", "p2p"],
+  "files": [
+    "src/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "webrtc",
+    "transport",
+    "p2p"
+  ],
   "author": "Jonas Neves",
   "license": "MIT",
   "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/transport#readme",
@@ -15,7 +26,9 @@
     "url": "git+https://github.com/jonasneves/mcp-rtc.git",
     "directory": "packages/transport"
   },
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "private": true,
   "peerDependencies": {
     "@modelcontextprotocol/sdk": ">=1.0.0"
@@ -24,6 +37,10 @@
     "node-datachannel": "^0.32.3"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
+  },
+  "scripts": {
+    "test:smoke": "node test/smoke.mjs"
   }
 }
