@@ -7,7 +7,7 @@
 [![Try it live](https://img.shields.io/badge/try%20it-live-006d51?logo=github)](http://neves.cloud/mcp-rtc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](./LICENSE)
 
-`@jonasneves/mcp-rtc-bridge-tab` is a browser library that takes a remote MCP server reachable over WebRTC and re-exposes its tools as [WebMCP](https://github.com/webmachinelearning/webmcp) tools in the local tab. Local Claude (Code, Desktop, claude.ai with the [Anthropic Chrome extension](https://www.anthropic.com/)) calls them natively. The transport and spec exist to make that work and to let other implementations interoperate.
+`@jonasneves/mcp-rtc-bridge-tab` is a browser library that takes a remote MCP server reachable over WebRTC and re-exposes its tools as [WebMCP](https://github.com/webmachinelearning/webmcp) tools in the local tab. Any local Claude with a WebMCP consumer attached (Claude.ai / Desktop with the [Anthropic Chrome extension](https://www.anthropic.com/), or Code / Cursor via [hatch](https://github.com/jonasneves/hatch)) calls them natively. The transport and spec exist to make that work and to let other implementations interoperate.
 
 ## Why this exists
 
@@ -18,7 +18,7 @@ Existing MCP transports (stdio, Streamable HTTP) cover the case where the server
 Two short URLs, one machine, one Claude:
 
 1. Open **[neves.cloud/h/](https://neves.cloud/h/)** — the tab becomes an MCP server with one tool, `get_greeting`. Note the `?site=hi-XXXXXX` it generates.
-2. Open **[neves.cloud/b/#site=hi-XXXXXX](https://neves.cloud/b/)** in a tab with the Anthropic Claude Chrome extension installed (Chrome 146+).
+2. Open **[neves.cloud/b/#site=hi-XXXXXX](https://neves.cloud/b/)** in Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).
 3. Ask Claude *"call get_greeting"*. The call routes peer-to-peer over WebRTC.
 
 Two machines work the same way — share the site id with anyone, anywhere. `/h/` and `/b/` are the canonical host and bridge URLs; in-repo [`hello.html`](./examples/hello-tool/hello.html) and [`bridge.html`](./examples/hello-tool/bridge.html) are the same code, kept as forkable examples.

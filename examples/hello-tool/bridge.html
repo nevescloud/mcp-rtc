@@ -205,7 +205,7 @@ function renderBridged({ site, lobby, tools }) {
     <div class="card">
       <h2>Bridge mounted.</h2>
       <p>Connected to <code>${site}</code>${lobby ? ` (lobby: <code>${lobby}</code>)` : ''}.
-        Any local Claude with the Anthropic Chrome extension can now call the tools below.</p>
+        Any local Claude with a WebMCP consumer (e.g. the Anthropic Chrome extension) can now call the tools below.</p>
       ${toolList}
       ${tools.length > 0 ? `<p class="nudge">Try: <em>"call ${tools[0]}"</em>.</p>` : ''}
     </div>
@@ -220,7 +220,7 @@ function renderError(err) {
     <div class="card error">
       <h2>${lacksWebMCP ? 'WebMCP not available in this browser.' : 'Could not bridge.'}</h2>
       <p>${lacksWebMCP
-        ? 'Requires a Chromium-based browser exposing <code>navigator.modelContext</code>. Chrome 146+ with the <a href="https://www.anthropic.com/">Anthropic Claude extension</a> installed is the reference setup.'
+        ? 'Requires a Chromium-based browser exposing <code>navigator.modelContext</code> with a <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> consumer attached. Chrome 146+ with the Anthropic Claude extension is the most common setup; <a href="https://github.com/jonasneves/hatch">hatch</a> works for terminal AIs.'
         : `<code>${msg}</code>`}</p>
     </div>
   `;

@@ -50,11 +50,16 @@ If you have Claude Code locally, add the stdio bridge to `~/.claude/settings.jso
 
 Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since 0.2.0; 0.3.0 added the formatted tool-list response).
 
-### Path C — Claude.ai / Claude Desktop via Anthropic Chrome extension + bridge-tab
+### Path C — Claude.ai / Claude Desktop via WebMCP
 
-The headline pattern. Open **[`https://neves.cloud/b/#site=<site-id>`](https://neves.cloud/b/)** in any browser tab where you have the Anthropic Claude Chrome extension installed (Chrome 146+). The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool in the local tab. Any Claude with the extension (Claude.ai, Claude Desktop, Claude Code with the extension) can then see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
+The headline pattern. Open **[`https://neves.cloud/b/#site=<site-id>`](https://neves.cloud/b/)** in Chrome 146+ in any tab where a [WebMCP](https://github.com/webmachinelearning/webmcp) consumer is attached. The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool via `navigator.modelContext`. Any Claude that the WebMCP consumer surfaces tools to can then see and call `get_greeting` natively — no Node process on the user's machine, no public URL.
 
-**The Anthropic Chrome extension is required only for Path C** (Claude.ai web specifically). Claude.ai talks to its own extension over a private channel; no third-party extension can replace it. Path B is the route for Claude Code / Claude Desktop / Cursor and needs no browser at all.
+**WebMCP consumers in May 2026:**
+- The **Anthropic Claude Chrome extension** is the most common; it surfaces tools to Claude.ai web.
+- **[hatch](https://github.com/jonasneves/hatch)** is another extension that surfaces tools to terminal AIs (Claude Code, Cursor, Claude Desktop) via a local stdio MCP server.
+- Future browsers or other extensions implementing the WebMCP draft also work.
+
+Note: Claude.ai web *specifically* only talks to the Anthropic extension over a private channel — no third-party extension can replace it for that surface. Path B is the route for Claude Code / Cursor / Desktop without WebMCP at all.
 
 `https://neves.cloud/b/` is the canonical short URL for any mcp-rtc bridge — paste any site id in the fragment and the local tab connects. The in-repo [`bridge.html`](./bridge.html) is the same code, kept as a self-contained example for forking or local serving.
 

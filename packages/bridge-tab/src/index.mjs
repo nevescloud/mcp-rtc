@@ -1,12 +1,12 @@
 // @jonasneves/mcp-rtc-bridge-tab — browser-side library that takes a remote
-// MCP server reachable via @jonasneves/mcp-rtc and re-exposes its tools as
-// WebMCP tools in the local tab. Result: any local Claude (Code / Desktop /
-// claude.ai with the Anthropic Chrome extension) can call the remote
-// server's tools — no Node process running on the user's machine, no
-// public URL.
+// MCP server reachable via @jonasneves/mcp-rtc and re-exposes its tools via
+// WebMCP in the local tab. Result: any local Claude that a WebMCP consumer
+// surfaces tools to (Claude.ai / Desktop with the Anthropic Chrome extension,
+// Claude Code / Cursor via hatch, future implementations) can call the remote
+// server's tools — no Node process on the user's machine, no public URL.
 //
 // Requires: a Chromium-based browser with `navigator.modelContext`
-// (W3C-CG WebMCP draft, April 2026 +) and the Anthropic Chrome extension.
+// (W3C-CG WebMCP draft, April 2026 +), and a WebMCP consumer attached.
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { WebRTCClientTransport } from '@jonasneves/mcp-rtc';
@@ -38,8 +38,9 @@ export async function mountBridge({
   if (!siteId) throw new Error('mountBridge: { siteId } is required');
   if (typeof navigator === 'undefined' || !navigator.modelContext) {
     throw new Error('mountBridge: navigator.modelContext is unavailable. ' +
-      'Requires a Chromium-based browser implementing the WebMCP draft (e.g. ' +
-      'Chrome 146+ with the Anthropic extension installed).');
+      'Requires a Chromium-based browser implementing the WebMCP draft ' +
+      '(e.g. Chrome 146+) with a WebMCP consumer attached such as the ' +
+      'Anthropic Claude extension or hatch.');
   }
 
   const transport = new WebRTCClientTransport({ siteId, lobbyNamespace });

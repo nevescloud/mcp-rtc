@@ -1,6 +1,6 @@
 # @jonasneves/mcp-rtc-bridge-tab
 
-A browser-side library that takes a remote MCP server reachable via [**mcp-rtc**](../../SPEC.md) and re-exposes its tools as **WebMCP** tools in the local browser tab. Result: any local Claude (Code / Desktop / claude.ai) with the Anthropic Chrome extension can call the remote server's tools — **with no Node process running on the user's machine and no public URL**.
+A browser-side library that takes a remote MCP server reachable via [**mcp-rtc**](../../SPEC.md) and re-exposes its tools as **WebMCP** tools in the local browser tab. Result: any local Claude with a WebMCP consumer attached (Claude.ai / Desktop with the Anthropic Chrome extension, Code / Cursor via [hatch](https://github.com/jonasneves/hatch), or any future implementation) can call the remote server's tools — **with no Node process running on the user's machine and no public URL**.
 
 ## What this is, in one diagram
 
@@ -26,7 +26,7 @@ The standard MCP transports (stdio, Streamable HTTP) require either a local Node
 
 ## Requirements
 
-- Chromium-based browser implementing the W3C-CG WebMCP draft (April 2026 +): `navigator.modelContext.registerTool(...)`. Chrome 146+ with the Anthropic Claude extension is the reference setup.
+- Chromium-based browser implementing the W3C-CG WebMCP draft (April 2026 +): `navigator.modelContext.registerTool(...)`. Chrome 146+ with the Anthropic Claude extension is the most common setup; [hatch](https://github.com/jonasneves/hatch) is another consumer that targets terminal AIs.
 - The remote peer must already be running an `mcp-rtc` server on a known site id.
 
 ## API
