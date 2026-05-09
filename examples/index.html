@@ -43,10 +43,23 @@
   header nav { margin-left: auto; display: flex; gap: 1rem; }
   main { flex: 1; padding: 2rem 1.25rem 3rem; }
   .container { max-width: 720px; margin: 0 auto; }
-  .lede { font-size: 20px; line-height: 1.45; color: var(--ink);
-    margin: 0 0 0.75rem; font-weight: 500; }
+  .hero { text-align: center; padding: 1rem 0 2rem; }
+  .hero .sig { color: var(--accent); display: block; margin: 0 auto 1.25rem;
+    width: 96px; height: 38px; opacity: 0.95; }
+  .hero .sig rect { fill: currentColor; }
+  .hero .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .lede { font-size: 22px; line-height: 1.4; color: var(--ink);
+    margin: 0 0 0.6rem; font-weight: 500; max-width: 540px;
+    margin-left: auto; margin-right: auto; }
   .lede em { font-style: normal; color: var(--accent); }
-  .sub { font-size: 14px; color: var(--ink-muted); margin: 0 0 2rem; }
+  .sub { font-size: 14px; color: var(--ink-muted); margin: 0 auto 2rem;
+    max-width: 540px; line-height: 1.6; }
+  .arch { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11.5px; line-height: 1.6; color: var(--ink-muted);
+    background: var(--code-bg); border-radius: 8px;
+    padding: 1rem 1.25rem; overflow-x: auto; margin: 0.5rem 0 2rem;
+    white-space: pre; }
+  .arch b { color: var(--accent); font-weight: 600; }
   p { color: var(--ink-muted); margin: 0.75rem 0; }
   code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
     background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px;
@@ -120,10 +133,27 @@
 <main>
 <div class="container">
 
-<p class="lede">
-  Turn any browser tab into a <em>Claude-callable MCP server</em>.
-</p>
-<p class="sub">No Node bridge, no install, no public URL. Local Claude (Code / Cursor via stdio MCP, or Claude.ai / Desktop in a browser with a <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> consumer like the Anthropic Claude extension) calls a remote tab's tools natively over a WebRTC data channel.</p>
+<div class="hero">
+  <svg class="sig" viewBox="0 0 60 24" aria-hidden="true">
+    <rect x="2" y="6" width="12" height="12" rx="3"/>
+    <rect x="46" y="6" width="12" height="12" rx="3"/>
+    <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+  </svg>
+  <p class="lede">
+    Turn any browser tab into a <em>Claude-callable MCP server</em>.
+  </p>
+  <p class="sub">No Node bridge, no install, no public URL. The protocol — <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a>↔WebRTC — carries tool calls peer-to-peer between a tab and any local Claude.</p>
+</div>
+
+<pre class="arch">    tab (the MCP server)            <b>mcp-rtc</b>             local Claude
+    ────────────────────         (WebRTC data            ────────────
+    register tools via            channel,
+    @jonasneves/mcp-rtc           peer-to-peer)
+                       │                                ┌─► Claude Code  via stdio bridge
+                       └──────────────────────────────► │   (npx mcp-webrtc-bridge)
+                                                        │
+                                                        └─► Claude.ai    via bridge tab + WebMCP
+                                                            (Chrome 146+ with consumer)</pre>
 
 <h2>Try it · two tabs, one machine</h2>
 
@@ -141,10 +171,11 @@
 </div>
 
 <div class="demo">
-  <h3>Or call it from Claude Code (Path B).</h3>
-  <p>Same <code>hello.html</code>, different consumer. Add to <code>~/.claude/settings.json</code>:</p>
-  <div class="codeblock">
-    <button class="copy-btn" type="button" data-copy="settings-json">copy</button>
+  <h3>Or use Claude Code (Path B). No browser needed.</h3>
+  <ol>
+    <li>Add to <code>~/.claude/settings.json</code> and restart:
+      <div class="codeblock">
+        <button class="copy-btn" type="button" data-copy="settings-json">copy</button>
 <pre id="settings-json">{
   "mcpServers": {
     "mcp-webrtc-bridge": {
@@ -153,8 +184,12 @@
     }
   }
 }</pre>
-  </div>
-  <p>Restart Claude Code. Then paste the <em>tell-Claude</em> prompt from <a href="https://neves.cloud/h/">/h/</a> (or any <code>mcp-rtc</code> host); Claude calls <code>connect</code> with the site id and lists the remote tools. Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>.</p>
+      </div>
+    </li>
+    <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a> and copy the <em>"Paste in Claude Code"</em> prompt — it looks like <code>Connect neves.cloud/b#hi-XXXXXX</code>.</li>
+    <li>Paste it into Claude Code. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</li>
+  </ol>
+  <p>Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>. Same flow for Cursor / Claude Desktop with their MCP-server config.</p>
 </div>
 
 <h2>Other examples · live</h2>
