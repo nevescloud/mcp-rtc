@@ -35,16 +35,20 @@ No API key. No external service. No Anthropic, no OpenAI, no Google. Just protoc
 
 ### Path B — Claude Code via stdio bridge
 
-If you have Claude Code locally, add the existing stdio bridge to `~/.claude/settings.json`:
+If you have Claude Code locally, add the stdio bridge to `~/.claude/settings.json`:
 
 ```json
-{ "mcpServers": { "hello": {
-  "command": "npx",
-  "args": ["-y", "@jonasneves/mcp-webrtc-bridge", "connect", "<paste site id from hello.html>"]
-}}}
+{
+  "mcpServers": {
+    "mcp-webrtc-bridge": {
+      "command": "npx",
+      "args": ["-y", "@jonasneves/mcp-webrtc-bridge"]
+    }
+  }
+}
 ```
 
-Then ask Claude *"use the hello server's get_greeting tool."* The bridge translates Claude Code's stdio MCP traffic to `mcp-rtc` frames over the data channel. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since version 0.2.0).
+Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since 0.2.0; 0.3.0 added the formatted tool-list response).
 
 ### Path C — Claude.ai / Claude Desktop via Anthropic Chrome extension + bridge-tab
 

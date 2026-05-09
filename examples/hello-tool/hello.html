@@ -136,7 +136,7 @@ const statusText = document.getElementById('status-text');
 const dotEl = document.querySelector('#status .dot');
 const logEl = document.getElementById('log');
 
-cmdTextEl.textContent = `Connect neves.cloud/b#${SITE} and call get_greeting`;
+cmdTextEl.textContent = `Connect neves.cloud/b#${SITE}`;
 cmdEl.addEventListener('click', () => {
   navigator.clipboard.writeText(cmdTextEl.textContent).catch(() => {});
   cmdEl.classList.add('copied');
