@@ -17,7 +17,7 @@ Existing MCP transports (stdio, Streamable HTTP) cover the case where the server
 
 Two short URLs, one machine, one Claude:
 
-1. Open **[neves.cloud/h/](https://neves.cloud/h/)** — the tab becomes an MCP server with one tool, `get_greeting`. Note the `?site=hi-XXXXXX` it generates.
+1. Open **[neves.cloud/h/](https://neves.cloud/h/)** — the tab becomes an MCP server with one tool, `get_greeting`. Note the `#hi-XXXXXX` it generates.
 2. Open **[neves.cloud/b/#hi-XXXXXX](https://neves.cloud/b/)** in Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).
 3. Ask Claude *"call get_greeting"*. The call routes peer-to-peer over WebRTC.
 
