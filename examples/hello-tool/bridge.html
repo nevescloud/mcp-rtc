@@ -138,12 +138,18 @@
 <script type="module">
 import { mountBridge } from '@jonasneves/mcp-rtc-bridge-tab';
 
-// Read site id from either ?site= (legacy URL pattern) or #site= (canonical).
+// Read site id. Accepts the canonical bare-fragment form ( /b/#cv-abc12345 ),
+// the legacy param-fragment form ( /b/#site=cv-abc&lobby=ns ), and the
+// legacy query form ( /b/?site=cv-abc ). Bare detected by absence of '='.
 function parseSite() {
-  const fromHash = new URLSearchParams(location.hash.replace(/^#/, '')).get('site');
-  if (fromHash) return { site: fromHash, lobby: new URLSearchParams(location.hash.replace(/^#/, '')).get('lobby') || undefined };
-  const fromQuery = new URLSearchParams(location.search).get('site');
-  return { site: fromQuery, lobby: new URLSearchParams(location.search).get('lobby') || undefined };
+  const hash = location.hash.replace(/^#/, '');
+  if (hash) {
+    if (!hash.includes('=')) return { site: decodeURIComponent(hash), lobby: undefined };
+    const params = new URLSearchParams(hash);
+    return { site: params.get('site'), lobby: params.get('lobby') || undefined };
+  }
+  const params = new URLSearchParams(location.search);
+  return { site: params.get('site'), lobby: params.get('lobby') || undefined };
 }
 
 const main = document.getElementById('main');

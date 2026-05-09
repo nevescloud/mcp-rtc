@@ -132,7 +132,7 @@
   <h3>Browser tab calls another browser tab's tool, via local Claude.</h3>
   <ol>
     <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>?site=hi-XXXXXX</code> the URL generates.</li>
-    <li>Open <a href="https://neves.cloud/b/" target="_blank" rel="noopener"><strong>neves.cloud/b/#site=hi-XXXXXX</strong></a> in a Chrome 146+ tab with a WebMCP consumer (e.g. the Anthropic Claude extension).</li>
+    <li>Open <a href="https://neves.cloud/b/" target="_blank" rel="noopener"><strong>neves.cloud/b/#hi-XXXXXX</strong></a> in a Chrome 146+ tab with a WebMCP consumer (e.g. the Anthropic Claude extension).</li>
     <li>Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</li>
   </ol>
   <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open /h/ →</a>

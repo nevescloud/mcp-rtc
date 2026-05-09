@@ -18,7 +18,7 @@ Existing MCP transports (stdio, Streamable HTTP) cover the case where the server
 Two short URLs, one machine, one Claude:
 
 1. Open **[neves.cloud/h/](https://neves.cloud/h/)** — the tab becomes an MCP server with one tool, `get_greeting`. Note the `?site=hi-XXXXXX` it generates.
-2. Open **[neves.cloud/b/#site=hi-XXXXXX](https://neves.cloud/b/)** in Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).
+2. Open **[neves.cloud/b/#hi-XXXXXX](https://neves.cloud/b/)** in Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).
 3. Ask Claude *"call get_greeting"*. The call routes peer-to-peer over WebRTC.
 
 Two machines work the same way — share the site id with anyone, anywhere. `/h/` and `/b/` are the canonical host and bridge URLs; in-repo [`hello.html`](./examples/hello-tool/hello.html) and [`bridge.html`](./examples/hello-tool/bridge.html) are the same code, kept as forkable examples.

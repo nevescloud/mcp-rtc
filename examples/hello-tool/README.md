@@ -52,7 +52,7 @@ Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hel
 
 ### Path C — Claude.ai / Claude Desktop via WebMCP
 
-The headline pattern. Open **[`https://neves.cloud/b/#site=<site-id>`](https://neves.cloud/b/)** in Chrome 146+ in any tab where a [WebMCP](https://github.com/webmachinelearning/webmcp) consumer is attached. The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool via `navigator.modelContext`. Any Claude that the WebMCP consumer surfaces tools to can then see and call `get_greeting` natively — no Node process on the user's machine, no public URL.
+The headline pattern. Open **[`https://neves.cloud/b/#<site-id>`](https://neves.cloud/b/)** in Chrome 146+ in any tab where a [WebMCP](https://github.com/webmachinelearning/webmcp) consumer is attached. The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool via `navigator.modelContext`. Any Claude that the WebMCP consumer surfaces tools to can then see and call `get_greeting` natively — no Node process on the user's machine, no public URL.
 
 **WebMCP consumers in May 2026:**
 - The **Anthropic Claude Chrome extension** is the most common; it surfaces tools to Claude.ai web.

@@ -156,7 +156,7 @@ const statusText = document.getElementById('status-text');
 const logEl = document.getElementById('log');
 
 document.getElementById('prompt-stdio').textContent = `Connect neves.cloud/b#${SITE}`;
-document.getElementById('prompt-url').textContent = `https://neves.cloud/b/#site=${SITE}`;
+document.getElementById('prompt-url').textContent = `https://neves.cloud/b/#${SITE}`;
 for (const btn of document.querySelectorAll('.codeblock .copy-btn')) {
   btn.addEventListener('click', async () => {
     const target = btn.parentElement.querySelector('pre');
