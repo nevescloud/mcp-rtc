@@ -44,13 +44,11 @@ If you have Claude Code locally, add the existing stdio bridge to `~/.claude/set
 }}}
 ```
 
-Then ask Claude *"use the hello server's get_greeting tool."* The bridge translates Claude Code's stdio MCP traffic to `mcp-rtc` frames over the data channel. Works today against the existing `@jonasneves/mcp-webrtc` impl; will continue to work once `mcp-rtc/packages/transport` ships.
+Then ask Claude *"use the hello server's get_greeting tool."* The bridge translates Claude Code's stdio MCP traffic to `mcp-rtc` frames over the data channel. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since version 0.2.0).
 
 ### Path C — Claude.ai / Claude Desktop via Anthropic Chrome extension + bridge-tab
 
-The headline pattern. Open `examples/hello-tool/bridge.html?site=<site-id>` in any browser tab where you have the Anthropic Chrome extension installed. The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://webmcp.dev/) tool in the local tab. Now any local Claude (Claude.ai, Claude Desktop, Claude Code with the extension) can see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
-
-Lands once `bridge-tab` ships.
+The headline pattern. Open `examples/hello-tool/bridge.html?site=<site-id>` in any browser tab where you have the Anthropic Claude Chrome extension installed (Chrome 146+). The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool in the local tab. Any local Claude (Claude.ai, Claude Desktop, Claude Code with the extension) can then see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
 
 ## Why three paths
 

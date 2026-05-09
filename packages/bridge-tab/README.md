@@ -22,29 +22,43 @@ The standard MCP transports (stdio, Streamable HTTP) require either a local Node
 
 ## Status
 
-**Scaffolded.** Implementation lands after `@jonasneves/mcp-rtc`'s browser-side transport stabilizes.
+**0.1.0.** Single export, single dependency on `@jonasneves/mcp-rtc`. Tested live against `examples/hello-tool/bridge.html` in the spec repo.
 
-## Planned API
+## Requirements
+
+- Chromium-based browser implementing the W3C-CG WebMCP draft (April 2026 +): `navigator.modelContext.registerTool(...)`. Chrome 146+ with the Anthropic Claude extension is the reference setup.
+- The remote peer must already be running an `mcp-rtc` server on a known site id.
+
+## API
 
 ```html
-<!-- somewhere in your page -->
 <script type="module">
   import { mountBridge } from 'https://cdn.jsdelivr.net/npm/@jonasneves/mcp-rtc-bridge-tab@latest/+esm';
 
-  await mountBridge({
-    siteId: 'cv-abc12345',
-    // optional: lobby URL, peer-key options, etc.
+  const bridge = await mountBridge({
+    siteId: 'hi-abc123',
+    // optional:
+    // lobbyNamespace: 'mcp',           // matches the spec recommendation
+    // namePrefix:     'remote_',       // prepend to each registered tool name
+    // clientName:     'my-bridge-tab', // label sent to the remote peer
   });
-  // After this resolves: the remote server's tools are registered in
-  // navigator.modelContext (WebMCP). Local Claude can now call them.
+
+  // After this resolves: every tool the remote server advertises has been
+  // registered with navigator.modelContext. Local Claude (with the
+  // Anthropic Chrome extension) can now see and call them.
+
+  console.log('exposed tools:', bridge.tools);
+
+  // To tear down (closes WebRTC, unregisters tools):
+  // await bridge.unmount();
 </script>
 ```
 
-Or as a standalone page (drop-in):
+The execute handler for each registered WebMCP tool forwards the call over WebRTC via `client.callTool(...)`. MCP and WebMCP share the `{ content: [{ type, text }] }` response shape, so results pass through unchanged.
 
-```
-https://<your-host>/bridge-tab.html?site=cv-abc12345
-```
+## Standalone drop-in
+
+For users who want the bridge without writing any JS, the spec repo ships `examples/hello-tool/bridge.html` — a minimal page that calls `mountBridge` with a `?site=...` URL parameter. Adapt or copy as needed.
 
 ## Companion package
 
