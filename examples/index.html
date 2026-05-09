@@ -3,18 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mcp-rtc</title>
+<title>mcp-rtc — Claude-callable browser tabs</title>
+<meta name="description" content="Turn any browser tab into a Claude-callable MCP server. No Node bridge, no install, no public URL.">
 <style>
   :root {
     color-scheme: light dark;
     --bg: #f5f5f7; --ink: #1d1d1f; --ink-muted: #6e6e73;
     --surface: #fff; --border: rgba(0,0,0,0.10); --accent: #006d51;
+    --accent-soft: rgba(0,109,81,0.08);
     --code-bg: rgba(0,0,0,0.06);
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #1a1d20; --ink: #e9ecef; --ink-muted: #adb5bd;
             --surface: #262a2e; --border: rgba(255,255,255,0.10);
-            --accent: #66b288; --code-bg: rgba(255,255,255,0.08); }
+            --accent: #66b288; --accent-soft: rgba(102,178,136,0.10);
+            --code-bg: rgba(255,255,255,0.08); }
   }
   body { background: var(--bg); color: var(--ink);
     font: 15px/1.55 system-ui, -apple-system, sans-serif;
@@ -27,32 +30,52 @@
   header a { color: var(--ink-muted); text-decoration: none; font-size: 13px; }
   header a:hover { color: var(--ink); }
   header nav { margin-left: auto; display: flex; gap: 1rem; }
-  main { flex: 1; padding: 2rem 1.25rem; }
+  main { flex: 1; padding: 2rem 1.25rem 3rem; }
   .container { max-width: 720px; margin: 0 auto; }
-  .lede { font-size: 18px; line-height: 1.5; color: var(--ink); margin: 0 0 1.5rem; }
+  .lede { font-size: 20px; line-height: 1.45; color: var(--ink);
+    margin: 0 0 0.75rem; font-weight: 500; }
   .lede em { font-style: normal; color: var(--accent); }
+  .sub { font-size: 14px; color: var(--ink-muted); margin: 0 0 2rem; }
   p { color: var(--ink-muted); margin: 0.75rem 0; }
   code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
     background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px;
     font-size: 13px; }
-  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--ink-muted); font-weight: 500; margin: 2rem 0 0.75rem;
-    padding-top: 1rem; border-top: 1px solid var(--border); }
+  pre { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--code-bg); padding: 0.75rem 1rem; border-radius: 6px;
+    overflow-x: auto; font-size: 12px; line-height: 1.5; margin: 0.5rem 0; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-muted); font-weight: 500; margin: 2.5rem 0 0.75rem; }
   .demo { background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 0.75rem 0; }
+  .demo.featured { border-color: var(--accent);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 60%); }
+  .demo.featured .label { display: inline-block; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
+    background: var(--accent-soft); padding: 0.15rem 0.5rem;
+    border-radius: 4px; margin-bottom: 0.4rem; }
   .demo h3 { margin: 0 0 0.5rem; font-size: 16px; }
   .demo p { margin: 0.4rem 0; font-size: 14px; }
-  .demo a.btn { display: inline-block; margin-top: 0.5rem; margin-right: 0.5rem;
+  .demo ol { margin: 0.5rem 0; padding-left: 1.2rem; font-size: 14px;
+    color: var(--ink-muted); }
+  .demo ol li { margin: 0.3rem 0; }
+  .demo a.btn { display: inline-block; margin-top: 0.6rem; margin-right: 0.5rem;
     padding: 0.5rem 1rem; border-radius: 8px; background: var(--accent);
     color: white; text-decoration: none; font-size: 13px; font-weight: 500; }
   .demo a.btn.secondary { background: transparent; color: var(--ink);
     border: 1px solid var(--border); }
   .demo a.btn:hover { opacity: 0.85; }
-  .planned { color: var(--ink-muted); font-size: 13px; }
-  .planned ul { padding-left: 1.2rem; margin: 0.5rem 0; }
-  .planned li { margin: 0.2rem 0; }
+  .demo .req { font-size: 12px; color: var(--ink-muted); margin-top: 0.5rem; }
+  .demo .req strong { color: var(--ink); }
+  .planned-grid { display: grid; gap: 0.5rem; margin: 0.75rem 0; }
+  .planned-row { background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 13px; }
+  .planned-row a { color: var(--ink); text-decoration: none; font-weight: 500; }
+  .planned-row a:hover { color: var(--accent); }
+  .planned-row .desc { color: var(--ink-muted); font-size: 13px; }
   footer { padding: 1.5rem 1.25rem; color: var(--ink-muted); font-size: 12px;
     border-top: 1px solid var(--border); text-align: center; }
+  footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.5rem; }
+  footer a:hover { color: var(--ink); }
 </style>
 </head>
 <body>
@@ -68,60 +91,51 @@
 <div class="container">
 
 <p class="lede">
-  Turn any browser tab into a <em>Claude-callable MCP server</em>. No Node bridge, no install, no public URL.
+  Turn any browser tab into a <em>Claude-callable MCP server</em>.
 </p>
+<p class="sub">No Node bridge, no install, no public URL. Local Claude (Code, Desktop, claude.ai with the Anthropic Chrome extension) calls a remote tab's tools natively, over a WebRTC data channel.</p>
 
-<p>
-  <code>@jonasneves/mcp-rtc-bridge-tab</code> takes a remote MCP server reachable over WebRTC and re-exposes its tools as
-  <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> tools in the local browser tab. Local Claude
-  (Code, Desktop, claude.ai with the Anthropic Chrome extension) can then call them natively. The
-  <a href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">spec</a> and reference transport exist to make
-  that work and let other implementations interoperate.
-</p>
+<h2>Try it · two tabs, one machine</h2>
 
-<h2>Try it — hello-tool</h2>
-
-<div class="demo">
-  <h3>1. Open a browser tab as an MCP server.</h3>
-  <p>Exposes one tool, <code>get_greeting</code>, that returns a greeting with a random
-    adjective + noun (so the call is verifiable as having reached the tab).</p>
+<div class="demo featured">
+  <span class="label">★ headline pattern · Path C</span>
+  <h3>Browser tab calls another browser tab's tool, via local Claude.</h3>
+  <ol>
+    <li>Open <a href="hello-tool/hello.html" target="_blank" rel="noopener"><strong>hello.html</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>?site=hi-XXXXXX</code> the URL generates.</li>
+    <li>Open <a href="hello-tool/bridge.html" target="_blank" rel="noopener"><strong>bridge.html?site=hi-XXXXXX</strong></a> in a tab where you have the Anthropic Claude Chrome extension installed.</li>
+    <li>Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</li>
+  </ol>
   <a class="btn" href="hello-tool/hello.html" target="_blank" rel="noopener">Open hello.html →</a>
+  <a class="btn secondary" href="hello-tool/bridge.html" target="_blank" rel="noopener">Open bridge.html →</a>
+  <p class="req"><strong>Requires:</strong> Chrome 146+ with the Anthropic Claude extension installed.</p>
 </div>
 
 <div class="demo">
-  <h3>2a. Call it from Claude Code (Path B).</h3>
-  <p>Add to <code>~/.claude/settings.json</code>:</p>
-  <p><code>{ "mcpServers": { "hello": { "command": "npx", "args": ["-y",
-    "@jonasneves/mcp-webrtc-bridge", "connect", "&lt;site-id&gt;"] } } }</code></p>
-  <p>Site id appears in <code>hello.html</code>'s URL bar (<code>?site=hi-XXXXXX</code>).
-    Then ask Claude <em>"use the hello server's get_greeting tool."</em></p>
+  <h3>Or call it from Claude Code (Path B).</h3>
+  <p>Same <code>hello.html</code>, different consumer. Add to <code>~/.claude/settings.json</code>:</p>
+<pre>{ "mcpServers": { "hello": { "command": "npx",
+  "args": ["-y", "@jonasneves/mcp-webrtc-bridge",
+           "connect", "&lt;site-id&gt;"] } } }</pre>
+  <p>Then ask Claude <em>"use the hello server's get_greeting tool."</em> Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>.</p>
 </div>
 
-<div class="demo">
-  <h3>2b. Call it from Claude.ai / Claude Desktop (Path C — the headline).</h3>
-  <p>Open the bridge tab — requires <strong>Chrome 146+ with the Anthropic Claude
-    extension installed</strong>. The bridge re-exposes <code>get_greeting</code>
-    via <code>navigator.modelContext</code>; any local Claude can then call it.</p>
-  <a class="btn" href="hello-tool/bridge.html" target="_blank" rel="noopener">Open bridge.html →</a>
-  <a class="btn secondary" href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/hello-tool/README.md" target="_blank" rel="noopener">README</a>
-</div>
-
-<h2>Other examples</h2>
-<div class="planned">
-  <p>Planned — code lands soon, READMEs document the intended shape:</p>
-  <ul>
-    <li><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/phone-as-tools/README.md"><code>phone-as-tools</code></a> — your phone exposes camera, GPS, clipboard to your laptop's Claude.</li>
-    <li><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/hands-and-eyes/README.md"><code>hands-and-eyes</code></a> — remote pair programming where the AI sees your screen.</li>
-    <li><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/shared-dev-env/README.md"><code>shared-dev-env</code></a> — share specific dev-environment tools with a teammate's Claude.</li>
-    <li><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/sensor-mesh/README.md"><code>sensor-mesh</code></a> — many browser tabs as a mesh of MCP servers.</li>
-    <li><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/canvas-peer/README.md"><code>canvas-peer</code></a> — multi-peer shared visual workspace, the original motivating use case.</li>
-  </ul>
+<h2>Other examples · planned</h2>
+<div class="planned-grid">
+  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/phone-as-tools/README.md">phone-as-tools</a> <span class="desc">— your phone exposes camera, GPS, clipboard to your laptop's Claude.</span></div>
+  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/hands-and-eyes/README.md">hands-and-eyes</a> <span class="desc">— remote pair programming where the AI sees your screen.</span></div>
+  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/shared-dev-env/README.md">shared-dev-env</a> <span class="desc">— share specific dev-environment tools with a teammate's Claude.</span></div>
+  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/sensor-mesh/README.md">sensor-mesh</a> <span class="desc">— many browser tabs as a mesh of MCP servers.</span></div>
+  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/canvas-peer/README.md">canvas-peer</a> <span class="desc">— multi-peer shared visual workspace; the original motivating use case.</span></div>
 </div>
 
 </div>
 </main>
 <footer>
-  MIT · <a href="https://github.com/jonasneves/mcp-rtc" style="color: var(--ink-muted);">github.com/jonasneves/mcp-rtc</a>
+  <a href="https://github.com/jonasneves/mcp-rtc">GitHub</a>·
+  <a href="https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab">npm: bridge-tab</a>·
+  <a href="https://www.npmjs.com/package/@jonasneves/mcp-rtc">npm: transport</a>·
+  <a href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>·
+  MIT
 </footer>
 </body>
 </html>

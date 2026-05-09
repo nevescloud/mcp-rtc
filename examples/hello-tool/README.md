@@ -4,7 +4,7 @@ A browser tab as a minimal MCP server. The page exposes one tool, `get_greeting`
 
 This is the **smallest demo of mcp-rtc + AI**: one tool, three ways to call it, one is fully self-contained with no external service of any kind.
 
-**Status:** placeholder. Will land alongside `bridge-tab`.
+**Status:** Path B and Path C are live (try them at [neves.cloud/mcp-rtc](http://neves.cloud/mcp-rtc/)). Path A (in-browser inference) is the deferred path.
 
 ## What the tab exposes
 
@@ -61,3 +61,7 @@ If you only read one path, read A. If you only run one path, run B. If you want 
 ## Why this matters
 
 Centralized MCP transports (stdio, Streamable HTTP) tie the server to either a process on the asker's machine or a publicly-reachable backend. mcp-rtc plus a browser tab as the server lifts both constraints. *And* the protocol stays neutral about who's on the other end — Claude, an in-browser open-weights model, a future agent we haven't seen yet. The hello-tool demo proves all three can call the same server over the same wire, with no per-AI customization on the server side.
+
+## Iterating on the substrate locally
+
+`hello.html` and `bridge.html` import `@jonasneves/mcp-rtc` and `@jonasneves/mcp-rtc-bridge-tab` from `esm.sh` so the same files work both via the live URL and any local `python3 -m http.server`. If you're hacking on the transport or bridge-tab source itself, that means changes don't show up in the browser until you publish a new version. For source-level iteration without publishing, use [`packages/transport/test/smoke.mjs`](../../packages/transport/test/smoke.mjs) and [`test-client.mjs`](./test-client.mjs) — both import from the local repo paths directly.
