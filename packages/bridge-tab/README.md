@@ -58,7 +58,7 @@ The execute handler for each registered WebMCP tool forwards the call over WebRT
 
 ## Standalone drop-in
 
-For users who want the bridge without writing any JS, the spec repo ships `examples/hello-tool/bridge.html` — a minimal page that calls `mountBridge` with a `?site=...` URL parameter. Adapt or copy as needed.
+For users who want the bridge without writing any JS, the spec repo ships `examples/hello-tool/bridge.html` — a minimal page that calls `mountBridge` with the site id read from the URL fragment (`/bridge.html#cv-abc12345`). Adapt or copy as needed.
 
 ## Companion package
 

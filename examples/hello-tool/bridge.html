@@ -138,18 +138,10 @@
 <script type="module">
 import { mountBridge } from '@jonasneves/mcp-rtc-bridge-tab';
 
-// Read site id. Accepts the canonical bare-fragment form ( /b/#cv-abc12345 ),
-// the legacy param-fragment form ( /b/#site=cv-abc&lobby=ns ), and the
-// legacy query form ( /b/?site=cv-abc ). Bare detected by absence of '='.
+// Site id is the bare URL fragment ( /b/#cv-abc12345 ).
 function parseSite() {
   const hash = location.hash.replace(/^#/, '');
-  if (hash) {
-    if (!hash.includes('=')) return { site: decodeURIComponent(hash), lobby: undefined };
-    const params = new URLSearchParams(hash);
-    return { site: params.get('site'), lobby: params.get('lobby') || undefined };
-  }
-  const params = new URLSearchParams(location.search);
-  return { site: params.get('site'), lobby: params.get('lobby') || undefined };
+  return { site: hash ? decodeURIComponent(hash) : null };
 }
 
 const main = document.getElementById('main');
@@ -173,7 +165,7 @@ function renderEmpty() {
       <rect x="46" y="6" width="12" height="12" rx="3"/>
       <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
     </svg>
-    <p class="empty-cta">No site id in URL. Open <a href="https://neves.cloud/b/">neves.cloud/b/</a> for the full paste-and-bridge UI,<br>or hit this page with <code>?site=hi-XXXXXX</code>.</p>
+    <p class="empty-cta">No site id in URL. Open <a href="https://neves.cloud/b/">neves.cloud/b/</a> for the full paste-and-bridge UI,<br>or hit this page with <code>#hi-XXXXXX</code>.</p>
   `;
 }
 
@@ -201,7 +193,7 @@ function showConnecting(site) {
   }, 2500);
 }
 
-function renderBridged({ site, lobby, tools }) {
+function renderBridged({ site, tools }) {
   setStatus(`bridged · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'bridged');
   const toolList = tools.length === 0
     ? '<p>(remote peer advertises no tools)</p>'
@@ -210,7 +202,7 @@ function renderBridged({ site, lobby, tools }) {
   main.innerHTML = `
     <div class="card">
       <h2>Bridge mounted.</h2>
-      <p>Connected to <code>${site}</code>${lobby ? ` (lobby: <code>${lobby}</code>)` : ''}.
+      <p>Connected to <code>${site}</code>.
         Any local Claude with a WebMCP consumer (e.g. the Anthropic Chrome extension) can now call the tools below.</p>
       ${toolList}
       ${tools.length > 0 ? `<p class="nudge">Try: <em>"call ${tools[0]}"</em>.</p>` : ''}
@@ -232,13 +224,13 @@ function renderError(err) {
   `;
 }
 
-const { site, lobby } = parseSite();
+const { site } = parseSite();
 if (site) {
   const knockTimer = showConnecting(site);
   try {
-    const bridge = await mountBridge({ siteId: site, lobbyNamespace: lobby });
+    const bridge = await mountBridge({ siteId: site });
     clearInterval(knockTimer);
-    renderBridged({ site, lobby, tools: bridge.tools });
+    renderBridged({ site, tools: bridge.tools });
   } catch (err) {
     clearInterval(knockTimer);
     renderError(err);
