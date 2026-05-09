@@ -51,7 +51,7 @@ Implementations interoperate at Layer 1 even when their Layer 2 and Layer 3 diff
 `@nevescloud/mcp-rtc` is the reference implementation. Four packages ride it today:
 
 - `@nevescloud/mcp-rtc-bridge-tab` — the WebMCP↔mcp-rtc browser bridge in this repo.
-- `@nevescloud/mcp-webrtc-bridge` — stdio bridge that lets terminal Claude (Code) reach WebRTC MCP servers.
+- `@nevescloud/mcp-rtc-bridge` — stdio bridge that lets terminal Claude (Code) reach mcp-rtc-hosted MCP servers.
 - `@nevescloud/confer-mcp` — Claude Code joins a [confer](https://github.com/jonasneves/confer) advisory room as a peer.
 - `@nevescloud/confer-agent` — Claude Agent SDK joins a confer workspace as a peer.
 

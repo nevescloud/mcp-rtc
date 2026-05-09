@@ -1,0 +1,46 @@
+{
+  "name": "@nevescloud/mcp-rtc-bridge",
+  "version": "0.4.0",
+  "description": "Stdio MCP server that lets Claude Code (or any local MCP client) reach MCP servers hosted on the mcp-rtc mesh. Built on @nevescloud/mcp-rtc. Discovers the remote peer's tools and dynamically forwards them.",
+  "type": "module",
+  "bin": {
+    "mcp-rtc-bridge": "bridge.mjs"
+  },
+  "files": [
+    "bridge.mjs",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "webrtc",
+    "transport",
+    "p2p",
+    "bridge",
+    "claude",
+    "claude-code",
+    "anthropic"
+  ],
+  "author": "Jonas Neves",
+  "license": "MIT",
+  "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/bridge#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonasneves/mcp-rtc.git",
+    "directory": "packages/bridge"
+  },
+  "bugs": {
+    "url": "https://github.com/jonasneves/mcp-rtc/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@nevescloud/mcp-rtc": "^0.1.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  }
+}

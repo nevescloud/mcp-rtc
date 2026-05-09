@@ -40,15 +40,15 @@ If you have Claude Code locally, add the stdio bridge to `~/.claude/settings.jso
 ```json
 {
   "mcpServers": {
-    "mcp-webrtc-bridge": {
+    "mcp-rtc-bridge": {
       "command": "npx",
-      "args": ["-y", "@nevescloud/mcp-webrtc-bridge"]
+      "args": ["-y", "@nevescloud/mcp-rtc-bridge"]
     }
   }
 }
 ```
 
-Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@nevescloud/mcp-rtc` (the `@nevescloud/mcp-webrtc-bridge` package is itself built on top of `@nevescloud/mcp-rtc` since 0.2.0; 0.3.0 added the formatted tool-list response).
+Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side.
 
 ### Path C — Claude.ai / Claude Desktop via WebMCP
 

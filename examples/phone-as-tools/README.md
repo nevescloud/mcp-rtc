@@ -23,7 +23,7 @@ Permissions are requested lazily on the first call to each tool. The page surfac
 (your phone)                                      (your laptop)
 ─────────────                                     ─────────────
 Open neves.cloud/p/                               Claude Code (with
-  ↓                                               @nevescloud/mcp-webrtc-bridge)
+  ↓                                               @nevescloud/mcp-rtc-bridge)
 Site id: ph-XXXXXXXX appears                      OR
 in URL bar; copy a "Paste in                      Claude.ai in a Chrome 146+
 Claude Code" prompt or share the                  tab with a WebMCP consumer
