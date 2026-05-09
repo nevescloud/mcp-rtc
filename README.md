@@ -18,10 +18,10 @@ Existing MCP transports (stdio, Streamable HTTP) cover the case where the server
 The smallest demo is two browser tabs on one machine, then ask Claude to call a tool:
 
 1. Open **[hello.html](http://neves.cloud/mcp-rtc/hello-tool/hello.html)** — a tab that runs an MCP server with one tool. Note the `?site=hi-XXXXXX` it generates.
-2. Open **[bridge.html?site=hi-XXXXXX](http://neves.cloud/mcp-rtc/hello-tool/bridge.html)** in a tab where the Anthropic Claude Chrome extension is installed (Chrome 146+).
+2. Open **[neves.cloud/c/#site=hi-XXXXXX](https://neves.cloud/c/)** in a tab where the Anthropic Claude Chrome extension is installed (Chrome 146+).
 3. Ask Claude *"call get_greeting"*. The call routes peer-to-peer over WebRTC.
 
-Two machines work the same way — share the site id with anyone, anywhere.
+Two machines work the same way — share the site id with anyone, anywhere. `neves.cloud/c/` is the canonical short URL for the bridge; the in-repo [`bridge.html`](./examples/hello-tool/bridge.html) is the same code, kept as a forkable example.
 
 ## Repo
 

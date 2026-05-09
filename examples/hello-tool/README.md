@@ -48,7 +48,9 @@ Then ask Claude *"use the hello server's get_greeting tool."* The bridge transla
 
 ### Path C — Claude.ai / Claude Desktop via Anthropic Chrome extension + bridge-tab
 
-The headline pattern. Open `examples/hello-tool/bridge.html?site=<site-id>` in any browser tab where you have the Anthropic Claude Chrome extension installed (Chrome 146+). The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool in the local tab. Any local Claude (Claude.ai, Claude Desktop, Claude Code with the extension) can then see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
+The headline pattern. Open **[`https://neves.cloud/c/#site=<site-id>`](https://neves.cloud/c/)** in any browser tab where you have the Anthropic Claude Chrome extension installed (Chrome 146+). The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool in the local tab. Any local Claude (Claude.ai, Claude Desktop, Claude Code with the extension) can then see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
+
+`https://neves.cloud/c/` is the canonical short URL for any mcp-rtc bridge — paste any site id in the fragment and the local tab connects. The in-repo [`bridge.html`](./bridge.html) is the same code, kept as a self-contained example for forking or local serving.
 
 ## Why three paths
 

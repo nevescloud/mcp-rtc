@@ -102,11 +102,11 @@
   <h3>Browser tab calls another browser tab's tool, via local Claude.</h3>
   <ol>
     <li>Open <a href="hello-tool/hello.html" target="_blank" rel="noopener"><strong>hello.html</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>?site=hi-XXXXXX</code> the URL generates.</li>
-    <li>Open <a href="hello-tool/bridge.html" target="_blank" rel="noopener"><strong>bridge.html?site=hi-XXXXXX</strong></a> in a tab where you have the Anthropic Claude Chrome extension installed.</li>
+    <li>Open <a href="https://neves.cloud/c/" target="_blank" rel="noopener"><strong>neves.cloud/c/#site=hi-XXXXXX</strong></a> in a tab where you have the Anthropic Claude Chrome extension installed.</li>
     <li>Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</li>
   </ol>
   <a class="btn" href="hello-tool/hello.html" target="_blank" rel="noopener">Open hello.html →</a>
-  <a class="btn secondary" href="hello-tool/bridge.html" target="_blank" rel="noopener">Open bridge.html →</a>
+  <a class="btn secondary" href="https://neves.cloud/c/" target="_blank" rel="noopener">Open /c/ →</a>
   <p class="req"><strong>Requires:</strong> Chrome 146+ with the Anthropic Claude extension installed.</p>
 </div>
 
