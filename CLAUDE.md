@@ -1,16 +1,19 @@
 # mcp-rtc — repo notes
 
-Wire mapping for **MCP over WebRTC**, plus a browser bridge that exposes a remote MCP-RTC server to local Claude via WebMCP.
+A browser-side library and supporting transport that turn any browser tab into a Claude-callable MCP server over WebRTC, with no Node bridge or public URL.
 
 ## Strategic intent
 
-Standard-track work, not a product. Artifact priority:
+**Library-led work**, not standard-track. The earlier framing ("standard-track work, not a product") was the wrong destination. Three Node MCP-over-WebRTC implementations already exist on npm; the wire mapping is necessary infrastructure but not novel as an idea. Where this project's potential actually lives: `packages/bridge-tab` plus a small number of viral demos. The pattern *"any browser tab is an MCP server callable by any local Claude with no install"* doesn't exist anywhere else as of May 2026, and it unlocks deployment shapes (phone-as-tools, shared-dev-env, hands-and-eyes, sensor-mesh) that weren't previously possible.
 
-1. **`packages/bridge-tab`** — the headline. The novel piece without prior art: a browser tab as WebMCP↔mcp-rtc adapter so any local Claude calls a remote browser-tab MCP server with no install. This is what developers will actually want.
-2. **`SPEC.md`** — the wire-format and connection-lifecycle contract. Tone: dry, precise, RFC-shaped. *Do not* turn it into a marketing document. Necessary infrastructure but not where the novelty lives.
-3. **`packages/transport`** — reference implementation. Proves the spec is implementable; adoption vehicle for users who don't want to write their own.
+Artifact priority:
 
-The repo's audience is MCP and web-platform implementers. Confer (the canvas product) is one downstream consumer; the goal is for there to be others.
+1. **`packages/bridge-tab`** — the load-bearing contribution. Browser tab as WebMCP↔mcp-rtc adapter. The pattern is the project.
+2. **`examples/`** — the proof points. `hello-tool` is the smallest working demo (Path B + Path C live; Path A deferred). Named placeholders for `phone-as-tools`, `shared-dev-env`, `hands-and-eyes`, `sensor-mesh`, `canvas-peer` are the planned proof points along the asymmetric / cross-user / multi-peer axes; each earns its README only when the code exists.
+3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@jonasneves/mcp-rtc` and currently powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-webrtc-bridge`, `confer-mcp`, `confer-agent`).
+4. **`SPEC.md`** — supporting documentation. Tone: dry, precise, RFC-shaped. Exists so a second implementation can talk to the first; doesn't drive adoption on its own. *Do not* turn it into a marketing document.
+
+The repo's audience: developers who want any-tab-to-any-Claude tool exposure with no infrastructure. Confer canvas will be the first migrated consumer of `bridge-tab`; phone-as-tools etc. will demonstrate the broader use cases. Standardization (SEP, W3C-CG, informal RFC) is downstream of adoption — don't pre-commit; the library is what people will actually use.
 
 ## Positioning landscape (don't relitigate)
 
@@ -45,31 +48,32 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 
 ## Relationship to existing packages
 
-`@jonasneves/mcp-webrtc` (existing) shipped first as a reference impl with confer-specific naming. It still works and has consumers (`@jonasneves/confer-mcp`, `@jonasneves/confer-agent`, `@jonasneves/mcp-webrtc-bridge`). When `@jonasneves/mcp-rtc` reaches feature parity:
-- Migrate confer's consumers to `@jonasneves/mcp-rtc`.
-- Deprecate `@jonasneves/mcp-webrtc` to point at `mcp-rtc`.
-- Keep `@jonasneves/mcp-webrtc-bridge` (the stdio→WebRTC bridge for terminal Claude) — its name is fine and its purpose is distinct from `bridge-tab`.
+`@jonasneves/mcp-webrtc` shipped first (confer-specific naming). All three of its consumers — `@jonasneves/confer-mcp@0.4.0`, `@jonasneves/confer-agent@0.3.0`, `@jonasneves/mcp-webrtc-bridge@0.2.0` — have been migrated to depend on `@jonasneves/mcp-rtc@0.1.0`. `@jonasneves/mcp-webrtc` remains published for any external consumers but new work happens on top of `mcp-rtc`. Eventual deprecation of `mcp-webrtc` (point at `mcp-rtc` in its README) is reasonable but not urgent. `@jonasneves/mcp-webrtc-bridge` keeps its name — it's the stdio→WebRTC bridge for terminal Claude (Path B), a distinct purpose from the browser `bridge-tab` (Path C).
 
 ## How a fresh session should pick up
 
-1. Read this file's "Positioning landscape" section before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
-2. Read `SPEC.md` — the canonical wire-format artifact.
-3. Read `README.md` and the example READMEs for current shape.
-4. Refer to `@jonasneves/mcp-webrtc` as the de-facto reference impl predating this package; `mcp-rtc` was ported from it and will continue to absorb its consumers as it reaches feature parity.
-5. The bridge-tab pattern hasn't been built anywhere yet. Reference: WebMCP API docs and confer's existing canvas-as-MCP-server logic (in the confer repo, peer-to-peer collaboration product that's the first downstream consumer).
+1. Read this file's "Strategic intent" and "Positioning landscape" sections before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
+2. Read `README.md` for the current public shape.
+3. Read `examples/hello-tool/README.md` to see what end-to-end looks like; open `hello.html` and `bridge.html` to see the actual implementations of the headline pattern.
+4. `SPEC.md` is the wire-format contract — read it when changing the wire, not before.
+5. `packages/bridge-tab/src/index.mjs` is small (~30 LOC of real code) and is the project's load-bearing artifact. Read it to internalize how the WebMCP↔mcp-rtc adapter works.
 
 ## What lives elsewhere
 
-- `@jonasneves/mcp-webrtc` (npm) — current reference impl this package was ported from; will be superseded.
+- `@jonasneves/mcp-webrtc` (npm) — predecessor reference impl this package was ported from. Superseded; remains published for any external consumers.
 - `signal.neevs.io` — public lobby; the recommended Layer 2 reference.
 - `@jonasneves/pip-relay` (npm) — Layer 2 reference impl (lobby + pair-request), this package's substrate.
-- confer's `canvas.html` — the first downstream consumer of `bridge-tab` (when both are built).
+- confer's `canvas.html` — multi-peer canvas product; planned first migrated consumer of `bridge-tab` (currently hand-rolls an equivalent surface).
 
 ## Roadmap
 
-1. **Stabilize the spec.** Get SPEC.md to a draft someone outside the project could read and implement from. Iterate based on review.
-2. **Implement `packages/bridge-tab` first** *(reordered — this is the headline)*. Browser-side library. Drop-in: a script tag plus a small init call, get a tab that re-exposes a remote mcp-rtc server's tools as WebMCP tools. This is the piece that gives the repo its claim.
-3. **Implement `packages/transport`.** Vendor / port from `@jonasneves/mcp-webrtc`, clean up, align with spec. Both Node and browser entry points. (bridge-tab depends on the browser entry point.)
-4. **Build `examples/hello-tool`.** Browser tab as MCP server with one tool, three consumption paths: (A) in-browser inference via WebLLM/Gemini Nano — proves model-agnostic, no vendor in loop; (B) Claude Code via existing `@jonasneves/mcp-webrtc-bridge` — works today; (C) Claude.ai/Desktop via bridge-tab + Anthropic Chrome extension — the headline pattern. Ship A and B for v0.1; C lands when bridge-tab does. Once A and B run, the repo is ready to flip public.
-5. **Migrate confer canvas to consume bridge-tab.** First real downstream user.
-6. **Watch standardization paths.** Don't pre-commit. Decide between SEP / W3C-CG / informal RFC once there are real implementers asking for it.
+Library-led order: ship demos and consumers; let the spec catch up.
+
+1. **Build `examples/phone-as-tools`** (or whichever asymmetric-capability demo lands first). The visceral demo — open a page on your phone, your laptop's Claude calls `take_photo` / `get_location` / `read_clipboard`. If even one example becomes a viral demo or someone's daily tool, the project compounds. Each example earns its README only when the code exists.
+2. **Migrate confer's `canvas.html` to consume `bridge-tab`.** Replaces the hand-rolled WebMCP-equivalent in canvas with `@jonasneves/mcp-rtc-bridge-tab`. Validates the library against a real multi-peer consumer and gives canvas a proper second implementation.
+3. **Ship a second demo on a different axis.** `shared-dev-env` (cross-user) or `hands-and-eyes` (asymmetric + cross-user). Two distinct demos cover the use-case story far better than one.
+4. **Path A (deferred) for `hello-tool`** — in-browser inference. Makes the model-agnostic claim verifiable rather than theoretical. Tool calling at sub-1B parameters is fragile in 2026; revisit once the substrate is more battle-tested.
+5. **Stabilize the spec.** Once the library has been exercised by 2–3 distinct demos and one external consumer, fold lessons learned back into SPEC.md. The spec absorbs reality, doesn't dictate it.
+6. **Watch standardization paths.** Don't pre-commit. SEP / W3C-CG / informal RFC are options once there are real outside implementers asking for the contract.
+
+Already shipped (for context): `packages/transport@0.1.0`, `packages/bridge-tab@0.1.0`, `examples/hello-tool` with hello.html + bridge.html + Node test client. Three downstream consumers (`mcp-webrtc-bridge`, `confer-mcp`, `confer-agent`) migrated to depend on `@jonasneves/mcp-rtc`.
