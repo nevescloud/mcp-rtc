@@ -65,12 +65,31 @@
   .lede em { font-style: normal; color: var(--accent); }
   .sub { font-size: 14px; color: var(--ink-muted); margin: 0 auto 2rem;
     max-width: 540px; line-height: 1.6; }
-  .arch { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 11.5px; line-height: 1.6; color: var(--ink-muted);
-    background: var(--code-bg); border-radius: 8px;
-    padding: 1rem 1.25rem; overflow-x: auto; margin: 0.5rem 0 2rem;
-    white-space: pre; }
-  .arch b { color: var(--accent); font-weight: 600; }
+  .arch { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center; gap: 0.55rem;
+    margin: 0.5rem 0 2rem;
+    animation: fade-up 0.5s var(--ease) both; }
+  .arch-card { background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 8px; padding: 0.65rem 0.85rem; line-height: 1.4; }
+  .arch-card strong { display: block; color: var(--ink);
+    font-size: 14px; font-weight: 600; margin-bottom: 0.2rem; }
+  .arch-sub { display: block; color: var(--ink-muted); font-size: 12px; }
+  .arch-meta { display: inline-block; margin-top: 0.35rem;
+    font-size: 11px; padding: 0.05rem 0.35rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--code-bg); border-radius: 3px; color: var(--ink-muted); }
+  .arch-meta-text { display: block; margin-top: 0.25rem;
+    font-size: 11px; color: var(--ink-faint); }
+  .arch-substrate { border-color: var(--accent); background: var(--accent-soft); }
+  .arch-substrate strong { color: var(--accent); }
+  .arch-link { color: var(--ink-faint); font-size: 20px;
+    line-height: 1; text-align: center; }
+  .arch-targets { display: grid; gap: 0.45rem; }
+  @media (max-width: 600px) {
+    .arch { grid-template-columns: 1fr; gap: 0.4rem; }
+    .arch-link { transform: rotate(90deg); justify-self: center;
+      padding: 0.15rem 0; }
+  }
   p { color: var(--ink-muted); margin: 0.75rem 0; }
   code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
     background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px;
@@ -164,18 +183,34 @@
   <p class="lede">
     Turn any browser tab into a <em>Claude-callable MCP server</em>.
   </p>
-  <p class="sub">No Node bridge, no install, no public URL. The protocol — <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a>↔WebRTC — carries tool calls peer-to-peer between a tab and any local Claude.</p>
+  <p class="sub">No Node bridge, no install, no public URL. The protocol carries tool calls peer-to-peer between a tab and any local Claude — over <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> and WebRTC.</p>
 </div>
 
-<pre class="arch">    tab (the MCP server)            <b>mcp-rtc</b>             local Claude
-    ────────────────────         (WebRTC data            ────────────
-    register tools via            channel,
-    @nevescloud/mcp-rtc           peer-to-peer)
-                       │                                ┌─► Claude Code  via stdio bridge
-                       └──────────────────────────────► │   (npx @nevescloud/mcp-webrtc-bridge)
-                                                        │
-                                                        └─► Claude.ai    via bridge tab + WebMCP
-                                                            (Chrome 146+ with consumer)</pre>
+<div class="arch">
+  <div class="arch-card">
+    <strong>Tab</strong>
+    <span class="arch-sub">The MCP server.</span>
+    <code class="arch-meta">@nevescloud/mcp-rtc</code>
+  </div>
+  <span class="arch-link" aria-hidden="true">→</span>
+  <div class="arch-card arch-substrate">
+    <strong>mcp-rtc</strong>
+    <span class="arch-sub">WebRTC data channel, peer-to-peer.</span>
+  </div>
+  <span class="arch-link" aria-hidden="true">→</span>
+  <div class="arch-targets">
+    <div class="arch-card">
+      <strong>Claude Code</strong>
+      <span class="arch-sub">via stdio bridge</span>
+      <code class="arch-meta">npx @nevescloud/mcp-webrtc-bridge</code>
+    </div>
+    <div class="arch-card">
+      <strong>Claude.ai</strong>
+      <span class="arch-sub">via bridge tab + WebMCP</span>
+      <span class="arch-meta-text">Chrome 146+ with consumer</span>
+    </div>
+  </div>
+</div>
 
 <h2>Try it</h2>
 
