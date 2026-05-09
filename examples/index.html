@@ -13,6 +13,7 @@
     --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
     --accent: #00539B; --accent-strong: #012169; --accent-soft: rgba(0,83,155,0.10);
     --code-bg: rgba(0,0,0,0.06);
+    --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #1a1d20; --surface: #262a2e;
@@ -23,6 +24,14 @@
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   [hidden] { display: none !important; }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes wave-shimmer {
+    0%, 100% { opacity: 0.95; }
+    50%      { opacity: 0.55; }
+  }
   body { background: var(--bg); color: var(--ink);
     font: 15px/1.55 system-ui, -apple-system, sans-serif;
     min-height: 100vh; display: flex; flex-direction: column;
@@ -43,11 +52,13 @@
   header nav { margin-left: auto; display: flex; gap: 1rem; }
   main { flex: 1; padding: 2rem 1.25rem 3rem; }
   .container { max-width: 720px; margin: 0 auto; }
-  .hero { text-align: center; padding: 1rem 0 2rem; }
+  .hero { text-align: center; padding: 1rem 0 2rem;
+    animation: fade-up 0.5s var(--ease) both; }
   .hero .sig { color: var(--accent); display: block; margin: 0 auto 1.25rem;
     width: 96px; height: 38px; opacity: 0.95; }
   .hero .sig rect { fill: currentColor; }
-  .hero .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .hero .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round;
+    animation: wave-shimmer 4s var(--ease) infinite; }
   .lede { font-size: 22px; line-height: 1.4; color: var(--ink);
     margin: 0 0 0.6rem; font-weight: 500; max-width: 540px;
     margin-left: auto; margin-right: auto; }
@@ -82,7 +93,11 @@
   h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
     color: var(--ink-muted); font-weight: 500; margin: 2.5rem 0 0.75rem; }
   .demo { background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 0.75rem 0; }
+    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 0.75rem 0;
+    animation: fade-up 0.5s 0.1s var(--ease) both;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+  .demo:hover { transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
   .demo.featured { border-color: var(--accent);
     background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 60%); }
   .demo.featured .label { display: inline-block; font-size: 10px;
@@ -102,12 +117,19 @@
   .demo a.btn:hover { opacity: 0.85; }
   .demo .req { font-size: 12px; color: var(--ink-muted); margin-top: 0.5rem; }
   .demo .req strong { color: var(--ink); }
-  .planned-grid { display: grid; gap: 0.5rem; margin: 0.75rem 0; }
+  .planned-grid { display: grid; gap: 0.5rem; margin: 0.75rem 0;
+    animation: fade-up 0.5s 0.18s var(--ease) both; }
   .planned-row { background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 13px; }
+    border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 13px;
+    transition: border-color 0.2s, transform 0.2s; }
+  .planned-row:hover { border-color: var(--accent); transform: translateY(-1px); }
   .planned-row a { color: var(--ink); text-decoration: none; font-weight: 500; }
   .planned-row a:hover { color: var(--accent); }
   .planned-row .desc { color: var(--ink-muted); font-size: 13px; }
+  .topics { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.6rem; }
+  .topic { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 500; padding: 0.15rem 0.5rem; border-radius: 4px;
+    background: var(--accent-soft); color: var(--accent); }
   footer { padding: 1.5rem 1.25rem; color: var(--ink-muted); font-size: 12px;
     border-top: 1px solid var(--border); text-align: center; }
   footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.5rem; }
@@ -168,6 +190,12 @@
   <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open /h/ →</a>
   <a class="btn secondary" href="https://neves.cloud/b/" target="_blank" rel="noopener">Open /b/ →</a>
   <p class="req"><strong>Requires:</strong> Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension). Only for this path — Path B below uses no browser.</p>
+  <div class="topics">
+    <span class="topic">webmcp</span>
+    <span class="topic">webrtc</span>
+    <span class="topic">bridge-tab</span>
+    <span class="topic">no-install</span>
+  </div>
 </div>
 
 <div class="demo">
@@ -190,6 +218,11 @@
     <li>Paste it into Claude Code. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</li>
   </ol>
   <p>Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>. Same flow for Cursor / Claude Desktop with their MCP-server config.</p>
+  <div class="topics">
+    <span class="topic">stdio mcp</span>
+    <span class="topic">claude code</span>
+    <span class="topic">no browser</span>
+  </div>
 </div>
 
 <h2>Other examples · live</h2>
