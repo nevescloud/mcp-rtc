@@ -8,27 +8,38 @@
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f5f5f7; --ink: #1d1d1f; --ink-muted: #6e6e73;
-    --surface: #fff; --border: rgba(0,0,0,0.10); --accent: #006d51;
-    --accent-soft: rgba(0,109,81,0.08);
+    --bg: #f5f5f7; --surface: #fff;
+    --ink: #1d1d1f; --ink-muted: #6e6e73; --ink-faint: #8e8e93;
+    --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
+    --accent: #00539B; --accent-strong: #012169; --accent-soft: rgba(0,83,155,0.10);
     --code-bg: rgba(0,0,0,0.06);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #1a1d20; --ink: #e9ecef; --ink-muted: #adb5bd;
-            --surface: #262a2e; --border: rgba(255,255,255,0.10);
-            --accent: #66b288; --accent-soft: rgba(102,178,136,0.10);
+    :root { --bg: #1a1d20; --surface: #262a2e;
+            --ink: #e9ecef; --ink-muted: #adb5bd; --ink-faint: #6e757c;
+            --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
+            --accent: #4daff6; --accent-strong: #6cc1ff; --accent-soft: rgba(77,175,246,0.14);
             --code-bg: rgba(255,255,255,0.08); }
   }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   body { background: var(--bg); color: var(--ink);
     font: 15px/1.55 system-ui, -apple-system, sans-serif;
-    margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-  header { padding: 0.6rem 1.25rem; border-bottom: 1px solid var(--border);
-    display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap;
+    min-height: 100vh; display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased; }
+  header { padding: 0.65rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
     background: var(--surface); }
-  header h1 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--ink-muted); font-weight: 500; margin: 0; }
-  header a { color: var(--ink-muted); text-decoration: none; font-size: 13px; }
-  header a:hover { color: var(--ink); }
+  .brand { display: flex; align-items: center; gap: 0.55rem;
+    color: var(--accent); text-decoration: none; }
+  .brand .sig rect { fill: currentColor; }
+  .brand .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  .wordmark .mcp { color: var(--accent); }
+  .wordmark .sep { color: var(--ink-faint); margin: 0 0.1em; font-weight: 400; }
+  .wordmark .rtc { color: var(--ink); opacity: 0.85; }
+  header a.nav-link { color: var(--ink-muted); text-decoration: none; font-size: 13px; }
+  header a.nav-link:hover { color: var(--ink); }
   header nav { margin-left: auto; display: flex; gap: 1rem; }
   main { flex: 1; padding: 2rem 1.25rem 3rem; }
   .container { max-width: 720px; margin: 0 auto; }
@@ -80,11 +91,18 @@
 </head>
 <body>
 <header>
-  <h1>mcp-rtc</h1>
+  <a class="brand" href="https://neves.cloud/mcp-rtc/">
+    <svg class="sig" width="48" height="20" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <span class="wordmark"><span class="mcp">mcp</span><span class="sep">·</span><span class="rtc">rtc</span></span>
+  </a>
   <nav>
-    <a href="https://github.com/jonasneves/mcp-rtc">GitHub</a>
-    <a href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>
-    <a href="https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab">npm</a>
+    <a class="nav-link" href="https://github.com/jonasneves/mcp-rtc">GitHub</a>
+    <a class="nav-link" href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>
+    <a class="nav-link" href="https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab">npm</a>
   </nav>
 </header>
 <main>
@@ -101,13 +119,13 @@
   <span class="label">★ headline pattern · Path C</span>
   <h3>Browser tab calls another browser tab's tool, via local Claude.</h3>
   <ol>
-    <li>Open <a href="hello-tool/hello.html" target="_blank" rel="noopener"><strong>hello.html</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>?site=hi-XXXXXX</code> the URL generates.</li>
-    <li>Open <a href="https://neves.cloud/c/" target="_blank" rel="noopener"><strong>neves.cloud/c/#site=hi-XXXXXX</strong></a> in a tab where you have the Anthropic Claude Chrome extension installed.</li>
+    <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>?site=hi-XXXXXX</code> the URL generates.</li>
+    <li>Open <a href="https://neves.cloud/b/" target="_blank" rel="noopener"><strong>neves.cloud/b/#site=hi-XXXXXX</strong></a> in a tab with the Anthropic Claude Chrome extension installed.</li>
     <li>Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</li>
   </ol>
-  <a class="btn" href="hello-tool/hello.html" target="_blank" rel="noopener">Open hello.html →</a>
-  <a class="btn secondary" href="https://neves.cloud/c/" target="_blank" rel="noopener">Open /c/ →</a>
-  <p class="req"><strong>Requires:</strong> Chrome 146+ with the Anthropic Claude extension installed.</p>
+  <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open /h/ →</a>
+  <a class="btn secondary" href="https://neves.cloud/b/" target="_blank" rel="noopener">Open /b/ →</a>
+  <p class="req"><strong>Requires:</strong> Chrome 146+ with the Anthropic Claude extension installed (only for this path — Path B below uses no browser).</p>
 </div>
 
 <div class="demo">

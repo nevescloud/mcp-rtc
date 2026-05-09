@@ -32,6 +32,19 @@ The agent-protocol field as of 2026-05 is more crowded and more coordinated than
 
 **Pattern to keep in mind:** when shipping in adjacent-to-canonical work, the existing field defines positioning, not your intent. Audit the metaphor stack, naming claims, and standardization tracks before claiming any of them. Restraint signals seriousness.
 
+## WebMCP architecture (don't relitigate)
+
+WebMCP is a two-layer thing, often confused for one:
+
+1. **API surface** — `navigator.modelContext.registerTool(...)`. Chrome 146+ flag enables it; an extension polyfill (hatch does this) covers older Chrome. Pages register tools into a per-tab registry.
+2. **Consumer** — something that reads the registry and exposes it to an AI client. The Anthropic Chrome extension is the consumer for Claude.ai web. Hatch's extension is the consumer for terminal AIs (Code / Cursor) via a local stdio MCP server.
+
+**Claude.ai web only talks to the Anthropic extension over a private channel.** A third-party extension *cannot* expose tools to Claude.ai. The lock is a product decision, not a WebMCP spec property. So Path C ("Claude.ai with Anthropic ext") cannot be made vendor-independent at the WebMCP layer.
+
+**Claude Code / Claude Desktop / Cursor don't use WebMCP at all.** They consume MCP servers via stdio or HTTP. mcp-rtc reaches them via Path B (`@jonasneves/mcp-webrtc-bridge` — stdio MCP server that talks WebRTC). No browser, no extension on the asker's machine.
+
+**Implication for mcp-rtc:** don't ship our own Chrome extension. The substrate is the spec + libraries (`@jonasneves/mcp-rtc`, `@jonasneves/mcp-rtc-bridge-tab`); the *consumer* extensions are someone else's job — Anthropic's for Claude.ai, hatch's for terminal AIs, future others. mcp-rtc gets stronger when more extensions consume `bridge-tab`, not when it ships its own.
+
 ## Naming discipline
 
 - **Spec** is named for the protocol pair: "MCP over WebRTC". Keep RFC-shaped vocabulary.

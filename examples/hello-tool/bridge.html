@@ -4,56 +4,105 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>bridge · mcp-rtc</title>
+<meta name="description" content="In-repo example of the mcp-rtc browser bridge. Same code as neves.cloud/b/, kept as a self-contained file for forking.">
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f5f5f7; --ink: #1d1d1f; --ink-muted: #6e6e73;
-    --surface: #fff; --border: rgba(0,0,0,0.10); --accent: #006d51;
-    --code-bg: rgba(0,0,0,0.06); --warn: #c47c1d; --error: #c4421d;
+    --bg: #f5f5f7; --surface: #fff; --surface-2: #fafafc;
+    --ink: #1d1d1f; --ink-muted: #6e6e73; --ink-faint: #8e8e93;
+    --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
+    --code-bg: rgba(0,0,0,0.06);
+    --accent: #00539B; --accent-strong: #012169; --accent-soft: rgba(0,83,155,0.10); --accent-ink: #fff;
+    --st-idle-fg: #8e8e93;
+    --st-connecting-fg: #C97D14; --st-connecting-bg: rgba(232,153,35,0.12);
+    --st-bridged-fg: #006d51; --st-bridged-bg: rgba(0,109,81,0.10);
+    --st-error-fg: #C84E00; --st-error-bg: rgba(200,78,0,0.08);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #1a1d20; --ink: #e9ecef; --ink-muted: #adb5bd;
-            --surface: #262a2e; --border: rgba(255,255,255,0.10);
-            --accent: #66b288; --code-bg: rgba(255,255,255,0.08);
-            --warn: #e5a04a; --error: #e57057; }
+    :root { --bg: #1a1d20; --surface: #262a2e; --surface-2: #21252a;
+            --ink: #e9ecef; --ink-muted: #adb5bd; --ink-faint: #6e757c;
+            --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
+            --code-bg: rgba(255,255,255,0.08);
+            --accent: #4daff6; --accent-strong: #6cc1ff; --accent-soft: rgba(77,175,246,0.14); --accent-ink: #0e1424;
+            --st-idle-fg: #8e8e93;
+            --st-connecting-fg: #f5b452; --st-connecting-bg: rgba(245,180,82,0.14);
+            --st-bridged-fg: #66b288; --st-bridged-bg: rgba(102,178,136,0.14);
+            --st-error-fg: #e57057; --st-error-bg: rgba(229,112,87,0.14); }
   }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   body { background: var(--bg); color: var(--ink);
-    font: 14px/1.5 system-ui, -apple-system, sans-serif;
-    margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-  header { padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    font: 15px/1.55 system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased; }
+  header { padding: 0.65rem 1.25rem; border-bottom: 1px solid var(--border);
     display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
     background: var(--surface); }
-  header h1 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--ink-muted); font-weight: 500; margin: 0; }
+  .brand { display: flex; align-items: center; gap: 0.55rem;
+    color: var(--accent); text-decoration: none; }
+  .brand .sig rect { fill: currentColor; }
+  .brand .sig path  { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  .wordmark .mcp { color: var(--accent); }
+  .wordmark .sep { color: var(--ink-faint); margin: 0 0.1em; font-weight: 400; }
+  .wordmark .rtc { color: var(--ink); opacity: 0.85; }
+  .pagename { font-size: 12px; color: var(--ink-muted);
+    padding-left: 0.85rem; border-left: 1px solid var(--border); }
   #site-id { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
     background: var(--code-bg); padding: 0.3rem 0.65rem; border-radius: 6px; }
-  #status { color: var(--ink-muted); font-size: 12px; margin-left: auto; }
-  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-    margin-right: 0.375rem; vertical-align: middle; }
-  .dot.idle  { background: #999; opacity: 0.4; }
-  .dot.ok    { background: var(--accent); }
-  .dot.warn  { background: var(--warn); }
-  .dot.error { background: var(--error); }
-  main { flex: 1; min-height: 0; padding: 1rem; overflow-y: auto; }
+  #status { margin-left: auto; display: inline-flex; align-items: center;
+    gap: 0.4rem; font-size: 12px; padding: 0.25rem 0.7rem; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border-soft);
+    color: var(--ink-muted); transition: all 0.2s ease; }
+  #status.idle       { color: var(--st-idle-fg); }
+  #status.connecting { color: var(--st-connecting-fg); background: var(--st-connecting-bg); border-color: transparent; }
+  #status.bridged    { color: var(--st-bridged-fg); background: var(--st-bridged-bg); border-color: transparent; }
+  #status.error      { color: var(--st-error-fg); background: var(--st-error-bg); border-color: transparent; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  #status.connecting .dot { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.7); } }
+  main { flex: 1; padding: 3rem 1.25rem; }
+  .container { max-width: 600px; margin: 0 auto; }
+  .sig { color: var(--accent); margin: 0 auto 1.5rem; display: block; opacity: 0.95; }
+  .sig.lg { width: 96px; height: 38px; }
+  .sig rect { fill: currentColor; }
+  .sig path  { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .sig.connecting path { stroke-dasharray: 4 3; animation: dash 1.4s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -14; } }
+  .knock-stage { text-align: center; padding: 1.5rem 0 1rem; }
+  .knock-text { font-size: 16px; color: var(--st-connecting-fg); font-weight: 500; min-height: 24px; transition: opacity 0.3s ease; }
+  .knock-sub { font-size: 13px; color: var(--ink-muted); margin-top: 0.5rem; }
+  .knock-sub code { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
   .card { background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 1rem 1.25rem; max-width: 640px;
-    margin: 1rem auto; }
-  .card h2 { margin: 0 0 0.5rem; font-size: 14px; }
-  .card p { margin: 0.5rem 0; color: var(--ink-muted); font-size: 13px; }
+    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 0 0 1rem; }
+  .card.error { border-color: var(--st-error-fg); }
+  .card.error h2 { color: var(--st-error-fg); }
+  .card h2 { font-size: 16px; margin-bottom: 0.5rem; color: var(--ink); font-weight: 600; }
+  .card p { color: var(--ink-muted); font-size: 14px; margin: 0.4rem 0; }
   .card code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
     background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 12px; }
-  .card.error { border-color: var(--error); }
-  .card.error h2 { color: var(--error); }
-  .tool-list { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
-    background: var(--code-bg); border-radius: 6px; padding: 0.5rem 0.75rem;
-    margin: 0.5rem 0; }
-  .tool-list .tool { display: block; padding: 0.15rem 0; }
-  .tool-list .tool::before { content: '· '; color: var(--ink-muted); }
+  .card a { color: var(--accent); text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
+  .tools { margin: 0.85rem 0 0.25rem; padding: 0.6rem 0; border-top: 1px solid var(--border-soft); }
+  .tool-row { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.35rem 0.25rem; font-size: 13px; }
+  .tool-bullet { width: 5px; height: 5px; border-radius: 50%; background: var(--st-bridged-fg);
+    display: inline-block; flex-shrink: 0; transform: translateY(-2px); }
+  .tool-name { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); font-size: 12.5px; }
+  .nudge { font-size: 13px; color: var(--ink-muted); margin-top: 0.85rem;
+    padding-top: 0.85rem; border-top: 1px solid var(--border-soft); }
+  .nudge em { font-style: normal; color: var(--ink); font-weight: 500; }
+  .empty-cta { font-size: 13px; color: var(--ink-muted); text-align: center; }
+  .empty-cta a { color: var(--accent); text-decoration: none; }
+  .empty-cta a:hover { text-decoration: underline; }
+  footer { padding: 1.25rem; color: var(--ink-faint); font-size: 12px;
+    border-top: 1px solid var(--border-soft); text-align: center; }
+  footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.4rem; }
+  footer a:hover { color: var(--ink); }
 </style>
 <script type="importmap">
 {
   "imports": {
-    "@jonasneves/mcp-rtc-bridge-tab": "https://esm.sh/@jonasneves/mcp-rtc-bridge-tab@0.1.0",
+    "@jonasneves/mcp-rtc-bridge-tab": "https://esm.sh/@jonasneves/mcp-rtc-bridge-tab@0.1.0?external=zod&deps=zod@4.4.3",
     "@jonasneves/mcp-rtc":             "https://esm.sh/@jonasneves/mcp-rtc@0.1.0",
     "@modelcontextprotocol/sdk/client/index.js":
       "https://esm.sh/@modelcontextprotocol/sdk@1.29.0/client?external=zod&deps=zod@4.4.3",
@@ -66,95 +115,130 @@
 </script>
 </head>
 <body>
-  <header>
-    <h1>bridge</h1>
-    <span id="site-id">…</span>
-    <span id="status"><span class="dot idle"></span><span id="status-text">starting…</span></span>
-  </header>
-  <main id="main">
-    <!-- populated by script -->
-  </main>
+<header>
+  <a class="brand" href="https://neves.cloud/mcp-rtc/">
+    <svg class="sig" width="48" height="20" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <span class="wordmark"><span class="mcp">mcp</span><span class="sep">·</span><span class="rtc">rtc</span></span>
+  </a>
+  <span class="pagename">bridge · in-repo</span>
+  <span id="site-id" hidden></span>
+  <span id="status" class="idle" hidden><span class="dot"></span><span id="status-text"></span></span>
+</header>
+<main><div class="container" id="main"></div></main>
+<footer>
+  In-repo example. The canonical short URL is <a href="https://neves.cloud/b/">neves.cloud/b/</a>.·
+  <a href="https://github.com/jonasneves/mcp-rtc">github</a>·
+  <a href="https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab">bridge-tab</a>
+</footer>
 
 <script type="module">
 import { mountBridge } from '@jonasneves/mcp-rtc-bridge-tab';
 
-// ── site id from URL ────────────────────────────────────────────
-const url = new URL(location);
-const SITE = url.searchParams.get('site');
+// Read site id from either ?site= (legacy URL pattern) or #site= (canonical).
+function parseSite() {
+  const fromHash = new URLSearchParams(location.hash.replace(/^#/, '')).get('site');
+  if (fromHash) return { site: fromHash, lobby: new URLSearchParams(location.hash.replace(/^#/, '')).get('lobby') || undefined };
+  const fromQuery = new URLSearchParams(location.search).get('site');
+  return { site: fromQuery, lobby: new URLSearchParams(location.search).get('lobby') || undefined };
+}
 
-// ── DOM helpers ─────────────────────────────────────────────────
-const siteIdEl = document.getElementById('site-id');
-const statusText = document.getElementById('status-text');
-const dotEl = document.querySelector('#status .dot');
 const main = document.getElementById('main');
+const siteIdEl = document.getElementById('site-id');
+const statusBox = document.getElementById('status');
+const statusText = document.getElementById('status-text');
 
 function setStatus(text, kind = 'idle') {
   statusText.textContent = text;
-  dotEl.className = 'dot ' + kind;
-}
-function showCard({ title, body, error = false }) {
-  main.innerHTML = '';
-  const card = document.createElement('div');
-  card.className = 'card' + (error ? ' error' : '');
-  const h2 = document.createElement('h2');
-  h2.textContent = title;
-  card.appendChild(h2);
-  if (typeof body === 'string') {
-    const p = document.createElement('p');
-    p.innerHTML = body;
-    card.appendChild(p);
-  } else {
-    card.appendChild(body);
-  }
-  main.appendChild(card);
+  statusBox.className = kind;
+  statusBox.hidden = false;
 }
 
-// ── no site id: show usage ──────────────────────────────────────
-if (!SITE) {
-  siteIdEl.textContent = '(no site)';
-  setStatus('idle', 'idle');
-  showCard({
-    title: 'Add a site id to the URL.',
-    body: 'Open this page with <code>?site=&lt;site-id&gt;</code>, where ' +
-          '&lt;site-id&gt; is the rendezvous string the remote ' +
-          '<code>mcp-rtc</code> server is advertising. Example: ' +
-          '<code>?site=hi-abc123</code>.',
-  });
-} else {
-  siteIdEl.textContent = SITE;
-  setStatus('connecting…', 'warn');
+const KNOCKS = ['knock knock', 'anyone home?', '*polite cough*', 'still knocking',
+  'psst…', 'any minute now…', 'hmm', 'still here'];
+
+function renderEmpty() {
+  main.innerHTML = `
+    <svg class="sig lg" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <p class="empty-cta">No site id in URL. Open <a href="https://neves.cloud/b/">neves.cloud/b/</a> for the full paste-and-bridge UI,<br>or hit this page with <code>?site=hi-XXXXXX</code>.</p>
+  `;
+}
+
+function showConnecting(site) {
+  siteIdEl.textContent = site;
+  siteIdEl.hidden = false;
+  setStatus('connecting', 'connecting');
+  main.innerHTML = `
+    <svg class="sig lg connecting" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <div class="knock-stage">
+      <div class="knock-text" id="knock-text">${KNOCKS[0]}</div>
+      <div class="knock-sub">connecting · <code>${site}</code></div>
+    </div>
+  `;
+  let i = 1;
+  const knockEl = document.getElementById('knock-text');
+  return setInterval(() => {
+    if (!document.body.contains(knockEl)) return;
+    knockEl.style.opacity = '0';
+    setTimeout(() => { knockEl.textContent = KNOCKS[i % KNOCKS.length]; knockEl.style.opacity = '1'; i++; }, 200);
+  }, 2500);
+}
+
+function renderBridged({ site, lobby, tools }) {
+  setStatus(`bridged · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'bridged');
+  const toolList = tools.length === 0
+    ? '<p>(remote peer advertises no tools)</p>'
+    : `<div class="tools">${tools.map(t => `
+        <div class="tool-row"><span class="tool-bullet"></span><span class="tool-name">${t}</span></div>`).join('')}</div>`;
+  main.innerHTML = `
+    <div class="card">
+      <h2>Bridge mounted.</h2>
+      <p>Connected to <code>${site}</code>${lobby ? ` (lobby: <code>${lobby}</code>)` : ''}.
+        Any local Claude with the Anthropic Chrome extension can now call the tools below.</p>
+      ${toolList}
+      ${tools.length > 0 ? `<p class="nudge">Try: <em>"call ${tools[0]}"</em>.</p>` : ''}
+    </div>
+  `;
+}
+
+function renderError(err) {
+  const msg = String(err.message || err);
+  const lacksWebMCP = msg.includes('navigator.modelContext');
+  setStatus('error', 'error');
+  main.innerHTML = `
+    <div class="card error">
+      <h2>${lacksWebMCP ? 'WebMCP not available in this browser.' : 'Could not bridge.'}</h2>
+      <p>${lacksWebMCP
+        ? 'Requires a Chromium-based browser exposing <code>navigator.modelContext</code>. Chrome 146+ with the <a href="https://www.anthropic.com/">Anthropic Claude extension</a> installed is the reference setup.'
+        : `<code>${msg}</code>`}</p>
+    </div>
+  `;
+}
+
+const { site, lobby } = parseSite();
+if (site) {
+  const knockTimer = showConnecting(site);
   try {
-    const bridge = await mountBridge({ siteId: SITE });
-    setStatus(`bridged — ${bridge.tools.length} tools`, 'ok');
-    const list = document.createElement('div');
-    list.className = 'tool-list';
-    if (bridge.tools.length === 0) {
-      list.textContent = '(remote peer advertises no tools)';
-    } else {
-      for (const t of bridge.tools) {
-        const tool = document.createElement('span');
-        tool.className = 'tool';
-        tool.textContent = t;
-        list.appendChild(tool);
-      }
-    }
-    const body = document.createElement('div');
-    const p = document.createElement('p');
-    p.innerHTML = `Connected to <code>${SITE}</code>. The tools below are now registered with WebMCP. Any local Claude with the Anthropic Chrome extension can call them — try <em>"call ${bridge.tools[0] || 'one of the registered tools'}"</em>.`;
-    body.appendChild(p);
-    body.appendChild(list);
-    showCard({ title: 'Bridge mounted.', body });
+    const bridge = await mountBridge({ siteId: site, lobbyNamespace: lobby });
+    clearInterval(knockTimer);
+    renderBridged({ site, lobby, tools: bridge.tools });
   } catch (err) {
-    setStatus('error', 'error');
-    const lacksWebMCP = String(err.message || err).includes('navigator.modelContext');
-    showCard({
-      title: lacksWebMCP ? 'WebMCP not available in this browser.' : 'Could not bridge.',
-      body: lacksWebMCP
-        ? 'This page works in a Chromium-based browser that exposes <code>navigator.modelContext</code> (the W3C-CG WebMCP draft). Chrome 146+ with the Anthropic Claude extension installed is the reference setup.'
-        : `<code>${err.message || err}</code>`,
-      error: true,
-    });
+    clearInterval(knockTimer);
+    renderError(err);
   }
+} else {
+  renderEmpty();
 }
 </script>
 </body>

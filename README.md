@@ -15,13 +15,15 @@ Existing MCP transports (stdio, Streamable HTTP) cover the case where the server
 
 ## Try it
 
-The smallest demo is two browser tabs on one machine, then ask Claude to call a tool:
+Two short URLs, one machine, one Claude:
 
-1. Open **[hello.html](http://neves.cloud/mcp-rtc/hello-tool/hello.html)** — a tab that runs an MCP server with one tool. Note the `?site=hi-XXXXXX` it generates.
-2. Open **[neves.cloud/c/#site=hi-XXXXXX](https://neves.cloud/c/)** in a tab where the Anthropic Claude Chrome extension is installed (Chrome 146+).
+1. Open **[neves.cloud/h/](https://neves.cloud/h/)** — the tab becomes an MCP server with one tool, `get_greeting`. Note the `?site=hi-XXXXXX` it generates.
+2. Open **[neves.cloud/b/#site=hi-XXXXXX](https://neves.cloud/b/)** in a tab with the Anthropic Claude Chrome extension installed (Chrome 146+).
 3. Ask Claude *"call get_greeting"*. The call routes peer-to-peer over WebRTC.
 
-Two machines work the same way — share the site id with anyone, anywhere. `neves.cloud/c/` is the canonical short URL for the bridge; the in-repo [`bridge.html`](./examples/hello-tool/bridge.html) is the same code, kept as a forkable example.
+Two machines work the same way — share the site id with anyone, anywhere. `/h/` and `/b/` are the canonical host and bridge URLs; in-repo [`hello.html`](./examples/hello-tool/hello.html) and [`bridge.html`](./examples/hello-tool/bridge.html) are the same code, kept as forkable examples.
+
+> The Chrome extension requirement is only for **this** flow (Claude.ai / Desktop via WebMCP). Claude Code, Cursor, and any other terminal MCP client reach the same `/h/` server via the [stdio bridge](./examples/hello-tool/README.md#path-b--claude-code-via-stdio-bridge) — no browser involved.
 
 ## Repo
 

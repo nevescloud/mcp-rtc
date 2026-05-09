@@ -7,36 +7,57 @@
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f5f5f7; --ink: #1d1d1f; --ink-muted: #6e6e73;
-    --surface: #fff; --border: rgba(0,0,0,0.10); --accent: #006d51;
+    --bg: #f5f5f7; --surface: #fff;
+    --ink: #1d1d1f; --ink-muted: #6e6e73; --ink-faint: #8e8e93;
+    --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
     --code-bg: rgba(0,0,0,0.06);
+    --accent: #00539B; --accent-strong: #012169; --accent-soft: rgba(0,83,155,0.10);
+    --ok: #006d51; --warn: #C97D14; --err: #C84E00;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #1a1d20; --ink: #e9ecef; --ink-muted: #adb5bd;
-            --surface: #262a2e; --border: rgba(255,255,255,0.10);
-            --accent: #66b288; --code-bg: rgba(255,255,255,0.08); }
+    :root { --bg: #1a1d20; --surface: #262a2e;
+            --ink: #e9ecef; --ink-muted: #adb5bd; --ink-faint: #6e757c;
+            --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
+            --code-bg: rgba(255,255,255,0.08);
+            --accent: #4daff6; --accent-strong: #6cc1ff; --accent-soft: rgba(77,175,246,0.14);
+            --ok: #66b288; --warn: #f5b452; --err: #e57057; }
   }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   body { background: var(--bg); color: var(--ink);
     font: 14px/1.5 system-ui, -apple-system, sans-serif;
-    margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-  header { padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    min-height: 100vh; display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased; }
+  header { padding: 0.6rem 1.25rem; border-bottom: 1px solid var(--border);
     display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
     background: var(--surface); }
-  header h1 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--ink-muted); font-weight: 500; margin: 0; }
+  .brand { display: flex; align-items: center; gap: 0.55rem;
+    color: var(--accent); text-decoration: none; }
+  .brand .sig rect { fill: currentColor; }
+  .brand .sig path  { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .wordmark { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  .wordmark .mcp { color: var(--accent); }
+  .wordmark .sep { color: var(--ink-faint); margin: 0 0.1em; font-weight: 400; }
+  .wordmark .rtc { color: var(--ink); opacity: 0.85; }
+  .pagename { font-size: 12px; color: var(--ink-muted);
+    padding-left: 0.85rem; border-left: 1px solid var(--border); }
   .copy-prompt { font: inherit; font-size: 12px; padding: 0.3rem 0.65rem;
     border-radius: 6px; background: var(--code-bg); color: inherit;
     border: 1px solid var(--border); cursor: copy;
     transition: color 0.15s, border-color 0.15s; text-align: left; line-height: 1.3; }
   .copy-prompt:hover { color: var(--ink); border-color: var(--accent); }
-  .copy-prompt.copied { color: var(--accent); border-color: var(--accent); }
+  .copy-prompt.copied { color: var(--ok); border-color: var(--ok); }
   .copy-prompt.copied::after { content: ' ✓'; }
   .copy-prompt b { font-weight: 600; margin-right: 0.4rem; opacity: 0.7; }
-  #status { color: var(--ink-muted); font-size: 12px; margin-left: auto; }
+  #status { margin-left: auto; display: inline-flex; align-items: center;
+    gap: 0.4rem; font-size: 12px; padding: 0.25rem 0.7rem; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    color: var(--ink-muted); }
+  #status.ok    { color: var(--ok); background: rgba(0,109,81,0.10); border-color: transparent; }
+  #status.warn  { color: var(--warn); background: rgba(201,125,20,0.12); border-color: transparent; }
   .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-    margin-right: 0.375rem; vertical-align: middle; }
-  .dot.idle { background: #999; opacity: 0.4; }
-  .dot.ok   { background: var(--accent); }
+    background: currentColor; }
+  #status.idle .dot { color: var(--ink-faint); opacity: 0.5; }
   main { flex: 1; min-height: 0; padding: 1rem; overflow-y: auto; }
   .card { background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 1rem 1.25rem; max-width: 560px;
@@ -45,12 +66,14 @@
   .card p { margin: 0.5rem 0; color: var(--ink-muted); font-size: 13px; }
   .card code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
     background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 12px; }
+  .card a { color: var(--accent); text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
   #log { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
     background: var(--code-bg); border-radius: 6px; padding: 0.5rem 0.75rem;
     max-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
-  #log .ts { color: var(--ink-muted); margin-right: 0.5rem; }
+  #log .ts { color: var(--ink-faint); margin-right: 0.5rem; }
   #log .row { padding: 0.1rem 0; }
-  #log .row.in  { color: var(--accent); }
+  #log .row.in  { color: var(--ok); }
   #log .row.out { color: var(--ink); }
 </style>
 <script type="importmap">
@@ -67,11 +90,19 @@
 </head>
 <body>
   <header>
-    <h1>hello-tool</h1>
+    <a class="brand" href="https://neves.cloud/mcp-rtc/">
+      <svg class="sig" width="44" height="18" viewBox="0 0 60 24" aria-hidden="true">
+        <rect x="2" y="6" width="12" height="12" rx="3"/>
+        <rect x="46" y="6" width="12" height="12" rx="3"/>
+        <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+      </svg>
+      <span class="wordmark"><span class="mcp">mcp</span><span class="sep">·</span><span class="rtc">rtc</span></span>
+    </a>
+    <span class="pagename">hello-tool</span>
     <button id="cmd" class="copy-prompt" type="button">
       <b>tell Claude:</b><span id="cmd-text">…</span>
     </button>
-    <span id="status"><span class="dot idle"></span><span id="status-text">starting…</span></span>
+    <span id="status" class="idle"><span class="dot"></span><span id="status-text">starting…</span></span>
   </header>
   <main>
     <div class="card">
@@ -105,16 +136,17 @@ const statusText = document.getElementById('status-text');
 const dotEl = document.querySelector('#status .dot');
 const logEl = document.getElementById('log');
 
-cmdTextEl.textContent = `connect to ${SITE} and call get_greeting`;
+cmdTextEl.textContent = `Connect neves.cloud/b#${SITE} and call get_greeting`;
 cmdEl.addEventListener('click', () => {
   navigator.clipboard.writeText(cmdTextEl.textContent).catch(() => {});
   cmdEl.classList.add('copied');
   setTimeout(() => cmdEl.classList.remove('copied'), 1200);
 });
 
+const statusBox = document.getElementById('status');
 function setStatus(text, kind = 'idle') {
   statusText.textContent = text;
-  dotEl.className = 'dot ' + kind;
+  statusBox.className = kind;
 }
 function logRow(direction, text) {
   const row = document.createElement('div');

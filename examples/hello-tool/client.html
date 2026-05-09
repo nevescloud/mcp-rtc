@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>client (Path A · deferred) · hello-tool</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f5f7; --surface: #fff;
+    --ink: #1d1d1f; --ink-muted: #6e6e73; --ink-faint: #8e8e93;
+    --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
+    --accent: #00539B; --accent-soft: rgba(0,83,155,0.10);
+    --code-bg: rgba(0,0,0,0.06);
+    --warn-fg: #C97D14; --warn-bg: rgba(232,153,35,0.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1a1d20; --surface: #262a2e;
+            --ink: #e9ecef; --ink-muted: #adb5bd; --ink-faint: #6e757c;
+            --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
+            --accent: #4daff6; --accent-soft: rgba(77,175,246,0.14);
+            --code-bg: rgba(255,255,255,0.08);
+            --warn-fg: #f5b452; --warn-bg: rgba(245,180,82,0.16); }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  body { background: var(--bg); color: var(--ink);
+    font: 15px/1.55 system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased; }
+  header { padding: 0.65rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+    background: var(--surface); }
+  .brand { display: flex; align-items: center; gap: 0.55rem;
+    color: var(--accent); text-decoration: none; }
+  .brand .sig rect { fill: currentColor; }
+  .brand .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  .wordmark .mcp { color: var(--accent); }
+  .wordmark .sep { color: var(--ink-faint); margin: 0 0.1em; font-weight: 400; }
+  .wordmark .rtc { color: var(--ink); opacity: 0.85; }
+  .pagename { font-size: 12px; color: var(--ink-muted);
+    padding-left: 0.85rem; border-left: 1px solid var(--border); }
+  .badge { margin-left: auto; font-size: 11px; padding: 0.2rem 0.6rem; border-radius: 999px;
+    background: var(--warn-bg); color: var(--warn-fg);
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  main { flex: 1; padding: 2rem 1.25rem; }
+  .container { max-width: 640px; margin: 0 auto; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-muted); font-weight: 500; margin: 2rem 0 0.75rem; }
+  h2:first-child { margin-top: 0; }
+  p { color: var(--ink-muted); margin: 0.6rem 0; }
+  .lede { font-size: 18px; line-height: 1.5; color: var(--ink); margin: 0 0 1rem;
+    font-weight: 500; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px;
+    font-size: 13px; }
+  ul { padding-left: 1.2rem; color: var(--ink-muted); }
+  ul li { margin: 0.35rem 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .card { background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1rem 0;
+    color: var(--ink-muted); font-size: 14px; line-height: 1.6; }
+  .card .ink { color: var(--ink); }
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="https://neves.cloud/mcp-rtc/">
+    <svg class="sig" width="44" height="18" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <span class="wordmark"><span class="mcp">mcp</span><span class="sep">·</span><span class="rtc">rtc</span></span>
+  </a>
+  <span class="pagename">hello-tool · client</span>
+  <span class="badge">Path A · deferred</span>
+</header>
+<main><div class="container">
+
+<p class="lede">Path A — in-browser inference calling <code>get_greeting</code> via mcp-rtc — is intentionally not built yet.</p>
+
+<h2>What it would do</h2>
+<p>Open this page in a second browser tab. It would load a small instruction-tuned model entirely client-side (default: Qwen2.5-0.5B-Instruct via <a href="https://webllm.mlc.ai/">WebLLM</a>, with <a href="https://developer.chrome.com/docs/ai/built-in">Chrome's built-in Gemini Nano</a> as a fallback when the browser supports it). The page would connect to <code>hello.html</code> via <code>mcp-rtc</code>, list the tool, prompt the local model with <em>"call get_greeting and tell me what the tab said,"</em> the model would issue a tool call, the call would route peer-to-peer, the model would speak the result.</p>
+
+<p>No API key. No external service. No vendor in the loop. The path that would prove <code>mcp-rtc</code> is genuinely model-agnostic.</p>
+
+<h2>Why deferred</h2>
+<p>Reliable structured tool-calling at sub-1B parameters is fragile in May 2026. The honest options today:</p>
+<ul>
+  <li><span class="ink">Qwen2.5-0.5B via WebLLM with prompt-scaffolded tool format</span> — small, fast first load, but tool-call output is inconsistent.</li>
+  <li><span class="ink">Llama-3.2-3B-Instruct via WebLLM</span> — much more reliable but ~2 GB initial download. Hard sell as a demo.</li>
+  <li><span class="ink">Chrome's window.ai / Prompt API</span> — built-in to Chrome 127+, but tool-calling support is limited.</li>
+  <li><span class="ink">Apple Foundation Model</span> — Safari only on Apple Intelligence devices.</li>
+</ul>
+<p>A flaky Path A becomes a liability rather than evidence — it makes someone glance at the demo, see the model misfire, and walk away thinking the rest probably doesn't work either. Worth waiting until the in-browser tool-calling story stabilizes (or until the specific demo can be made deterministic).</p>
+
+<h2>What would unblock it</h2>
+<ul>
+  <li>A small-enough model (≤ 1B params) that reliably emits parseable tool calls for a single-tool, single-arg schema.</li>
+  <li>Or: a Chrome Prompt API release that exposes structured tool-use bindings on consumer hardware.</li>
+  <li>Or: a willingness to ship the Llama-3.2-3B demo with a "first run downloads ~2 GB" warning, accepting that as the cost of model-agnostic.</li>
+</ul>
+
+<h2>Working paths today</h2>
+<div class="card">
+  <p><span class="ink">Path B — Claude Code via stdio bridge.</span> Add <code>@jonasneves/mcp-webrtc-bridge</code> to <code>~/.claude/settings.json</code> and ask Claude. Works against <code>hello.html</code> and any <code>mcp-rtc</code> server.</p>
+  <p><span class="ink">Path C — Claude.ai / Desktop via Anthropic Chrome extension.</span> Open <a href="https://neves.cloud/b/">neves.cloud/b/</a> with a site id in the fragment. Headline pattern; no install on the AI side.</p>
+</div>
+
+<h2>Tracking</h2>
+<p>This is tracked at <a href="https://github.com/jonasneves/mcp-rtc/issues/1"><code>jonasneves/mcp-rtc#1</code></a>. Comments, model recommendations, or pull requests welcome — especially from anyone who's exercised in-browser tool-calling at small parameter counts in 2026.</p>
+
+<p style="margin-top:2rem"><a href="./README.md">← back to hello-tool</a></p>
+
+</div></main>
+</body>
+</html>

@@ -44,13 +44,15 @@ If you have Claude Code locally, add the existing stdio bridge to `~/.claude/set
 }}}
 ```
 
-Then ask Claude *"use the hello server's get_greeting tool."* The bridge translates Claude Code's stdio MCP traffic to `mcp-rtc` frames over the data channel. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since version 0.2.0).
+Then ask Claude *"use the hello server's get_greeting tool."* The bridge translates Claude Code's stdio MCP traffic to `mcp-rtc` frames over the data channel. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since version 0.2.0).
 
 ### Path C — Claude.ai / Claude Desktop via Anthropic Chrome extension + bridge-tab
 
-The headline pattern. Open **[`https://neves.cloud/c/#site=<site-id>`](https://neves.cloud/c/)** in any browser tab where you have the Anthropic Claude Chrome extension installed (Chrome 146+). The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool in the local tab. Any local Claude (Claude.ai, Claude Desktop, Claude Code with the extension) can then see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
+The headline pattern. Open **[`https://neves.cloud/b/#site=<site-id>`](https://neves.cloud/b/)** in any browser tab where you have the Anthropic Claude Chrome extension installed (Chrome 146+). The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool in the local tab. Any Claude with the extension (Claude.ai, Claude Desktop, Claude Code with the extension) can then see and call `get_greeting` natively — no Node process running on the user's machine, no public URL.
 
-`https://neves.cloud/c/` is the canonical short URL for any mcp-rtc bridge — paste any site id in the fragment and the local tab connects. The in-repo [`bridge.html`](./bridge.html) is the same code, kept as a self-contained example for forking or local serving.
+**The Anthropic Chrome extension is required only for Path C** (Claude.ai web specifically). Claude.ai talks to its own extension over a private channel; no third-party extension can replace it. Path B is the route for Claude Code / Claude Desktop / Cursor and needs no browser at all.
+
+`https://neves.cloud/b/` is the canonical short URL for any mcp-rtc bridge — paste any site id in the fragment and the local tab connects. The in-repo [`bridge.html`](./bridge.html) is the same code, kept as a self-contained example for forking or local serving.
 
 ## Why three paths
 
