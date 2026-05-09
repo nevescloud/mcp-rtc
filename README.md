@@ -2,12 +2,12 @@
 
 > Turn any browser tab into a Claude-callable MCP server. No Node bridge, no install, no public URL.
 
-[![npm: bridge-tab](https://img.shields.io/npm/v/@jonasneves/mcp-rtc-bridge-tab?label=%40jonasneves%2Fmcp-rtc-bridge-tab&color=cb3837&logo=npm)](https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab)
-[![npm: transport](https://img.shields.io/npm/v/@jonasneves/mcp-rtc?label=%40jonasneves%2Fmcp-rtc&color=cb3837&logo=npm)](https://www.npmjs.com/package/@jonasneves/mcp-rtc)
+[![npm: bridge-tab](https://img.shields.io/npm/v/@nevescloud/mcp-rtc-bridge-tab?label=%40nevescloud%2Fmcp-rtc-bridge-tab&color=cb3837&logo=npm)](https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge-tab)
+[![npm: transport](https://img.shields.io/npm/v/@nevescloud/mcp-rtc?label=%40nevescloud%2Fmcp-rtc&color=cb3837&logo=npm)](https://www.npmjs.com/package/@nevescloud/mcp-rtc)
 [![Try it live](https://img.shields.io/badge/try%20it-live-006d51?logo=github)](http://neves.cloud/mcp-rtc/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](./LICENSE)
 
-`@jonasneves/mcp-rtc-bridge-tab` is a browser library that takes a remote MCP server reachable over WebRTC and re-exposes its tools as [WebMCP](https://github.com/webmachinelearning/webmcp) tools in the local tab. Any local Claude with a WebMCP consumer attached (Claude.ai / Desktop with the [Anthropic Chrome extension](https://www.anthropic.com/), or Code / Cursor via [hatch](https://github.com/jonasneves/hatch)) calls them natively. The transport and spec exist to make that work and to let other implementations interoperate.
+`@nevescloud/mcp-rtc-bridge-tab` is a browser library that takes a remote MCP server reachable over WebRTC and re-exposes its tools as [WebMCP](https://github.com/webmachinelearning/webmcp) tools in the local tab. Any local Claude with a WebMCP consumer attached (Claude.ai / Desktop with the [Anthropic Chrome extension](https://www.anthropic.com/), or Code / Cursor via [hatch](https://github.com/jonasneves/hatch)) calls them natively. The transport and spec exist to make that work and to let other implementations interoperate.
 
 ## Why this exists
 
@@ -29,8 +29,8 @@ Two machines work the same way — share the site id with anyone, anywhere. `/h/
 
 | | What | Status |
 |---|---|---|
-| **[packages/bridge-tab](./packages/bridge-tab)** (`@jonasneves/mcp-rtc-bridge-tab`) | The library. Browser-side WebMCP↔mcp-rtc adapter. | 0.1.0, published |
-| **[packages/transport](./packages/transport)** (`@jonasneves/mcp-rtc`) | Reference implementation of the wire mapping. Node + browser. | 0.1.0, published |
+| **[packages/bridge-tab](./packages/bridge-tab)** (`@nevescloud/mcp-rtc-bridge-tab`) | The library. Browser-side WebMCP↔mcp-rtc adapter. | 0.1.0, published |
+| **[packages/transport](./packages/transport)** (`@nevescloud/mcp-rtc`) | Reference implementation of the wire mapping. Node + browser. | 0.1.0, published |
 | **[examples/hello-tool](./examples/hello-tool)** | Tab as MCP server, with three consumption paths. | working |
 | **[SPEC.md](./SPEC.md)** | Wire-format contract. Lets future implementations interoperate at Layer 1. | Draft 0.1 |
 
@@ -48,12 +48,12 @@ Implementations interoperate at Layer 1 even when their Layer 2 and Layer 3 diff
 
 ## Adoption
 
-`@jonasneves/mcp-rtc` is the reference implementation. Four packages ride it today:
+`@nevescloud/mcp-rtc` is the reference implementation. Four packages ride it today:
 
-- `@jonasneves/mcp-rtc-bridge-tab` — the WebMCP↔mcp-rtc browser bridge in this repo.
-- `@jonasneves/mcp-webrtc-bridge` — stdio bridge that lets terminal Claude (Code) reach WebRTC MCP servers.
-- `@jonasneves/confer-mcp` — Claude Code joins a [confer](https://github.com/jonasneves/confer) advisory room as a peer.
-- `@jonasneves/confer-agent` — Claude Agent SDK joins a confer workspace as a peer.
+- `@nevescloud/mcp-rtc-bridge-tab` — the WebMCP↔mcp-rtc browser bridge in this repo.
+- `@nevescloud/mcp-webrtc-bridge` — stdio bridge that lets terminal Claude (Code) reach WebRTC MCP servers.
+- `@nevescloud/confer-mcp` — Claude Code joins a [confer](https://github.com/jonasneves/confer) advisory room as a peer.
+- `@nevescloud/confer-agent` — Claude Agent SDK joins a confer workspace as a peer.
 
 Three other Node implementations of "MCP over WebRTC" exist on npm; none interoperate (see [SPEC § prior art](./SPEC.md#11-prior-art)). Layer 1 of this spec is the contract that lets them.
 

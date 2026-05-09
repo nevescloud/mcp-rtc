@@ -1,6 +1,6 @@
 # Example: canvas-peer
 
-The reference application of `@jonasneves/mcp-rtc-bridge-tab`. A self-contained browser page that:
+The reference application of `@nevescloud/mcp-rtc-bridge-tab`. A self-contained browser page that:
 
 1. Joins a remote canvas (or any mcp-rtc server) at a given `site id`.
 2. Discovers its tools.

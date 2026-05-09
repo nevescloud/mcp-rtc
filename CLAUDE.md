@@ -10,7 +10,7 @@ Artifact priority:
 
 1. **`packages/bridge-tab`** — the load-bearing contribution. Browser tab as WebMCP↔mcp-rtc adapter. The pattern is the project.
 2. **`examples/`** — the proof points. `hello-tool` is the smallest working demo (Path B + Path C live; Path A deferred). Named placeholders for `phone-as-tools`, `shared-dev-env`, `hands-and-eyes`, `sensor-mesh`, `canvas-peer` are the planned proof points along the asymmetric / cross-user / multi-peer axes; each earns its README only when the code exists.
-3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@jonasneves/mcp-rtc` and currently powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-webrtc-bridge`, `confer-mcp`, `confer-agent`).
+3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@nevescloud/mcp-rtc` and currently powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-webrtc-bridge`, `confer-mcp`, `confer-agent`).
 4. **`SPEC.md`** — supporting documentation. Tone: dry, precise, RFC-shaped. Exists so a second implementation can talk to the first; doesn't drive adoption on its own. *Do not* turn it into a marketing document.
 
 The repo's audience: developers who want any-tab-to-any-Claude tool exposure with no infrastructure. Confer canvas will be the first migrated consumer of `bridge-tab`; phone-as-tools etc. will demonstrate the broader use cases. Standardization (SEP, W3C-CG, informal RFC) is downstream of adoption — don't pre-commit; the library is what people will actually use.
@@ -41,27 +41,33 @@ WebMCP is a two-layer thing, often confused for one:
 
 **Claude.ai web only talks to the Anthropic extension over a private channel.** A third-party extension *cannot* expose tools to Claude.ai. The lock is a product decision, not a WebMCP spec property. So Path C ("Claude.ai with Anthropic ext") cannot be made vendor-independent at the WebMCP layer.
 
-**Claude Code / Claude Desktop / Cursor don't use WebMCP at all.** They consume MCP servers via stdio or HTTP. mcp-rtc reaches them via Path B (`@jonasneves/mcp-webrtc-bridge` — stdio MCP server that talks WebRTC). No browser, no extension on the asker's machine.
+**Claude Code / Claude Desktop / Cursor don't use WebMCP at all.** They consume MCP servers via stdio or HTTP. mcp-rtc reaches them via Path B (`@nevescloud/mcp-webrtc-bridge` — stdio MCP server that talks WebRTC). No browser, no extension on the asker's machine.
 
-**Implication for mcp-rtc:** don't ship our own Chrome extension. The substrate is the spec + libraries (`@jonasneves/mcp-rtc`, `@jonasneves/mcp-rtc-bridge-tab`); the *consumer* extensions are someone else's job — Anthropic's for Claude.ai, hatch's for terminal AIs, future others. mcp-rtc gets stronger when more extensions consume `bridge-tab`, not when it ships its own.
+**Implication for mcp-rtc:** don't ship our own Chrome extension. The substrate is the spec + libraries (`@nevescloud/mcp-rtc`, `@nevescloud/mcp-rtc-bridge-tab`); the *consumer* extensions are someone else's job — Anthropic's for Claude.ai, hatch's for terminal AIs, future others. mcp-rtc gets stronger when more extensions consume `bridge-tab`, not when it ships its own.
 
 ## Naming discipline
 
 - **Spec** is named for the protocol pair: "MCP over WebRTC". Keep RFC-shaped vocabulary.
 - **Repo** is `mcp-rtc`. Short, technical, scans as a transport-pair name (like CoAP, RTSP).
-- **Reference impl** is `@jonasneves/mcp-rtc`. Same name as the repo — implementation = reference.
-- **Bridge library** is `@jonasneves/mcp-rtc-bridge-tab`. Domain-suffix names what it does (a browser tab as bridge).
+- **Reference impl** is `@nevescloud/mcp-rtc`. Same package name as the repo — implementation = reference.
+- **Bridge library** is `@nevescloud/mcp-rtc-bridge-tab`. Domain-suffix names what it does (a browser tab as bridge).
 
-Don't introduce branded names. Confer can have a brand; substrate work shouldn't.
+Substrate package *names* stay unbranded (`mcp-rtc`, `mcp-rtc-bridge-tab`); the *scope* is the publisher's identity surface. `@nevescloud` is used as a single trust-consistent scope across all of Jonas's packages — domain (`neves.cloud`) ↔ publisher scope (`@nevescloud`) ↔ future GitHub org. A consumer auditing supply-chain provenance sees the same identity at each layer. The earlier rule "don't introduce branded names" still applies *within* a package's name and within the spec/repo — Confer can have a brand, the transport can't. The publisher namespace is a different concern.
+
+If `mcp-rtc` later graduates to a neutral home (formal standardization, outside contributors), the substrate packages move to `@mcp-rtc/*` (the GH org reserved for that purpose). That's a downstream decision, not the current shape.
 
 ## Repo + GitHub orgs
 
-- Repo lives at `jonasneves/mcp-rtc` — public as of 2026-05-08. Flipped on Path B working end-to-end (`hello.html` ↔ Claude Code via `@jonasneves/mcp-webrtc-bridge@0.2.0`); Path A (in-browser inference) is deferred but documented transparently. The original "wait for A and B" criterion was over-cautious — `@jonasneves/mcp-rtc@0.1.0` was already public on npm by then, so GH-private was just making the package look amateur (404 on the `repository` link). Public also unblocks the standardization narrative; SEP / W3C-CG / community-spec submission requires a public draft regardless.
+- Repo lives at `jonasneves/mcp-rtc` — public as of 2026-05-08. Flipped on Path B working end-to-end (`hello.html` ↔ Claude Code via the stdio bridge); Path A (in-browser inference) is deferred but documented transparently. The original "wait for A and B" criterion was over-cautious — the transport package was already public on npm by then, so GH-private was just making the package look amateur (404 on the `repository` link). Public also unblocks the standardization narrative; SEP / W3C-CG / community-spec submission requires a public draft regardless.
 - GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
 
 ## Relationship to existing packages
 
-`@jonasneves/mcp-webrtc` shipped first (confer-specific naming). All three of its consumers — `@jonasneves/confer-mcp@0.4.0`, `@jonasneves/confer-agent@0.3.0`, `@jonasneves/mcp-webrtc-bridge@0.2.0` — have been migrated to depend on `@jonasneves/mcp-rtc@0.1.0`. `@jonasneves/mcp-webrtc` remains published for any external consumers but new work happens on top of `mcp-rtc`. Eventual deprecation of `mcp-webrtc` (point at `mcp-rtc` in its README) is reasonable but not urgent. `@jonasneves/mcp-webrtc-bridge` keeps its name — it's the stdio→WebRTC bridge for terminal Claude (Path B), a distinct purpose from the browser `bridge-tab` (Path C).
+**npm scope migration in progress (2026-05-09):** all of Jonas's packages move from `@jonasneves/*` to `@nevescloud/*` for trust-consistency with the `neves.cloud` domain. In-repo references (this file, README, SPEC, examples, package.jsons) have been updated. The actual npm publishes — claiming the `nevescloud` org, republishing under the new scope, deprecating the old packages with a pointer — happen in one coordinated pass. Until then the docs name packages that don't exist yet on npm; the live `neves.cloud/h/` and `neves.cloud/b/` URLs continue to work because they import from the still-published `@jonasneves/*` versions. Re-deploy the example pages once the new scope is published.
+
+Packages in scope of the migration: `mcp-rtc`, `mcp-rtc-bridge-tab`, `mcp-webrtc-bridge`, `pip-relay`, `confer-mcp`, `confer-agent`. The predecessor `@jonasneves/mcp-webrtc` is *not* migrating — it's superseded and stays at its historical name as a deprecation target.
+
+Pre-migration state (kept here as the relationship sketch — same shape under the new scope): `@jonasneves/mcp-webrtc` shipped first (confer-specific naming). All three of its consumers — `@jonasneves/confer-mcp@0.4.0`, `@jonasneves/confer-agent@0.3.0`, `@jonasneves/mcp-webrtc-bridge@0.2.0` — were migrated to depend on `@jonasneves/mcp-rtc@0.1.0`. `mcp-webrtc-bridge` keeps its package name (stdio→WebRTC bridge for terminal Claude / Path B) — distinct purpose from the browser `bridge-tab` (Path C).
 
 ## How a fresh session should pick up
 
@@ -75,7 +81,7 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 
 - `@jonasneves/mcp-webrtc` (npm) — predecessor reference impl this package was ported from. Superseded; remains published for any external consumers.
 - `signal.neevs.io` — public lobby; the recommended Layer 2 reference.
-- `@jonasneves/pip-relay` (npm) — Layer 2 reference impl (lobby + pair-request), this package's substrate.
+- `@nevescloud/pip-relay` (npm, post-migration) — Layer 2 reference impl (lobby + pair-request), this package's substrate.
 - confer's `canvas.html` — multi-peer canvas product; planned first migrated consumer of `bridge-tab` (currently hand-rolls an equivalent surface).
 
 ## Roadmap
@@ -83,10 +89,10 @@ Don't introduce branded names. Confer can have a brand; substrate work shouldn't
 Library-led order: ship demos and consumers; let the spec catch up.
 
 1. **Build `examples/phone-as-tools`** (or whichever asymmetric-capability demo lands first). The visceral demo — open a page on your phone, your laptop's Claude calls `take_photo` / `get_location` / `read_clipboard`. If even one example becomes a viral demo or someone's daily tool, the project compounds. Each example earns its README only when the code exists.
-2. **Migrate confer's `canvas.html` to consume `bridge-tab`.** Replaces the hand-rolled WebMCP-equivalent in canvas with `@jonasneves/mcp-rtc-bridge-tab`. Validates the library against a real multi-peer consumer and gives canvas a proper second implementation.
+2. **Migrate confer's `canvas.html` to consume `bridge-tab`.** Replaces the hand-rolled WebMCP-equivalent in canvas with `@nevescloud/mcp-rtc-bridge-tab`. Validates the library against a real multi-peer consumer and gives canvas a proper second implementation.
 3. **Ship a second demo on a different axis.** `shared-dev-env` (cross-user) or `hands-and-eyes` (asymmetric + cross-user). Two distinct demos cover the use-case story far better than one.
 4. **Path A (deferred) for `hello-tool`** — in-browser inference. Makes the model-agnostic claim verifiable rather than theoretical. Tool calling at sub-1B parameters is fragile in 2026; revisit once the substrate is more battle-tested.
 5. **Stabilize the spec.** Once the library has been exercised by 2–3 distinct demos and one external consumer, fold lessons learned back into SPEC.md. The spec absorbs reality, doesn't dictate it.
 6. **Watch standardization paths.** Don't pre-commit. SEP / W3C-CG / informal RFC are options once there are real outside implementers asking for the contract.
 
-Already shipped (for context): `packages/transport@0.1.0`, `packages/bridge-tab@0.1.0`, `examples/hello-tool` with hello.html + bridge.html + Node test client. Three downstream consumers (`mcp-webrtc-bridge`, `confer-mcp`, `confer-agent`) migrated to depend on `@jonasneves/mcp-rtc`.
+Already shipped (for context): `packages/transport@0.1.1`, `packages/bridge-tab@0.1.1`, `examples/hello-tool` with hello.html + bridge.html + Node test client. Three downstream consumers (`mcp-webrtc-bridge`, `confer-mcp`, `confer-agent`) depend on the transport. Packages were originally published under `@jonasneves/*`; in-repo references now name `@nevescloud/*` ahead of the coordinated republish (see *Relationship to existing packages*).

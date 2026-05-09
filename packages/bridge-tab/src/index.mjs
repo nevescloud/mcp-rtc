@@ -1,5 +1,5 @@
-// @jonasneves/mcp-rtc-bridge-tab — browser-side library that takes a remote
-// MCP server reachable via @jonasneves/mcp-rtc and re-exposes its tools via
+// @nevescloud/mcp-rtc-bridge-tab — browser-side library that takes a remote
+// MCP server reachable via @nevescloud/mcp-rtc and re-exposes its tools via
 // WebMCP in the local tab. Result: any local Claude that a WebMCP consumer
 // surfaces tools to (Claude.ai / Desktop with the Anthropic Chrome extension,
 // Claude Code / Cursor via hatch, future implementations) can call the remote
@@ -9,7 +9,7 @@
 // (W3C-CG WebMCP draft, April 2026 +), and a WebMCP consumer attached.
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { WebRTCClientTransport } from '@jonasneves/mcp-rtc';
+import { WebRTCClientTransport } from '@nevescloud/mcp-rtc';
 
 /**
  * Connect to a remote mcp-rtc server, discover its tools, and register

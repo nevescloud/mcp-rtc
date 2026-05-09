@@ -149,7 +149,7 @@
   <nav>
     <a class="nav-link" href="https://github.com/jonasneves/mcp-rtc">GitHub</a>
     <a class="nav-link" href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>
-    <a class="nav-link" href="https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab">npm</a>
+    <a class="nav-link" href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge-tab">npm</a>
   </nav>
 </header>
 <main>
@@ -170,9 +170,9 @@
 <pre class="arch">    tab (the MCP server)            <b>mcp-rtc</b>             local Claude
     ────────────────────         (WebRTC data            ────────────
     register tools via            channel,
-    @jonasneves/mcp-rtc           peer-to-peer)
+    @nevescloud/mcp-rtc           peer-to-peer)
                        │                                ┌─► Claude Code  via stdio bridge
-                       └──────────────────────────────► │   (npx @jonasneves/mcp-webrtc-bridge)
+                       └──────────────────────────────► │   (npx @nevescloud/mcp-webrtc-bridge)
                                                         │
                                                         └─► Claude.ai    via bridge tab + WebMCP
                                                             (Chrome 146+ with consumer)</pre>
@@ -207,7 +207,7 @@
   "mcpServers": {
     "mcp-webrtc-bridge": {
       "command": "npx",
-      "args": ["-y", "@jonasneves/mcp-webrtc-bridge"]
+      "args": ["-y", "@nevescloud/mcp-webrtc-bridge"]
     }
   }
 }</pre>
@@ -241,8 +241,8 @@
 </main>
 <footer>
   <a href="https://github.com/jonasneves/mcp-rtc">GitHub</a>·
-  <a href="https://www.npmjs.com/package/@jonasneves/mcp-rtc-bridge-tab">npm: bridge-tab</a>·
-  <a href="https://www.npmjs.com/package/@jonasneves/mcp-rtc">npm: transport</a>·
+  <a href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge-tab">npm: bridge-tab</a>·
+  <a href="https://www.npmjs.com/package/@nevescloud/mcp-rtc">npm: transport</a>·
   <a href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>·
   MIT
 </footer>

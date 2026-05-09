@@ -42,17 +42,17 @@ If you have Claude Code locally, add the stdio bridge to `~/.claude/settings.jso
   "mcpServers": {
     "mcp-webrtc-bridge": {
       "command": "npx",
-      "args": ["-y", "@jonasneves/mcp-webrtc-bridge"]
+      "args": ["-y", "@nevescloud/mcp-webrtc-bridge"]
     }
   }
 }
 ```
 
-Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@jonasneves/mcp-rtc` (the `@jonasneves/mcp-webrtc-bridge` package is itself built on top of `@jonasneves/mcp-rtc` since 0.2.0; 0.3.0 added the formatted tool-list response).
+Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side. Works today against `@nevescloud/mcp-rtc` (the `@nevescloud/mcp-webrtc-bridge` package is itself built on top of `@nevescloud/mcp-rtc` since 0.2.0; 0.3.0 added the formatted tool-list response).
 
 ### Path C — Claude.ai / Claude Desktop via WebMCP
 
-The headline pattern. Open **[`https://neves.cloud/b/#<site-id>`](https://neves.cloud/b/)** in Chrome 146+ in any tab where a [WebMCP](https://github.com/webmachinelearning/webmcp) consumer is attached. The page uses `@jonasneves/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool via `navigator.modelContext`. Any Claude that the WebMCP consumer surfaces tools to can then see and call `get_greeting` natively — no Node process on the user's machine, no public URL.
+The headline pattern. Open **[`https://neves.cloud/b/#<site-id>`](https://neves.cloud/b/)** in Chrome 146+ in any tab where a [WebMCP](https://github.com/webmachinelearning/webmcp) consumer is attached. The page uses `@nevescloud/mcp-rtc-bridge-tab` to re-expose `hello.html`'s tool via `navigator.modelContext`. Any Claude that the WebMCP consumer surfaces tools to can then see and call `get_greeting` natively — no Node process on the user's machine, no public URL.
 
 **WebMCP consumers in May 2026:**
 - The **Anthropic Claude Chrome extension** is the most common; it surfaces tools to Claude.ai web.
@@ -77,4 +77,4 @@ Centralized MCP transports (stdio, Streamable HTTP) tie the server to either a p
 
 ## Iterating on the substrate locally
 
-`hello.html` and `bridge.html` import `@jonasneves/mcp-rtc` and `@jonasneves/mcp-rtc-bridge-tab` from `esm.sh` so the same files work both via the live URL and any local `python3 -m http.server`. If you're hacking on the transport or bridge-tab source itself, that means changes don't show up in the browser until you publish a new version. For source-level iteration without publishing, use [`packages/transport/test/smoke.mjs`](../../packages/transport/test/smoke.mjs) and [`test-client.mjs`](./test-client.mjs) — both import from the local repo paths directly.
+`hello.html` and `bridge.html` import `@nevescloud/mcp-rtc` and `@nevescloud/mcp-rtc-bridge-tab` from `esm.sh` so the same files work both via the live URL and any local `python3 -m http.server`. If you're hacking on the transport or bridge-tab source itself, that means changes don't show up in the browser until you publish a new version. For source-level iteration without publishing, use [`packages/transport/test/smoke.mjs`](../../packages/transport/test/smoke.mjs) and [`test-client.mjs`](./test-client.mjs) — both import from the local repo paths directly.

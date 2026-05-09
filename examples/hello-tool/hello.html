@@ -89,7 +89,7 @@
 <script type="importmap">
 {
   "imports": {
-    "@jonasneves/mcp-rtc": "https://esm.sh/@jonasneves/mcp-rtc@0.1.1",
+    "@nevescloud/mcp-rtc": "https://esm.sh/@nevescloud/mcp-rtc@0.1.1",
     "zod":         "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
     "zod/v4":      "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
     "zod/v3":      "https://esm.sh/zod@4.4.3/v3",
@@ -120,7 +120,7 @@
       <p>Three ways to consume — see the <a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/hello-tool/README.md">README</a>.</p>
 
       <div class="share">
-        <div class="share-label">Paste in Claude Code (with <a href="https://www.npmjs.com/package/@jonasneves/mcp-webrtc-bridge"><code>@jonasneves/mcp-webrtc-bridge</code></a>)</div>
+        <div class="share-label">Paste in Claude Code (with <a href="https://www.npmjs.com/package/@nevescloud/mcp-webrtc-bridge"><code>@nevescloud/mcp-webrtc-bridge</code></a>)</div>
         <div class="codeblock">
           <button class="copy-btn" type="button">copy</button>
           <pre id="prompt-stdio"></pre>
@@ -140,7 +140,7 @@
 <script type="module">
 import { McpServer } from 'https://esm.sh/@modelcontextprotocol/sdk@1.29.0/server/mcp?external=zod&deps=zod@4.4.3';
 import * as z from 'zod/v4';
-import { WebRTCServerTransport } from '@jonasneves/mcp-rtc';
+import { WebRTCServerTransport } from '@nevescloud/mcp-rtc';
 
 // ── site id ─────────────────────────────────────────────────────
 const url = new URL(location);

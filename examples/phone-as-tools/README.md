@@ -23,7 +23,7 @@ Permissions are requested lazily on the first call to each tool. The page surfac
 (your phone)                                      (your laptop)
 ─────────────                                     ─────────────
 Open neves.cloud/p/                               Claude Code (with
-  ↓                                               @jonasneves/mcp-webrtc-bridge)
+  ↓                                               @nevescloud/mcp-webrtc-bridge)
 Site id: ph-XXXXXXXX appears                      OR
 in URL bar; copy a "Paste in                      Claude.ai in a Chrome 146+
 Claude Code" prompt or share the                  tab with a WebMCP consumer
@@ -54,4 +54,4 @@ A user typing *"take a photo of the whiteboard and OCR it"* on their laptop's Cl
 ## Source
 
 - Live page (canonical): [`jonasneves.github.io/docs/p/index.html`](https://github.com/jonasneves/jonasneves.github.io/blob/main/docs/p/index.html) → served at `neves.cloud/p/`.
-- The page imports `@jonasneves/mcp-rtc` from esm.sh; it is otherwise a self-contained single HTML file (~250 lines).
+- The page imports `@nevescloud/mcp-rtc` from esm.sh; it is otherwise a self-contained single HTML file (~250 lines).

@@ -1,4 +1,4 @@
-# @jonasneves/mcp-rtc-bridge-tab
+# @nevescloud/mcp-rtc-bridge-tab
 
 A browser-side library that takes a remote MCP server reachable via [**mcp-rtc**](../../SPEC.md) and re-exposes its tools as **WebMCP** tools in the local browser tab. Result: any local Claude with a WebMCP consumer attached (Claude.ai / Desktop with the Anthropic Chrome extension, Code / Cursor via [hatch](https://github.com/jonasneves/hatch), or any future implementation) can call the remote server's tools — **with no Node process running on the user's machine and no public URL**.
 
@@ -22,7 +22,7 @@ The standard MCP transports (stdio, Streamable HTTP) require either a local Node
 
 ## Status
 
-**0.1.0.** Single export, single dependency on `@jonasneves/mcp-rtc`. Tested live against `examples/hello-tool/bridge.html` in the spec repo.
+**0.1.0.** Single export, single dependency on `@nevescloud/mcp-rtc`. Tested live against `examples/hello-tool/bridge.html` in the spec repo.
 
 ## Requirements
 
@@ -33,7 +33,7 @@ The standard MCP transports (stdio, Streamable HTTP) require either a local Node
 
 ```html
 <script type="module">
-  import { mountBridge } from 'https://cdn.jsdelivr.net/npm/@jonasneves/mcp-rtc-bridge-tab@latest/+esm';
+  import { mountBridge } from 'https://cdn.jsdelivr.net/npm/@nevescloud/mcp-rtc-bridge-tab@latest/+esm';
 
   const bridge = await mountBridge({
     siteId: 'hi-abc123',
@@ -62,7 +62,7 @@ For users who want the bridge without writing any JS, the spec repo ships `examp
 
 ## Companion package
 
-[`@jonasneves/mcp-rtc`](../transport) — the underlying transport this library uses to reach the remote server.
+[`@nevescloud/mcp-rtc`](../transport) — the underlying transport this library uses to reach the remote server.
 
 ## License
 

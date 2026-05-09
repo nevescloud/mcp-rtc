@@ -1,4 +1,4 @@
-# @jonasneves/mcp-rtc
+# @nevescloud/mcp-rtc
 
 Reference implementation of the [**MCP-over-WebRTC** specification](../../SPEC.md).
 
@@ -17,7 +17,7 @@ import {
   WebRTCServerTransport,    // implements MCP SDK Transport, host side
   WebRTCClientTransport,    // implements MCP SDK Transport, client side
   host, join,               // lower-level WebRTC primitives
-} from '@jonasneves/mcp-rtc';
+} from '@nevescloud/mcp-rtc';
 ```
 
 ## Spec alignment
@@ -26,7 +26,7 @@ This package implements the spec's mandated Layer 1 (wire format), and uses the 
 
 ## Companion package
 
-[`@jonasneves/mcp-rtc-bridge-tab`](../bridge-tab) — browser library that takes an `mcp-rtc` server's tools and re-exposes them via WebMCP, making them callable by any local Claude with a Chrome extension.
+[`@nevescloud/mcp-rtc-bridge-tab`](../bridge-tab) — browser library that takes an `mcp-rtc` server's tools and re-exposes them via WebMCP, making them callable by any local Claude with a Chrome extension.
 
 ## License
 
