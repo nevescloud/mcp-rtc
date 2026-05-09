@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mcp-rtc — Claude-callable browser tabs</title>
-<meta name="description" content="Turn any browser tab into a Claude-callable MCP server. No Node bridge, no install, no public URL.">
+<title>mcp-rtc — browser tabs as MCP servers</title>
+<meta name="description" content="Turn any browser tab into an MCP server. No Node bridge, no install, no public URL — callable peer-to-peer by any local MCP client.">
 <style>
   :root {
     color-scheme: light dark;
@@ -181,9 +181,9 @@
     <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
   </svg>
   <p class="lede">
-    Turn any browser tab into a <em>Claude-callable MCP server</em>.
+    Turn any <em>browser tab</em> into an MCP server.
   </p>
-  <p class="sub">No Node bridge, no install, no public URL. The protocol carries tool calls peer-to-peer between a tab and any local Claude — over <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> and WebRTC.</p>
+  <p class="sub">No Node bridge, no install, no public URL. The protocol carries tool calls peer-to-peer between a tab and any local MCP client — over <a href="https://github.com/webmachinelearning/webmcp">WebMCP</a> and WebRTC.</p>
 </div>
 
 <div class="arch">
@@ -251,7 +251,7 @@
     <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a> and copy the <em>"Paste in Claude Code"</em> prompt — it looks like <code>Connect neves.cloud/b#hi-XXXXXX</code>.</li>
     <li>Paste it into Claude Code. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</li>
   </ol>
-  <p>Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>. Same flow for Cursor / Claude Desktop with their MCP-server config.</p>
+  <p>Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>. Same flow for Cursor, Claude Desktop, MCP Inspector, or any stdio MCP client with an mcpServers config.</p>
   <div class="topics">
     <span class="topic">stdio mcp</span>
     <span class="topic">claude code</span>
