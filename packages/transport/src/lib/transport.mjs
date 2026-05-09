@@ -229,6 +229,11 @@ function wrapSession({ pc, dc, ws, dcOpenTimeoutMs, visitorPubkey = null }) {
   return {
     ready,
     visitorPubkey,
+    /** Cheap liveness check. False if the data channel is no longer open
+     *  or the session was closed locally. Used by host-side transports to
+     *  drop stale sessions whose onClose hasn't fired yet (WebRTC can
+     *  take several seconds to detect a hard drop).  */
+    isAlive() { return !closed && dc.readyState === 'open'; },
     send(msg) {
       if (closed || dc.readyState !== 'open') return false;
       const payload = typeof msg === 'string' ? msg : JSON.stringify(msg);
