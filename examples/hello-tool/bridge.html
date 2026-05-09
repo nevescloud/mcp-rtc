@@ -63,10 +63,10 @@
   @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.7); } }
   main { flex: 1; padding: 3rem 1.25rem; }
   .container { max-width: 600px; margin: 0 auto; }
-  .sig { color: var(--accent); margin: 0 auto 1.5rem; display: block; opacity: 0.95; }
-  .sig.lg { width: 96px; height: 38px; }
-  .sig rect { fill: currentColor; }
-  .sig path  { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .sig.lg { color: var(--accent); width: 96px; height: 38px;
+    margin: 0 auto 1.5rem; display: block; opacity: 0.95; }
+  .sig.lg rect { fill: currentColor; }
+  .sig.lg path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
   .sig.connecting path { stroke-dasharray: 4 3; animation: dash 1.4s linear infinite; }
   @keyframes dash { to { stroke-dashoffset: -14; } }
   .knock-stage { text-align: center; padding: 1.5rem 0 1rem; }
