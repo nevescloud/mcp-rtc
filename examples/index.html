@@ -172,7 +172,7 @@
     register tools via            channel,
     @jonasneves/mcp-rtc           peer-to-peer)
                        │                                ┌─► Claude Code  via stdio bridge
-                       └──────────────────────────────► │   (npx mcp-webrtc-bridge)
+                       └──────────────────────────────► │   (npx @jonasneves/mcp-webrtc-bridge)
                                                         │
                                                         └─► Claude.ai    via bridge tab + WebMCP
                                                             (Chrome 146+ with consumer)</pre>
@@ -180,16 +180,15 @@
 <h2>Try it</h2>
 
 <div class="demo featured">
-  <span class="label">★ Recommended</span>
-  <h3>Browser tab calls another browser tab's tool, via local Claude.</h3>
+  <h3>Browser ↔ browser, via local Claude.</h3>
   <ol>
     <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>#hi-XXXXXX</code> the URL generates.</li>
     <li>Open <a href="https://neves.cloud/b/" target="_blank" rel="noopener"><strong>neves.cloud/b/#hi-XXXXXX</strong></a> in a Chrome 146+ tab with a WebMCP consumer (e.g. the Anthropic Claude extension).</li>
     <li>Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</li>
   </ol>
-  <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open /h/ →</a>
-  <a class="btn secondary" href="https://neves.cloud/b/" target="_blank" rel="noopener">Open /b/ →</a>
-  <p class="req"><strong>Requires:</strong> Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension). The terminal alternative below has no such requirement.</p>
+  <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open the example tab →</a>
+  <a class="btn secondary" href="https://neves.cloud/b/" target="_blank" rel="noopener">Open the bridge tab →</a>
+  <p class="req"><strong>Requires:</strong> Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).</p>
   <div class="topics">
     <span class="topic">webmcp</span>
     <span class="topic">webrtc</span>
@@ -199,7 +198,7 @@
 </div>
 
 <div class="demo">
-  <h3>Or use Claude Code, from your terminal.</h3>
+  <h3>Browser ↔ Claude Code, from your terminal.</h3>
   <ol>
     <li>Add to <code>~/.claude/settings.json</code> and restart:
       <div class="codeblock">
@@ -225,12 +224,12 @@
   </div>
 </div>
 
-<h2>Other examples · live</h2>
+<h2>Live</h2>
 <div class="planned-grid">
   <div class="planned-row"><a href="https://neves.cloud/p/"><strong>phone-as-tools</strong></a> <span class="desc">— open <code>neves.cloud/p/</code> on your phone; your laptop's Claude gets <code>take_photo</code>, <code>get_location</code>, <code>read_clipboard</code>, <code>get_orientation</code>.</span></div>
 </div>
 
-<h2>Other examples · planned</h2>
+<h2>Planned</h2>
 <div class="planned-grid">
   <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/hands-and-eyes/README.md">hands-and-eyes</a> <span class="desc">— remote pair programming where the AI sees your screen.</span></div>
   <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/examples/shared-dev-env/README.md">shared-dev-env</a> <span class="desc">— share specific dev-environment tools with a teammate's Claude.</span></div>
