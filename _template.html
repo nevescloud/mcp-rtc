@@ -1,0 +1,228 @@
+<!doctype html>
+<!--
+  CANONICAL BRAND-CHROME TEMPLATE — mcp-rtc
+
+  This is the source of truth for the inline CSS, header HTML, favicon SVG,
+  status pill state machine, codeblock + copy-button, and importmap shape
+  shared by every mcp-rtc consumer page (neves.cloud/{b,h,p,v}/, hello-tool's
+  {hello,bridge,client}.html, confer's canvas.html). Copy-paste in, then add
+  page-specific markup + JS.
+
+  When you tweak palette, status states, or any chunk marked
+  TEMPLATE-SHARED below, edit it HERE FIRST, then propagate by hand or with
+  a sed sweep. There is no build step that pulls these in — each page is
+  intentionally self-contained so the demos are portable (drop one HTML
+  file anywhere, it works). The template trades zero-build for a copy
+  discipline.
+
+  If a page diverges (canvas.html keeps idle/ok/warn instead of
+  idle/paired/active/error because of multi-peer semantics), document why
+  in the page itself rather than forcing alignment with the template.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PAGE-TITLE · neves.cloud</title>
+<meta name="description" content="PAGE-DESCRIPTION">
+
+<!-- TEMPLATE-SHARED: favicon. Inline SVG, accent-colored. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 60 24%22><rect x=%222%22 y=%226%22 width=%2212%22 height=%2212%22 rx=%223%22 fill=%22%231E40AF%22/><rect x=%2246%22 y=%226%22 width=%2212%22 height=%2212%22 rx=%223%22 fill=%22%231E40AF%22/><path d=%22M14 12 q5 -5 11 0 t11 0 t11 0%22 fill=%22none%22 stroke=%22%231E40AF%22 stroke-width=%221.8%22/></svg>">
+
+<!-- Page-specific. Drop or rewrite the install-hint per page. -->
+<meta name="mcp-install-hint" content='{"role":"host","exposes":["TOOL_NAME"],"siteSource":"fragment","consume":"https://neves.cloud/b/#{fragment}","stdio":{"command":"npx","args":["-y","@nevescloud/mcp-rtc-bridge"],"afterInstall":{"tool":"connect","argsTemplate":{"siteId":"{fragment}"}}},"docs":"https://github.com/jonasneves/mcp-rtc"}'>
+
+<style>
+  /* TEMPLATE-SHARED: color tokens. Light + dark, accent palette is deep
+     blue (#1E40AF) on light, lighter blue (#60A5FA) on dark for AA
+     contrast on dark backgrounds. */
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f5f7; --surface: #fff; --surface-2: #fafafc;
+    --ink: #1d1d1f; --ink-muted: #6e6e73; --ink-faint: #8e8e93;
+    --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
+    --code-bg: rgba(0,0,0,0.06);
+    --accent: #1E40AF; --accent-strong: #1E3A8A; --accent-soft: rgba(30,64,175,0.10); --accent-ink: #fff;
+    --ok: #006d51; --warn: #C97D14; --err: #C84E00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1a1d20; --surface: #262a2e; --surface-2: #21252a;
+            --ink: #e9ecef; --ink-muted: #adb5bd; --ink-faint: #6e757c;
+            --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
+            --code-bg: rgba(255,255,255,0.08);
+            --accent: #60A5FA; --accent-strong: #93C5FD; --accent-soft: rgba(96,165,250,0.14); --accent-ink: #0e1424;
+            --ok: #66b288; --warn: #f5b452; --err: #e57057; }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  body { background: var(--bg); color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    -webkit-font-smoothing: antialiased; }
+
+  /* TEMPLATE-SHARED: header chrome (brand + wordmark + page name + status). */
+  header { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
+    display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap;
+    background: var(--surface); }
+  .brand { display: flex; align-items: center; gap: 0.55rem;
+    color: var(--accent); text-decoration: none; }
+  .brand .sig rect { fill: currentColor; }
+  .brand .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+  .wordmark .mcp { color: var(--accent); }
+  .wordmark .sep { color: var(--ink-faint); margin: 0 0.1em; font-weight: 400; }
+  .wordmark .rtc { color: var(--ink); opacity: 0.85; }
+  .pagename { font-size: 12px; color: var(--ink-muted);
+    padding-left: 0.85rem; border-left: 1px solid var(--border); }
+
+  /* TEMPLATE-SHARED: status pill, five-state machine
+     (starting / listening / paired / active / error). Class lives on
+     #status itself, not on the dot, so descendant selectors style the
+     dot from the parent state. Canvas keeps idle/ok/warn for multi-peer
+     semantics; that divergence is documented in canvas.html. */
+  #status { margin-left: auto; display: inline-flex; align-items: center;
+    gap: 0.4rem; font-size: 12px; padding: 0.25rem 0.7rem; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border-soft);
+    color: var(--ink-muted); transition: all 0.2s ease;
+    font-variant-numeric: tabular-nums; }
+  #status.idle    { color: var(--ink-muted); }
+  #status.paired  { color: var(--ok); background: rgba(0,109,81,0.10); border-color: transparent; }
+  #status.active  { color: var(--ok); background: rgba(0,109,81,0.10); border-color: transparent; }
+  #status.error   { color: var(--err); background: rgba(200,78,0,0.10); border-color: transparent; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: currentColor; }
+  #status.idle .dot { color: var(--ink-faint); opacity: 0.5; }
+  #status.active .dot { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  /* TEMPLATE-SHARED: codeblock + copy button. */
+  .codeblock { position: relative; background: var(--code-bg); border-radius: 6px;
+    padding: 0.5rem 0.75rem; padding-right: 3.5rem; overflow: hidden; }
+  .codeblock pre { margin: 0; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px; color: var(--ink); overflow-x: auto; line-height: 1.4; }
+  .codeblock .copy-btn { position: absolute; top: 0.25rem; right: 0.25rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+    padding: 0.2rem 0.5rem; font: inherit; font-size: 10.5px; color: var(--ink-muted);
+    cursor: copy; line-height: 1; transition: color 0.15s, border-color 0.15s; }
+  .codeblock .copy-btn:hover { color: var(--ink); border-color: var(--accent); }
+  .codeblock .copy-btn.copied { color: var(--ok); border-color: var(--ok); }
+  .codeblock .copy-btn.copied::after { content: ' ✓'; }
+
+  /* Page-specific styles go below this line. */
+</style>
+
+<!-- TEMPLATE-SHARED: importmap. Pin to a published @nevescloud/mcp-rtc
+     version. Browser pages should also import the MCP SDK + zod. -->
+<script type="importmap">
+{
+  "imports": {
+    "@nevescloud/mcp-rtc": "https://esm.sh/@nevescloud/mcp-rtc@0.1.1",
+    "zod":         "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
+    "zod/v4":      "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
+    "zod/v3":      "https://esm.sh/zod@4.4.3/v3",
+    "zod/v4-mini": "https://esm.sh/zod@4.4.3/v4-mini"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- TEMPLATE-SHARED: header. Replace `pagename` text per page. -->
+<header>
+  <a class="brand" href="https://neves.cloud/mcp-rtc/">
+    <svg class="sig" width="44" height="18" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <span class="wordmark"><span class="mcp">mcp</span><span class="sep">·</span><span class="rtc">rtc</span></span>
+  </a>
+  <span class="pagename">PAGE-NAME</span>
+  <span id="status" class="idle"><span class="dot"></span><span id="status-text">starting…</span></span>
+</header>
+
+<main>
+  <!-- Page content goes here. -->
+</main>
+
+<script type="module">
+import { McpServer } from 'https://esm.sh/@modelcontextprotocol/sdk@1.29.0/server/mcp?external=zod&deps=zod@4.4.3';
+import * as z from 'zod/v4';
+import { WebRTCServerTransport } from '@nevescloud/mcp-rtc';
+
+// TEMPLATE-SHARED: site id. Generate on first visit, persist via the
+// URL fragment so the share link stays stable across reloads.
+const url = new URL(location);
+let SITE = url.hash.replace(/^#/, '') || null;
+if (!SITE) {
+  SITE = 'PREFIX-' + Math.random().toString(36).slice(2, 8);
+  url.hash = SITE;
+  history.replaceState({}, '', url);
+}
+
+// TEMPLATE-SHARED: status pill state machine.
+const statusBox  = document.getElementById('status');
+const statusText = document.getElementById('status-text');
+function setStatus(text, kind = 'idle') {
+  statusText.textContent = text;
+  statusBox.className = kind;
+}
+let peerSeen = false;
+let activeTimer = null;
+function showActive(label) {
+  setStatus(label, 'active');
+  if (activeTimer) clearTimeout(activeTimer);
+  activeTimer = setTimeout(() => {
+    if (peerSeen) setStatus('connected', 'paired');
+  }, 600);
+}
+
+// TEMPLATE-SHARED: copy-button wiring. Each .codeblock has a <button
+// class="copy-btn"> + <pre>; clicking copies the pre's text.
+for (const btn of document.querySelectorAll('.codeblock .copy-btn')) {
+  btn.addEventListener('click', async () => {
+    const target = btn.parentElement.querySelector('pre');
+    try { await navigator.clipboard.writeText(target.textContent); } catch {}
+    btn.classList.add('copied');
+    setTimeout(() => btn.classList.remove('copied'), 1400);
+  });
+}
+
+// Page-specific tools go here.
+const server = new McpServer({ name: 'PAGE-NAME', version: '0.0.1' });
+// server.tool(...)
+
+// TEMPLATE-SHARED: transport boot + state-machine wiring. Chain the
+// transport callbacks AFTER the SDK has wired its own — first inbound
+// message means a peer paired; close means peer left; error transitions
+// the pill.
+setStatus('starting…', 'idle');
+const transport = new WebRTCServerTransport({ siteId: SITE });
+await server.connect(transport);
+setStatus('listening', 'idle');
+
+const sdkOnMessage = transport.onmessage;
+transport.onmessage = (msg) => {
+  if (!peerSeen) {
+    peerSeen = true;
+    setStatus('connected', 'paired');
+  }
+  return sdkOnMessage?.(msg);
+};
+const sdkOnClose = transport.onclose;
+transport.onclose = () => {
+  peerSeen = false;
+  setStatus('listening', 'idle');
+  return sdkOnClose?.();
+};
+const sdkOnError = transport.onerror;
+transport.onerror = (err) => {
+  setStatus('error: ' + (err?.message || err), 'error');
+  return sdkOnError?.(err);
+};
+</script>
+</body>
+</html>

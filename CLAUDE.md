@@ -93,6 +93,12 @@ The terminal bridge was renamed `mcp-webrtc-bridge` → `mcp-rtc-bridge` so the 
 4. `SPEC.md` is the wire-format contract — read it when changing the wire, not before.
 5. `packages/bridge-tab/src/index.mjs` is small (~30 LOC of real code) and is the project's load-bearing artifact. Read it to internalize how the WebMCP↔mcp-rtc adapter works.
 
+## Shared brand chrome — `_template.html`
+
+`_template.html` at the repo root is the canonical source for the inline CSS, header HTML, favicon SVG, status-pill state machine, codeblock + copy-button, and importmap shape that every consumer page (`/b/`, `/h/`, `/p/`, `/v/`, hello-tool's `{hello,bridge,client}.html`, confer's `canvas.html`) currently inlines. There is **no build step** that pulls these in — each page is intentionally self-contained so the demos remain portable (drop one HTML file anywhere, it works). The template trades zero-build for a copy discipline.
+
+When tweaking palette, status states, or any chunk marked `TEMPLATE-SHARED` in the file, edit it **there first**, then propagate to consumer pages by hand or with a sed sweep. Document any deliberate divergence in the diverging page (canvas.html keeps `idle/ok/warn` instead of `idle/paired/active/error` because of multi-peer semantics — that's noted in canvas.html itself).
+
 ## What lives elsewhere
 
 - `@jonasneves/mcp-webrtc` (npm) — predecessor reference impl this package was ported from. Superseded; remains published for any external consumers.
