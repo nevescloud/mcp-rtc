@@ -29,7 +29,7 @@ Three independent ways to call the tool from an actual AI. Run any (or all) agai
 
 ### Path A — in-browser inference (no API, no install, no vendor)
 
-Open `examples/hello-tool/client.html` in a second browser tab. It loads a small instruction-tuned model entirely client-side (default: Qwen2.5-0.5B-Instruct via [WebLLM](https://webllm.mlc.ai/), with [Chrome's built-in Gemini Nano](https://developer.chrome.com/docs/ai/built-in) as a fallback when the browser supports it). The page connects to `hello.html` via `mcp-rtc`, lists the tool, prompts the local model with *"call get_greeting and tell me what the tab said."* The model issues a tool call, the call routes peer-to-peer, the model speaks the result.
+Open `docs/examples/hello-tool/client.html` in a second browser tab. It loads a small instruction-tuned model entirely client-side (default: Qwen2.5-0.5B-Instruct via [WebLLM](https://webllm.mlc.ai/), with [Chrome's built-in Gemini Nano](https://developer.chrome.com/docs/ai/built-in) as a fallback when the browser supports it). The page connects to `hello.html` via `mcp-rtc`, lists the tool, prompts the local model with *"call get_greeting and tell me what the tab said."* The model issues a tool call, the call routes peer-to-peer, the model speaks the result.
 
 No API key. No external service. No Anthropic, no OpenAI, no Google. Just protocol + browser + on-device inference. This is the path that proves mcp-rtc is genuinely model-agnostic.
 

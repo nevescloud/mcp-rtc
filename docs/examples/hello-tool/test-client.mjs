@@ -4,7 +4,7 @@
 // Usage: open hello.html in a browser, copy the site id from the URL,
 // then:
 //
-//   node examples/hello-tool/test-client.mjs <site-id>
+//   node docs/examples/hello-tool/test-client.mjs <site-id>
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { WebRTCClientTransport } from '../../packages/transport/src/index.mjs';
