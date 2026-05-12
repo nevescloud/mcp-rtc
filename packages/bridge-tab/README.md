@@ -22,7 +22,7 @@ The standard MCP transports (stdio, Streamable HTTP) require either a local Node
 
 ## Status
 
-**0.1.0.** Single export, single dependency on `@nevescloud/mcp-rtc`. Tested live against `examples/hello-tool/bridge.html` in the spec repo.
+**0.1.0.** Single export, single dependency on `@nevescloud/mcp-rtc`. Tested live against `docs/examples/hello-tool/bridge.html` in the spec repo.
 
 ## Requirements
 
@@ -58,7 +58,7 @@ The execute handler for each registered WebMCP tool forwards the call over WebRT
 
 ## Standalone drop-in
 
-For users who want the bridge without writing any JS, the spec repo ships `examples/hello-tool/bridge.html` — a minimal page that calls `mountBridge` with the site id read from the URL fragment (`/bridge.html#cv-abc12345`). Adapt or copy as needed.
+For users who want the bridge without writing any JS, the spec repo ships `docs/examples/hello-tool/bridge.html` — a minimal page that calls `mountBridge` with the site id read from the URL fragment (`/bridge.html#cv-abc12345`). Adapt or copy as needed.
 
 ## Companion package
 

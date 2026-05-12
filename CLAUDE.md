@@ -24,7 +24,7 @@ to normal evolution rules then.
 Artifact priority:
 
 1. **`packages/bridge-tab`** — the load-bearing contribution. Browser tab as WebMCP↔mcp-rtc adapter. The pattern is the project.
-2. **`examples/`** — the proof points. `hello-tool` is the smallest working demo (Path B + Path C live; Path A deferred). Named placeholders for `phone-as-tools`, `shared-dev-env`, `hands-and-eyes`, `sensor-mesh`, `canvas-peer` are the planned proof points along the asymmetric / cross-user / multi-peer axes; each earns its README only when the code exists.
+2. **`docs/examples/`** — the proof points. `hello-tool` is the smallest working demo (Path B + Path C live; Path A deferred). Named placeholders for `phone-as-tools`, `shared-dev-env`, `hands-and-eyes`, `sensor-mesh`, `canvas-peer` are the planned proof points along the asymmetric / cross-user / multi-peer axes; each earns its README only when the code exists.
 3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@nevescloud/mcp-rtc` and currently powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-rtc-bridge`, `confer-mcp`, `confer-agent`).
 4. **`SPEC.md`** — supporting documentation. Tone: dry, precise, RFC-shaped. Exists so a second implementation can talk to the first; doesn't drive adoption on its own. *Do not* turn it into a marketing document.
 
@@ -89,7 +89,7 @@ The terminal bridge was renamed `mcp-webrtc-bridge` → `mcp-rtc-bridge` so the 
 
 1. Read this file's "Strategic intent" and "Positioning landscape" sections before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
 2. Read `README.md` for the current public shape.
-3. Read `examples/hello-tool/README.md` to see what end-to-end looks like; open `hello.html` and `bridge.html` to see the actual implementations of the headline pattern.
+3. Read `docs/examples/hello-tool/README.md` to see what end-to-end looks like; open `hello.html` and `bridge.html` to see the actual implementations of the headline pattern.
 4. `SPEC.md` is the wire-format contract — read it when changing the wire, not before.
 5. `packages/bridge-tab/src/index.mjs` is small (~30 LOC of real code) and is the project's load-bearing artifact. Read it to internalize how the WebMCP↔mcp-rtc adapter works.
 
@@ -110,11 +110,11 @@ When tweaking palette, status states, or any chunk marked `TEMPLATE-SHARED` in t
 
 Library-led order: ship demos and consumers; let the spec catch up.
 
-1. **Build `examples/phone-as-tools`** (or whichever asymmetric-capability demo lands first). The visceral demo — open a page on your phone, your laptop's Claude calls `take_photo` / `get_location` / `read_clipboard`. If even one example becomes a viral demo or someone's daily tool, the project compounds. Each example earns its README only when the code exists.
+1. **Build `docs/examples/phone-as-tools`** (or whichever asymmetric-capability demo lands first). The visceral demo — open a page on your phone, your laptop's Claude calls `take_photo` / `get_location` / `read_clipboard`. If even one example becomes a viral demo or someone's daily tool, the project compounds. Each example earns its README only when the code exists.
 2. **Migrate confer's `canvas.html` to consume `bridge-tab`.** Replaces the hand-rolled WebMCP-equivalent in canvas with `@nevescloud/mcp-rtc-bridge-tab`. Validates the library against a real multi-peer consumer and gives canvas a proper second implementation.
 3. **Ship a second demo on a different axis.** `shared-dev-env` (cross-user) or `hands-and-eyes` (asymmetric + cross-user). Two distinct demos cover the use-case story far better than one.
 4. **Path A (deferred) for `hello-tool`** — in-browser inference. Makes the model-agnostic claim verifiable rather than theoretical. Tool calling at sub-1B parameters is fragile in 2026; revisit once the substrate is more battle-tested.
 5. **Stabilize the spec.** Once the library has been exercised by 2–3 distinct demos and one external consumer, fold lessons learned back into SPEC.md. The spec absorbs reality, doesn't dictate it.
 6. **Watch standardization paths.** Don't pre-commit. SEP / W3C-CG / informal RFC are options once there are real outside implementers asking for the contract.
 
-Already shipped (for context): `packages/transport@0.1.1`, `packages/bridge-tab@0.1.1`, `packages/bridge@0.4.0` (renamed from `mcp-webrtc-bridge`, moved from the `mcp-webrtc/` repo into this one), `examples/hello-tool` with hello.html + bridge.html + Node test client. Three downstream consumers (`mcp-rtc-bridge`, `confer-mcp`, `confer-agent`) depend on the transport. Packages were originally published under `@jonasneves/*`; in-repo references now name `@nevescloud/*` ahead of the coordinated republish (see *Relationship to existing packages*).
+Already shipped (for context): `packages/transport@0.1.1`, `packages/bridge-tab@0.1.1`, `packages/bridge@0.4.0` (renamed from `mcp-webrtc-bridge`, moved from the `mcp-webrtc/` repo into this one), `docs/examples/hello-tool` with hello.html + bridge.html + Node test client. Three downstream consumers (`mcp-rtc-bridge`, `confer-mcp`, `confer-agent`) depend on the transport. Packages were originally published under `@jonasneves/*`; in-repo references now name `@nevescloud/*` ahead of the coordinated republish (see *Relationship to existing packages*).

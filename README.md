@@ -21,9 +21,9 @@ Two short URLs, one machine, one Claude:
 2. Open **[neves.cloud/b/#hi-XXXXXX](https://neves.cloud/b/)** in Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).
 3. Ask Claude *"call get_greeting"*. The call routes peer-to-peer over WebRTC.
 
-Two machines work the same way — share the site id with anyone, anywhere. `/h/` and `/b/` are the canonical host and bridge URLs; in-repo [`hello.html`](./examples/hello-tool/hello.html) and [`bridge.html`](./examples/hello-tool/bridge.html) are the same code, kept as forkable examples.
+Two machines work the same way — share the site id with anyone, anywhere. `/h/` and `/b/` are the canonical host and bridge URLs; in-repo [`hello.html`](./docs/examples/hello-tool/hello.html) and [`bridge.html`](./docs/examples/hello-tool/bridge.html) are the same code, kept as forkable examples.
 
-> The Chrome extension requirement is only for **this** flow (Claude.ai / Desktop via WebMCP). Claude Code, Cursor, and any other terminal MCP client reach the same `/h/` server via the [stdio bridge](./examples/hello-tool/README.md#path-b--claude-code-via-stdio-bridge) — no browser involved.
+> The Chrome extension requirement is only for **this** flow (Claude.ai / Desktop via WebMCP). Claude Code, Cursor, and any other terminal MCP client reach the same `/h/` server via the [stdio bridge](./docs/examples/hello-tool/README.md#path-b--claude-code-via-stdio-bridge) — no browser involved.
 
 ## Repo
 
@@ -31,7 +31,7 @@ Two machines work the same way — share the site id with anyone, anywhere. `/h/
 |---|---|---|
 | **[packages/bridge-tab](./packages/bridge-tab)** (`@nevescloud/mcp-rtc-bridge-tab`) | The library. Browser-side WebMCP↔mcp-rtc adapter. | 0.1.0, published |
 | **[packages/transport](./packages/transport)** (`@nevescloud/mcp-rtc`) | Reference implementation of the wire mapping. Node + browser. | 0.1.0, published |
-| **[examples/hello-tool](./examples/hello-tool)** | Tab as MCP server, with three consumption paths. | working |
+| **[docs/examples/hello-tool](./docs/examples/hello-tool)** | Tab as MCP server, with three consumption paths. | working |
 | **[SPEC.md](./SPEC.md)** | Wire-format contract. Lets future implementations interoperate at Layer 1. | Draft 0.1 |
 
 The bridge library is the contribution. The transport is the substrate that makes it work. The spec is supporting documentation for anyone writing a second implementation.
