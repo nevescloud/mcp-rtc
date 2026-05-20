@@ -119,23 +119,33 @@
     box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
   .demo.featured { border-color: var(--accent);
     background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 60%); }
-  .demo.featured .label { display: inline-block; font-size: 10px;
-    text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent);
-    background: var(--accent-soft); padding: 0.15rem 0.5rem;
-    border-radius: 4px; margin-bottom: 0.4rem; }
   .demo h3 { margin: 0 0 0.5rem; font-size: 16px; }
   .demo p { margin: 0.4rem 0; font-size: 14px; }
   .demo ol { margin: 0.5rem 0; padding-left: 1.2rem; font-size: 14px;
     color: var(--ink-muted); }
-  .demo ol li { margin: 0.3rem 0; }
-  .demo a.btn { display: inline-block; margin-top: 0.6rem; margin-right: 0.5rem;
+  .demo ol li { margin: 0.6rem 0; }
+  .demo a.btn { display: inline-block; margin-top: 0.5rem; margin-right: 0.5rem;
     padding: 0.5rem 1rem; border-radius: 8px; background: var(--accent);
     color: white; text-decoration: none; font-size: 13px; font-weight: 500; }
-  .demo a.btn.secondary { background: transparent; color: var(--ink);
-    border: 1px solid var(--border); }
   .demo a.btn:hover { opacity: 0.85; }
   .demo .req { font-size: 12px; color: var(--ink-muted); margin-top: 0.5rem; }
   .demo .req strong { color: var(--ink); }
+  /* Pure-CSS tab toggle: radios precede the tabs/panes so :checked ~ works. */
+  .surface-toggle > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+  .surface-tabs { display: flex; gap: 0.25rem; margin-top: 0.65rem;
+    border-bottom: 1px solid var(--border-soft); }
+  .surface-tabs label { padding: 0.5rem 0.9rem; font-size: 13px; font-weight: 500;
+    color: var(--ink-muted); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s; }
+  .surface-tabs label:hover { color: var(--ink); }
+  .surface-pane { display: none; padding-top: 1rem; }
+  .surface-pane p { margin: 0.4rem 0; }
+  #surface-ai:checked ~ .surface-tabs label[for="surface-ai"],
+  #surface-code:checked ~ .surface-tabs label[for="surface-code"] {
+    color: var(--accent); border-bottom-color: var(--accent); }
+  #surface-ai:checked ~ .surface-pane[data-surface="ai"],
+  #surface-code:checked ~ .surface-pane[data-surface="code"] { display: block; }
   .planned-grid { display: grid; gap: 0.5rem; margin: 0.75rem 0;
     animation: fade-up 0.5s 0.18s var(--ease) both; }
   .planned-row { background: var(--surface); border: 1px solid var(--border);
@@ -145,10 +155,6 @@
   .planned-row a { color: var(--ink); text-decoration: none; font-weight: 500; }
   .planned-row a:hover { color: var(--accent); }
   .planned-row .desc { color: var(--ink-muted); font-size: 13px; }
-  .topics { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.6rem; }
-  .topic { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
-    font-weight: 500; padding: 0.15rem 0.5rem; border-radius: 4px;
-    background: var(--accent-soft); color: var(--accent); }
   footer { padding: 1.5rem 1.25rem; color: var(--ink-muted); font-size: 12px;
     border-top: 1px solid var(--border); text-align: center; }
   footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.5rem; }
@@ -167,8 +173,6 @@
   </a>
   <nav>
     <a class="nav-link" href="https://github.com/jonasneves/mcp-rtc">GitHub</a>
-    <a class="nav-link" href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>
-    <a class="nav-link" href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge-tab">npm</a>
   </nav>
 </header>
 <main>
@@ -215,29 +219,32 @@
 <h2>Try it</h2>
 
 <div class="demo featured">
-  <h3>Browser ↔ browser, via local Claude.</h3>
+  <h3>Call a browser tab as a tool from Claude.</h3>
   <ol>
-    <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a>. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>#hi-XXXXXX</code> the URL generates.</li>
-    <li>Open <a href="https://neves.cloud/b/" target="_blank" rel="noopener"><strong>neves.cloud/b/#hi-XXXXXX</strong></a> in a Chrome 146+ tab with a WebMCP consumer (e.g. the Anthropic Claude extension).</li>
-    <li>Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</li>
-  </ol>
-  <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open the example tab →</a>
-  <a class="btn secondary" href="https://neves.cloud/b/" target="_blank" rel="noopener">Open the bridge tab →</a>
-  <p class="req"><strong>Requires:</strong> Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).</p>
-  <div class="topics">
-    <span class="topic">webmcp</span>
-    <span class="topic">webrtc</span>
-    <span class="topic">bridge-tab</span>
-    <span class="topic">no-install</span>
-  </div>
-</div>
+    <li>
+      Open the host page. The tab becomes an MCP server with one tool, <code>get_greeting</code>. Note the <code>#hi-XXXXXX</code> in the URL.
+      <a class="btn" href="https://neves.cloud/h/" target="_blank" rel="noopener">Open the host page →</a>
+    </li>
+    <li>
+      Connect Claude to that site id:
+      <div class="surface-toggle">
+        <input type="radio" name="surface" id="surface-ai" checked>
+        <input type="radio" name="surface" id="surface-code">
+        <div class="surface-tabs">
+          <label for="surface-ai">From Claude.ai</label>
+          <label for="surface-code">From Claude Code</label>
+        </div>
 
-<div class="demo">
-  <h3>Browser ↔ Claude Code, from your terminal.</h3>
-  <ol>
-    <li>Add to <code>~/.claude/settings.json</code> and restart:
-      <div class="codeblock">
-        <button class="copy-btn" type="button" data-copy="settings-json">copy</button>
+        <div class="surface-pane" data-surface="ai">
+          <p>Open the bridge page with your site id in the fragment, in a Chrome 146+ tab where a WebMCP consumer (e.g. the Anthropic Claude extension) is attached. Ask Claude <em>"call get_greeting"</em>. The call routes peer-to-peer over WebRTC; the result comes back through WebMCP.</p>
+          <a class="btn" href="https://neves.cloud/b/" target="_blank" rel="noopener">Open the bridge page →</a>
+          <p class="req"><strong>Requires:</strong> Chrome 146+ with a WebMCP consumer (e.g. the Anthropic Claude extension).</p>
+        </div>
+
+        <div class="surface-pane" data-surface="code">
+          <p>Add to <code>~/.claude/settings.json</code> and restart:</p>
+          <div class="codeblock">
+            <button class="copy-btn" type="button" data-copy="settings-json">copy</button>
 <pre id="settings-json">{
   "mcpServers": {
     "mcp-rtc-bridge": {
@@ -246,39 +253,25 @@
     }
   }
 }</pre>
+          </div>
+          <p>Copy the <em>"Paste in Claude Code"</em> prompt from the host page and paste it into Claude Code. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</p>
+          <p class="req">Same flow for Cursor, Claude Desktop, MCP Inspector, or any stdio MCP client.</p>
+        </div>
       </div>
     </li>
-    <li>Open <a href="https://neves.cloud/h/" target="_blank" rel="noopener"><strong>neves.cloud/h/</strong></a> and copy the <em>"Paste in Claude Code"</em> prompt — it looks like <code>Connect neves.cloud/b#hi-XXXXXX</code>.</li>
-    <li>Paste it into Claude Code. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</li>
   </ol>
-  <p>Works against any <code>mcp-rtc</code> server, not just <code>hello.html</code>. Same flow for Cursor, Claude Desktop, MCP Inspector, or any stdio MCP client with an mcpServers config.</p>
-  <div class="topics">
-    <span class="topic">stdio mcp</span>
-    <span class="topic">claude code</span>
-    <span class="topic">no browser</span>
-  </div>
 </div>
 
 <h2>Live</h2>
 <div class="planned-grid">
-  <div class="planned-row"><a href="https://neves.cloud/p/"><strong>phone-as-tools</strong></a> <span class="desc">— open <code>neves.cloud/p/</code> on your phone; your laptop's Claude gets <code>take_photo</code>, <code>get_location</code>, <code>read_clipboard</code>, <code>get_orientation</code>.</span></div>
+  <div class="planned-row"><a href="https://neves.cloud/p/"><strong>phone-as-tools</strong></a> <span class="desc">— open it on your phone; your laptop's Claude gets <code>take_photo</code>, <code>get_location</code>, <code>read_clipboard</code>, <code>get_orientation</code>.</span></div>
 </div>
 
-<h2>Planned</h2>
-<div class="planned-grid">
-  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/docs/examples/hands-and-eyes/README.md">hands-and-eyes</a> <span class="desc">— remote pair programming where the AI sees your screen.</span></div>
-  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/docs/examples/shared-dev-env/README.md">shared-dev-env</a> <span class="desc">— share specific dev-environment tools with a teammate's Claude.</span></div>
-  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/docs/examples/sensor-mesh/README.md">sensor-mesh</a> <span class="desc">— many browser tabs as a mesh of MCP servers.</span></div>
-  <div class="planned-row"><a href="https://github.com/jonasneves/mcp-rtc/blob/main/docs/examples/canvas-peer/README.md">canvas-peer</a> <span class="desc">— multi-peer shared visual workspace; the original motivating use case.</span></div>
-</div>
 
 </div>
 </main>
 <footer>
   <a href="https://github.com/jonasneves/mcp-rtc">GitHub</a>·
-  <a href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge-tab">npm: bridge-tab</a>·
-  <a href="https://www.npmjs.com/package/@nevescloud/mcp-rtc">npm: transport</a>·
-  <a href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md">SPEC</a>·
   MIT
 </footer>
 <script>
