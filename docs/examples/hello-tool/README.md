@@ -6,6 +6,8 @@ This is the **smallest demo of mcp-rtc + AI**: one tool, two working paths, plus
 
 **Status:** Paths B and C are live (try them at [neves.cloud/mcp-rtc](http://neves.cloud/mcp-rtc/)). Path A is deferred.
 
+**Forward-looking note.** When the capability host (`docs/examples/capability-host`) ships, `get_greeting` becomes the always-available "heartbeat" capability there — it registers regardless of device, takes no permission, and gives every visit a transport smoke test for free. hello-tool stays in this folder as the minimal substrate test for anyone debugging the transport in isolation.
+
 ## What the tab exposes
 
 ```

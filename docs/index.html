@@ -146,15 +146,6 @@
     color: var(--accent); border-bottom-color: var(--accent); }
   #surface-ai:checked ~ .surface-pane[data-surface="ai"],
   #surface-code:checked ~ .surface-pane[data-surface="code"] { display: block; }
-  .planned-grid { display: grid; gap: 0.5rem; margin: 0.75rem 0;
-    animation: fade-up 0.5s 0.18s var(--ease) both; }
-  .planned-row { background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 13px;
-    transition: border-color 0.2s, transform 0.2s; }
-  .planned-row:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .planned-row a { color: var(--ink); text-decoration: none; font-weight: 500; }
-  .planned-row a:hover { color: var(--accent); }
-  .planned-row .desc { color: var(--ink-muted); font-size: 13px; }
   footer { padding: 1.5rem 1.25rem; color: var(--ink-muted); font-size: 12px;
     border-top: 1px solid var(--border); text-align: center; }
   footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.5rem; }
@@ -262,10 +253,8 @@
   </ol>
 </div>
 
-<h2>Live</h2>
-<div class="planned-grid">
-  <div class="planned-row"><a href="https://neves.cloud/p/"><strong>phone-as-tools</strong></a> <span class="desc">— open it on your phone; your laptop's Claude gets <code>take_photo</code>, <code>get_location</code>, <code>read_clipboard</code>, <code>get_orientation</code>.</span></div>
-</div>
+<h2>Next</h2>
+<p>The headline demo on the roadmap is <strong>capability-host</strong>: one page that probes the device and exposes web-platform APIs (screen via <code>getDisplayMedia</code>, files via File System Access, camera, GPS, paired devices via Web Bluetooth / Web Serial) as MCP tools. <strong>Screen-share</strong> ships first — "your terminal Claude sees your screen, no install on either side." Track progress on <a href="https://github.com/jonasneves/mcp-rtc">GitHub</a>.</p>
 
 
 </div>

@@ -11,7 +11,7 @@
 
 ## Why this exists
 
-Existing MCP transports (stdio, Streamable HTTP) cover the case where the server is a local process or a public-URL backend. They don't cover the case where the server is *a browser tab on someone else's machine*: a phone exposing camera and GPS, a teammate's laptop exposing dev-environment tools, an embedded device's web UI. WebRTC's NAT-traversing data channel does. `bridge-tab` packages it into a drop-in for any web page.
+Existing MCP transports (stdio, Streamable HTTP) cover the case where the server is a local process or a public-URL backend. They don't cover the case where the server is *a browser tab on someone else's machine*, exposing the web platform surface of that device — its camera, geolocation, clipboard, screen via `getDisplayMedia`, file system via File System Access, paired devices via Web Bluetooth / Web Serial — as Claude-callable tools. WebRTC's NAT-traversing data channel does. `bridge-tab` packages it into a drop-in for any web page.
 
 ## Try it
 
@@ -31,7 +31,8 @@ Two machines work the same way — share the site id with anyone, anywhere. `/h/
 |---|---|---|
 | **[packages/bridge-tab](./packages/bridge-tab)** (`@nevescloud/mcp-rtc-bridge-tab`) | The library. Browser-side WebMCP↔mcp-rtc adapter. | 0.1.0, published |
 | **[packages/transport](./packages/transport)** (`@nevescloud/mcp-rtc`) | Reference implementation of the wire mapping. Node + browser. | 0.1.0, published |
-| **[docs/examples/hello-tool](./docs/examples/hello-tool)** | Tab as MCP server, with three consumption paths. | working |
+| **[docs/examples/hello-tool](./docs/examples/hello-tool)** | Tab as MCP server (`get_greeting`), two consumption paths working, in-browser inference deferred. | working |
+| **[docs/examples/capability-host](./docs/examples/)** | Headline demo: one page probes the device and exposes web-platform APIs (screen, files, camera, …) as MCP tools. | planned |
 | **[SPEC.md](./SPEC.md)** | Wire-format contract. Lets future implementations interoperate at Layer 1. | Draft 0.1 |
 
 The bridge library is the contribution. The transport is the substrate that makes it work. The spec is supporting documentation for anyone writing a second implementation.
@@ -59,7 +60,7 @@ Three other Node implementations of "MCP over WebRTC" exist on npm; none interop
 
 ## Status
 
-Early. Library and transport published; bridge-tab pattern live; one implemented example runnable from the URL above. More demos and a multi-peer downstream consumer (confer canvas migration) on the immediate roadmap. Standardization path (SEP / W3C-CG / informal RFC) is open and intentionally uncommitted — the library is what people use; the spec catches up if a standardization moment arrives. Comments and revisions welcome via Issues.
+Early. Library and transport published; bridge-tab pattern live; the minimal `hello-tool` example runnable from the URL above. Immediate roadmap: build `docs/examples/capability-host` — one page that probes the device and exposes web-platform APIs as MCP tools, with **screen-share** (`getDisplayMedia` + `ImageCapture.grabFrame` → `capture_screen()`) as the wedge capability. File + folder share, paired-device tools via Web Bluetooth / Web Serial, and the confer canvas migration follow. Standardization path (SEP / W3C-CG / informal RFC) is open and intentionally uncommitted — the library and the capability host are what people use; the spec catches up if a standardization moment arrives. Comments and revisions welcome via Issues.
 
 ## License
 

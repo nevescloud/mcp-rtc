@@ -19,16 +19,16 @@ to normal evolution rules then.
 
 ## Strategic intent
 
-**Library-led work**, not standard-track. The earlier framing ("standard-track work, not a product") was the wrong destination. Three Node MCP-over-WebRTC implementations already exist on npm; the wire mapping is necessary infrastructure but not novel as an idea. Where this project's potential actually lives: `packages/bridge-tab` plus a small number of viral demos. The pattern *"any browser tab is an MCP server callable by any local Claude with no install"* doesn't exist anywhere else as of May 2026, and it unlocks deployment shapes (phone-as-tools, shared-dev-env, hands-and-eyes, sensor-mesh) that weren't previously possible.
+**Library-led work**, not standard-track. Three Node MCP-over-WebRTC implementations already exist on npm; the wire mapping is necessary infrastructure but not novel as an idea. Where this project's potential actually lives: one capability-exposing host page powered by `packages/bridge-tab`, where opening a URL on any device makes that device's web-platform surface (camera, GPS, screen, file system, Bluetooth, Serial) Claude-callable peer-to-peer. The pattern *"any browser tab exposes its device's web-platform capabilities as MCP tools, peer-to-peer, no install on either side"* doesn't exist anywhere else as of May 2026.
 
 Artifact priority:
 
-1. **`packages/bridge-tab`** — the load-bearing contribution. Browser tab as WebMCP↔mcp-rtc adapter. The pattern is the project.
-2. **`docs/examples/`** — the proof points. `hello-tool` is the smallest working demo (Path B + Path C live; Path A deferred). Named placeholders for `phone-as-tools`, `shared-dev-env`, `hands-and-eyes`, `sensor-mesh`, `canvas-peer` are the planned proof points along the asymmetric / cross-user / multi-peer axes; each earns its README only when the code exists.
-3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@nevescloud/mcp-rtc` and currently powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-rtc-bridge`, `confer-mcp`, `confer-agent`).
+1. **`docs/examples/capability-host`** (planned) — the headline demo. One unified host URL that probes the device and registers a tool per available web platform API. Subsumes phone-as-tools, hands-and-eyes, and sensor-mesh as device-class projections of the same primitive. **Screen-share** (`capture_screen` via `getDisplayMedia` + `ImageCapture.grabFrame`) is the wedge capability — *"Claude sees your screen, no install"* — and ships first.
+2. **`packages/bridge-tab`** — load-bearing library. Browser-side WebMCP↔mcp-rtc adapter; what consumer tabs run to bring remote MCP servers into a local WebMCP-aware Claude.
+3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@nevescloud/mcp-rtc` and powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-rtc-bridge`, `confer-mcp`, `confer-agent`).
 4. **`SPEC.md`** — supporting documentation. Tone: dry, precise, RFC-shaped. Exists so a second implementation can talk to the first; doesn't drive adoption on its own. *Do not* turn it into a marketing document.
 
-The repo's audience: developers who want any-tab-to-any-Claude tool exposure with no infrastructure. Confer canvas will be the first migrated consumer of `bridge-tab`; phone-as-tools etc. will demonstrate the broader use cases. Standardization (SEP, W3C-CG, informal RFC) is downstream of adoption — don't pre-commit; the library is what people will actually use.
+The repo's audience: developers who want their device's web-platform surface exposed as Claude-callable tools, with no infrastructure under their control. Standardization (SEP, W3C-CG, informal RFC) is downstream of adoption — don't pre-commit; the library and the capability host are what people will actually use.
 
 ## Positioning landscape (don't relitigate)
 
@@ -60,6 +60,30 @@ WebMCP is a two-layer thing, often confused for one:
 
 **Implication for mcp-rtc:** don't ship our own Chrome extension. The substrate is the spec + libraries (`@nevescloud/mcp-rtc`, `@nevescloud/mcp-rtc-bridge-tab`); the *consumer* extensions are someone else's job — Anthropic's for Claude.ai, hatch's for terminal AIs, future others. mcp-rtc gets stronger when more extensions consume `bridge-tab`, not when it ships its own.
 
+## Capability host architecture (don't relitigate)
+
+The capability host is the headline artifact: one unified URL that probes the device, registers an MCP tool per supported web platform API, and bridges to a local Claude via WebRTC.
+
+**Two binding models, one registry:**
+- **Auto-bound** — API grants at origin/device level (geolocation, devicemotion, clipboard). Tool registers after permission. `probe()` resolves immediately.
+- **User-bound** — API requires a user gesture to select content (`showOpenFilePicker`, `getDisplayMedia`, Web Bluetooth, Web Serial). Tool registers after the user picks. `probe()` waits for a UI affordance.
+
+The user-bound capabilities (screen, files, paired devices) are the *high-leverage* ones for adoption. Auto-bound sensors are toys; user-bound content is daily-driver utility. Ship user-bound first — screen-share specifically, before camera/GPS.
+
+**Fragment-driven role.** Same URL is host or consumer based on URL fragment presence:
+- No fragment → "I'm new, generate site id, register as host, show QR for the second device."
+- Has fragment → "I'm joining the room that already exists; register as consumer."
+
+Each demo defines its own arrival rule (helper-first vs tool-first) in page logic. Don't force one rule across the family — that fights the asymmetry that's one of the project's strengths.
+
+**Architecture unified, marketing differentiated.** Curated landing pages (`/screen-share/`, `/phone-as-tools/`, `/hands-and-eyes/`) link to the same capability host with their own framing. Story differentiation up top; architecture collapse below. Don't pre-bake demos as separate URLs at the architecture layer.
+
+**Permission UX gotcha.** N capabilities = N permission grants. Don't request all up front — register tools optimistically, request the permission when the tool is *called*. First call surfaces the OS prompt; subsequent calls reuse it. The MCP tool description should hint what permission will fire.
+
+**Tool-surface bloat.** A device with 8-12 registered tools may confuse Claude. Tag tools by category in their descriptions; marketing landings can constrain the visible subset via URL params if needed.
+
+**hello-tool folds in** as the always-available "heartbeat" capability: `get_greeting` registers regardless of device, no permission. The transport smoke test comes free with every capability-host visit. The standalone `/h/` + `/b/` flow stays in `docs/examples/hello-tool/` as the minimal substrate test until the capability host supersedes it as the headline.
+
 ## Naming discipline
 
 - **Spec** is named for the protocol pair: "MCP over WebRTC". Keep RFC-shaped vocabulary.
@@ -87,11 +111,11 @@ The terminal bridge was renamed `mcp-webrtc-bridge` → `mcp-rtc-bridge` so the 
 
 ## How a fresh session should pick up
 
-1. Read this file's "Strategic intent" and "Positioning landscape" sections before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
+1. Read this file's "Strategic intent", "Positioning landscape", and "Capability host architecture" sections before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
 2. Read `README.md` for the current public shape.
-3. Read `docs/examples/hello-tool/README.md` to see what end-to-end looks like; open `hello.html` and `bridge.html` to see the actual implementations of the headline pattern.
+3. The headline demo is the capability host (`docs/examples/capability-host`) — planned but not yet built. Until it ships, `docs/examples/hello-tool` is the minimal working example: open `hello.html` + `bridge.html` to see the substrate end-to-end.
 4. `SPEC.md` is the wire-format contract — read it when changing the wire, not before.
-5. `packages/bridge-tab/src/index.mjs` is small (~30 LOC of real code) and is the project's load-bearing artifact. Read it to internalize how the WebMCP↔mcp-rtc adapter works.
+5. `packages/bridge-tab/src/index.mjs` is small (~30 LOC of real code) and is the project's load-bearing library. Read it to internalize how the WebMCP↔mcp-rtc adapter works.
 
 ## Shared brand chrome — `_template.html`
 
@@ -108,13 +132,20 @@ When tweaking palette, status states, or any chunk marked `TEMPLATE-SHARED` in t
 
 ## Roadmap
 
-Library-led order: ship demos and consumers; let the spec catch up.
+Library-led order: ship the capability host with screen-share as the wedge; everything else follows.
 
-1. **Build `docs/examples/phone-as-tools`** (or whichever asymmetric-capability demo lands first). The visceral demo — open a page on your phone, your laptop's Claude calls `take_photo` / `get_location` / `read_clipboard`. If even one example becomes a viral demo or someone's daily tool, the project compounds. Each example earns its README only when the code exists.
-2. **Migrate confer's `canvas.html` to consume `bridge-tab`.** Replaces the hand-rolled WebMCP-equivalent in canvas with `@nevescloud/mcp-rtc-bridge-tab`. Validates the library against a real multi-peer consumer and gives canvas a proper second implementation.
-3. **Ship a second demo on a different axis.** `shared-dev-env` (cross-user) or `hands-and-eyes` (asymmetric + cross-user). Two distinct demos cover the use-case story far better than one.
-4. **Path A (deferred) for `hello-tool`** — in-browser inference. Makes the model-agnostic claim verifiable rather than theoretical. Tool calling at sub-1B parameters is fragile in 2026; revisit once the substrate is more battle-tested.
-5. **Stabilize the spec.** Once the library has been exercised by 2–3 distinct demos and one external consumer, fold lessons learned back into SPEC.md. The spec absorbs reality, doesn't dictate it.
-6. **Watch standardization paths.** Don't pre-commit. SEP / W3C-CG / informal RFC are options once there are real outside implementers asking for the contract.
+1. **Build `docs/examples/capability-host` with screen-share as the first capability.** The flow: open URL on laptop → no fragment → page registers heartbeat (`get_greeting`) + offers user-bound capabilities (share screen, share file, share folder) → user clicks "share screen" → `getDisplayMedia` opens, then `ImageCapture.grabFrame` per call → `capture_screen()` returns base64 PNG. Asker side: Claude Code via the existing stdio bridge (Path B) — known to handle image content in tool responses. **Validate Path B end-to-end before promising the Claude.ai variant** (Anthropic ext handling binary image payloads from a peer MCP server is currently untested).
+2. **Add file + folder share** (File System Access API). `read_shared_file` for a user-picked file; `list_files` + `read_file_at(path)` for a user-picked directory. Chrome-only as of 2026-05.
+3. **Add auto-bound device capabilities** — camera, mic, geolocation, orientation, clipboard. The original "phone-as-tools" set; they light up automatically on devices with the APIs. Lower priority than screen + files.
+4. **Add fragment-driven role + QR code generation.** Same URL is host or consumer based on fragment presence; host shows QR for the second device to scan. Each demo defines its own arrival rule in page logic.
+5. **Add Web Bluetooth / Web Serial** as user-bound capabilities. Opens the "Claude operates a paired device" lane; possible cross-project bridge to better-robotics (paired ESP32 robot exposed as tools, Claude calls).
+6. **Marketing landings.** Curated pages for `/screen-share/`, `/phone-as-tools/`, `/hands-and-eyes/` — each links to the same capability host with its own framing. Story up top, architecture underneath.
+7. **Migrate confer's `canvas.html` to consume `bridge-tab`.** Replaces the hand-rolled WebMCP-equivalent. Validates the library against a real multi-peer consumer.
+8. **Stabilize the spec.** Once the capability host has been exercised by 2–3 capability categories and the confer migration is done, fold lessons learned back into SPEC.md.
+9. **Watch standardization paths.** Don't pre-commit. SEP / W3C-CG / informal RFC are options once there are real outside implementers asking for the contract.
+
+Deferred: **Path A for `hello-tool`** (in-browser inference). Makes the model-agnostic claim verifiable end-to-end with no vendor in the loop. Tool calling at sub-1B parameters is fragile in 2026; revisit once the substrate is more battle-tested.
+
+**Subsumed (no longer separate demos in `docs/examples/`):** phone-as-tools, hands-and-eyes, sensor-mesh — all fold into the capability host as device-class projections of the same primitive. Their placeholder READMEs have been removed; the names live on as marketing landings (item 6 above) once the capability host ships. `shared-dev-env` and `canvas-peer` were also placeholder READMEs without code; shared-dev-env is a use case story for developer-written custom tools on top of bridge-tab (not part of the capability host), and canvas-peer is now tracked as item 7 (the confer migration) rather than a separate `docs/examples/` page.
 
 Already shipped (for context): `packages/transport@0.1.1`, `packages/bridge-tab@0.1.1`, `packages/bridge@0.4.0` (renamed from `mcp-webrtc-bridge`, moved from the `mcp-webrtc/` repo into this one), `docs/examples/hello-tool` with hello.html + bridge.html + Node test client. Three downstream consumers (`mcp-rtc-bridge`, `confer-mcp`, `confer-agent`) depend on the transport. Packages were originally published under `@jonasneves/*`; in-repo references now name `@nevescloud/*` ahead of the coordinated republish (see *Relationship to existing packages*).
