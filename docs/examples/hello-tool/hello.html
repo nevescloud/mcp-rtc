@@ -78,6 +78,14 @@
     background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 12px; }
   .card a { color: var(--accent); text-decoration: none; }
   .card a:hover { text-decoration: underline; }
+  .qr { display: flex; align-items: center; gap: 0.85rem;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 6px; padding: 0.6rem 0.7rem; }
+  .qr canvas { display: block; width: 116px; height: 116px;
+    background: #fff; border-radius: 4px; padding: 6px;
+    image-rendering: pixelated; }
+  .qr .qr-text { font-size: 12px; color: var(--ink-muted); line-height: 1.5; }
+  .qr .qr-text strong { color: var(--ink); font-weight: 500; }
   #log { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
     background: var(--code-bg); border-radius: 6px; padding: 0.5rem 0.75rem;
     max-height: 240px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
@@ -131,6 +139,12 @@
           <button class="copy-btn" type="button">copy</button>
           <pre id="prompt-url"></pre>
         </div>
+
+        <div class="share-label">Or scan with another device's camera</div>
+        <div class="qr">
+          <canvas id="qr-canvas" aria-label="QR code for the bridge URL"></canvas>
+          <span class="qr-text">Opens the bridge URL above. The second device needs Chrome 146+ with a WebMCP consumer for tools to surface to Claude.</span>
+        </div>
       </div>
 
       <div id="log" aria-live="polite"></div>
@@ -155,8 +169,21 @@ if (!SITE) {
 const statusText = document.getElementById('status-text');
 const logEl = document.getElementById('log');
 
+const BRIDGE_URL = `https://neves.cloud/b/#${SITE}`;
 document.getElementById('prompt-stdio').textContent = `Connect neves.cloud/b#${SITE}`;
-document.getElementById('prompt-url').textContent = `https://neves.cloud/b/#${SITE}`;
+document.getElementById('prompt-url').textContent = BRIDGE_URL;
+
+// QR rendered into a canvas. Lazy-imported so it doesn't block the
+// transport boot below — if the import fails (offline, CDN blip),
+// the page still works without the QR affordance.
+import('https://esm.sh/qrcode@1.5.4')
+  .then(({ default: QRCode }) => QRCode.toCanvas(
+    document.getElementById('qr-canvas'),
+    BRIDGE_URL,
+    { errorCorrectionLevel: 'M', margin: 0, width: 232 },
+  ))
+  .catch((err) => console.warn('[qr] render skipped:', err.message));
+
 for (const btn of document.querySelectorAll('.codeblock .copy-btn')) {
   btn.addEventListener('click', async () => {
     const target = btn.parentElement.querySelector('pre');
