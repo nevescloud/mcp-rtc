@@ -97,6 +97,21 @@
     border-top: 1px solid var(--border-soft); text-align: center; }
   footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.4rem; }
   footer a:hover { color: var(--ink); }
+
+  /* Pip integration palette — mirrors hatch's design tokens
+     (#1D6363 teal accent, ECEEF2 / 2C3039 elevated surfaces, neutral
+     ink). pip-core reads --pip-* off :root so the page palette and
+     pip's panel stay independent — the host page keeps its #1E40AF
+     blue, the pip bubble adopts hatch's teal. */
+  :root {
+    --pip-accent:    #1D6363;
+    --pip-on-accent: #ffffff;
+    --pip-surface:   light-dark(#ffffff, #22262D);
+    --pip-ink:       light-dark(#1A1D23, #E8EAED);
+    --pip-ink-muted: light-dark(#5F6368, #8B9099);
+    --pip-border:    light-dark(rgba(0,0,0,0.10), rgba(255,255,255,0.10));
+    --pip-input-bg:  light-dark(#ECEEF2, #2C3039);
+  }
 </style>
 <script type="importmap">
 {
