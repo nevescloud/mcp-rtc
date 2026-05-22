@@ -231,7 +231,7 @@ function renderReady({ site, tools }) {
   main.innerHTML = `
     <div class="card">
       <h2>Client mounted.</h2>
-      <p>Connected peer-to-peer to <code>${site}</code> over WebRTC. A local model (Google Gemma 4 E2B-it, q4) lazy-loads on the first prompt — first run downloads weights and warms up WebGPU.</p>
+      <p>Connected peer-to-peer to <code>${site}</code> over WebRTC. A local model (Google Gemma 4 E2B-it, q4f16) lazy-loads on the first prompt — first run downloads ~3 GB of weights and warms up WebGPU; subsequent runs use the browser cache.</p>
       ${toolList}
       ${sample ? `<p class="nudge">Open the chat bubble (bottom-right) and try <em>/${sample}</em> to dispatch the tool deterministically, or type free text to chat with the local model.</p>` : ''}
     </div>
@@ -274,11 +274,17 @@ if (!SITE) {
     // load on the first call, not now, so the page stays responsive
     // until the user actually asks something.
     const renderer = createTransformersRenderer();
+    // Gemma 4 E2B (instruction-tuned) with Google's standardized sampling.
+    // q4f16 over plain q4: smaller download (~1.5 GB decoder vs ~1.9 GB)
+    // and faster on WebGPU since activations stay fp16. temperature=1.0 +
+    // top_k=64 are Gemma 4's documented defaults (NOT 0.7/50 — that's
+    // Llama-family carryover). No repetition_penalty: Google's card
+    // explicitly recommends against one for Gemma.
     renderer.setModel({
       id: 'onnx-community/gemma-4-E2B-it-ONNX',
-      dtype: 'q4',
-      maxTokens: 512,
-      genParams: { temperature: 0.7, top_p: 0.95, top_k: 50 },
+      dtype: 'q4f16',
+      maxTokens: 1024,
+      genParams: { temperature: 1.0, top_p: 0.95, top_k: 64 },
     });
 
     // System prompt names the connected peer + the tool slash convention,
@@ -292,7 +298,7 @@ if (!SITE) {
     const pip = createPip({
       introText: `Connected to ${SITE}. Try /${tools[0]?.name || 'help'} or chat freely.`,
       placeholder: tools[0] ? `Type /${tools[0].name}, or ask the local model…` : 'Ask the local model…',
-      modelLabel: 'gemma-4-E2B-it · q4',
+      modelLabel: 'gemma-4-E2B-it · q4f16',
       autoOpen: false,
       historyLimit: 6,
       // Free text → local model. The renderer streams into pip's turn UI.
