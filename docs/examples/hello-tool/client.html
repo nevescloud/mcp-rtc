@@ -231,7 +231,7 @@ function renderReady({ site, tools }) {
   main.innerHTML = `
     <div class="card">
       <h2>Client mounted.</h2>
-      <p>Connected peer-to-peer to <code>${site}</code> over WebRTC. A small local model (LiquidAI LFM2.5-350M, q4) lazy-loads on the first prompt — first run downloads weights and warms up WebGPU.</p>
+      <p>Connected peer-to-peer to <code>${site}</code> over WebRTC. A local model (Google Gemma 4 E2B-it, q4) lazy-loads on the first prompt — first run downloads weights and warms up WebGPU.</p>
       ${toolList}
       ${sample ? `<p class="nudge">Open the chat bubble (bottom-right) and try <em>/${sample}</em> to dispatch the tool deterministically, or type free text to chat with the local model.</p>` : ''}
     </div>
@@ -275,10 +275,10 @@ if (!SITE) {
     // until the user actually asks something.
     const renderer = createTransformersRenderer();
     renderer.setModel({
-      id: 'LiquidAI/LFM2.5-350M-ONNX',
+      id: 'onnx-community/gemma-4-E2B-it-ONNX',
       dtype: 'q4',
-      maxTokens: 256,
-      genParams: { temperature: 0.1, top_k: 50, repetition_penalty: 1.05 },
+      maxTokens: 512,
+      genParams: { temperature: 0.7, top_p: 0.95, top_k: 50 },
     });
 
     // System prompt names the connected peer + the tool slash convention,
@@ -292,7 +292,7 @@ if (!SITE) {
     const pip = createPip({
       introText: `Connected to ${SITE}. Try /${tools[0]?.name || 'help'} or chat freely.`,
       placeholder: tools[0] ? `Type /${tools[0].name}, or ask the local model…` : 'Ask the local model…',
-      modelLabel: 'LFM2.5-350M · q4',
+      modelLabel: 'gemma-4-E2B-it · q4',
       autoOpen: false,
       historyLimit: 6,
       // Free text → local model. The renderer streams into pip's turn UI.
