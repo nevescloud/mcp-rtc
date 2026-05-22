@@ -23,7 +23,7 @@ to normal evolution rules then.
 
 Artifact priority:
 
-1. **`neves.cloud/h/`** (live) — the capability host. One unified host URL that probes the device on load and registers a tool per available web platform API. Heartbeat (`get_greeting`, always available) + auto-bound tools that light up when the API exists: `take_photo` (camera), `get_location` (geolocation), `read_clipboard`, `get_orientation` (DeviceOrientation). Permissions requested lazily on first call. Subsumes phone-as-tools as a device-class projection — same URL works on a phone, a laptop, anything in between. User-bound capabilities (screen-share, file/folder share, paired devices) ship as a follow-up. Source: `jonasneves.github.io/docs/h/`. In-repo `docs/examples/hello-tool/hello.html` is a forkable mirror (currently stale from the deployed version — needs sync).
+1. **`neves.cloud/h/`** (live) — the capability host. One unified host URL that probes the device on load and registers a tool per available web platform API. Eleven capabilities → fifteen MCP tools when fully bound: heartbeat (`get_greeting`), auto-bound sensors (camera, mic, geolocation, clipboard, orientation), user-bound content (screen share, file picker, directory picker, paired BLE device, paired serial port). Permissions requested lazily on first call. Subsumes phone-as-tools as a device-class projection — same URL works on a phone, a laptop, anything in between. Source: `jonasneves.github.io/docs/h/`. In-repo `docs/examples/hello-tool/hello.html` is a forkable mirror, currently stale from the deployed version (different site-id shape, no capability detection — sync is a follow-up).
 2. **`packages/bridge-tab`** — load-bearing library. Browser-side WebMCP↔mcp-rtc adapter; what consumer tabs run to bring remote MCP servers into a local WebMCP-aware Claude.
 3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@nevescloud/mcp-rtc` and powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-rtc-bridge`, `confer-mcp`, `confer-agent`).
 4. **`SPEC.md`** — supporting documentation. Tone: dry, precise, RFC-shaped. Exists so a second implementation can talk to the first; doesn't drive adoption on its own. *Do not* turn it into a marketing document.
@@ -82,7 +82,17 @@ Each demo defines its own arrival rule (helper-first vs tool-first) in page logi
 
 **Tool-surface bloat.** A device with 8-12 registered tools may confuse Claude. Tag tools by category in their descriptions; marketing landings can constrain the visible subset via URL params if needed.
 
-**`/h/` is the capability host** (as of 2026-05-22 — deployed in `jonasneves.github.io/docs/h/index.html`). `get_greeting` is the always-available heartbeat — it registers regardless of device, no permission. The transport smoke test comes free with every visit. The four auto-bound capabilities (camera, geolocation, clipboard, orientation) light up on devices that have the APIs. The in-repo `docs/examples/hello-tool/hello.html` is now a stale mirror — sync to the deployed shape in a follow-up.
+**`/h/` is the capability host** (deployed in `jonasneves.github.io/docs/h/index.html`). Eleven capabilities → fifteen MCP tools at full bind:
+
+- **Heartbeat** (always available, no permission): `get_greeting`
+- **Auto-bound** (probe + lazy permission): `take_photo`, `record_audio`, `get_location`, `read_clipboard`, `get_orientation`
+- **User-bound** (gesture-bound, multi-tool allowed): `capture_screen` (screen share via `getDisplayMedia`), `read_shared_file` (`showOpenFilePicker`), `list_files` + `read_file_at` (`showDirectoryPicker`), `ble_list_characteristics` + `ble_read` + `ble_write` (`bluetooth.requestDevice`), `serial_write` + `serial_read` (`serial.requestPort`)
+
+The capability spec extension `tools: [...]` lets one binding register multiple MCP tools (used by folder share and the paired-device pairs).
+
+**`/b/` runs pip alongside WebMCP.** The bridge page used to dead-end on browsers without a WebMCP consumer (Chrome 146+ with the Anthropic extension or hatch). Now it dials a second MCP client over WebRTC and feeds pip's slash dispatch + LFM2.5-350M local model (via `@nevescloud/pip@3.4.0`'s `bundle/local`). Two consumer paths from one page. **Two WebRTC connections per session is wasteful** — collapsing needs `bridge-tab` to expose its underlying client (tracked).
+
+The in-repo `docs/examples/hello-tool/hello.html` is now a stale mirror of `/h/` (different site-id shape, no capability detection, has the QR code added earlier) — sync is a follow-up.
 
 ## Naming discipline
 
@@ -145,7 +155,7 @@ Library-led order: ship the capability host with screen-share as the wedge; ever
 9. **Stabilize the spec.** Once the capability host has been exercised by 2–3 capability categories and the confer migration is done, fold lessons learned back into SPEC.md.
 10. **Watch standardization paths.** Don't pre-commit. SEP / W3C-CG / informal RFC are options once there are real outside implementers asking for the contract.
 
-**Path A for `hello-tool` is now live** (`docs/examples/hello-tool/client.html`). Uses `@nevescloud/pip`'s local-model bundle (LiquidAI LFM2.5-350M-ONNX over `transformers.js` + WebGPU) for free chat, with each remote `mcp-rtc` tool surfaced as a pip slash command (deterministic dispatch — keeps the demo honest given that sub-1B parameter models still emit unreliable structured tool calls in 2026). The model-agnostic claim is now end-to-end verifiable with no vendor in the loop.
+**Path A for `hello-tool` is live** (`docs/examples/hello-tool/client.html`). Uses `@nevescloud/pip@3.4.0`'s local-model bundle (LiquidAI LFM2.5-350M-ONNX over `transformers.js` + WebGPU) for free chat, with each remote `mcp-rtc` tool surfaced as a pip slash command (deterministic dispatch — keeps the demo honest given that sub-1B parameter models still emit unreliable structured tool calls in 2026). The model-agnostic claim is now end-to-end verifiable with no vendor in the loop. Same composition pattern (pip + slash) is what `/b/` runs alongside WebMCP — see "Capability host architecture" above.
 
 **Subsumed (no longer separate demos in `docs/examples/`):** phone-as-tools, hands-and-eyes, sensor-mesh — all folded into `/h/` as device-class projections of the same primitive. Their placeholder READMEs have been removed; the names live on as marketing landings (item 6 above). `/p/` still exists and runs its own phone-flavored UI; it now duplicates `/h/`'s tool surface on a phone and should either retire (redirect to `/h/`) or stay as a curated phone-only narrative landing. `shared-dev-env` and `canvas-peer` were also placeholder READMEs without code; shared-dev-env is a use case story for developer-written custom tools on top of bridge-tab (not part of the capability host), and canvas-peer is now tracked as item 7 (the confer migration) rather than a separate `docs/examples/` page.
 
