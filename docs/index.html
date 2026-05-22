@@ -71,6 +71,11 @@
     animation: fade-up 0.5s var(--ease) both; }
   .arch-card { background: var(--surface); border: 1px solid var(--border-soft);
     border-radius: 8px; padding: 0.65rem 0.85rem; line-height: 1.4; }
+  a.arch-card { display: block; text-decoration: none; color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
+  a.arch-card:hover { border-color: var(--accent); transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  a.arch-card.arch-substrate:hover { border-color: var(--accent-strong); }
   .arch-card strong { display: block; color: var(--ink);
     font-size: 14px; font-weight: 600; margin-bottom: 0.2rem; }
   .arch-sub { display: block; color: var(--ink-muted); font-size: 12px; }
@@ -198,28 +203,28 @@
 </div>
 
 <div class="arch">
-  <div class="arch-card">
+  <a class="arch-card" href="https://neves.cloud/h/" target="_blank" rel="noopener" title="Open a live host page — your tab becomes an MCP server with get_greeting">
     <strong>Tab</strong>
     <span class="arch-sub">The MCP server.</span>
     <code class="arch-meta">@nevescloud/mcp-rtc</code>
-  </div>
+  </a>
   <span class="arch-link" aria-hidden="true">→</span>
-  <div class="arch-card arch-substrate">
+  <a class="arch-card arch-substrate" href="https://github.com/jonasneves/mcp-rtc/blob/main/SPEC.md" target="_blank" rel="noopener" title="The wire-format contract: MCP JSON-RPC over WebRTC data channel">
     <strong>mcp-rtc</strong>
     <span class="arch-sub">WebRTC data channel, peer-to-peer.</span>
-  </div>
+  </a>
   <span class="arch-link" aria-hidden="true">→</span>
   <div class="arch-targets">
-    <div class="arch-card">
+    <a class="arch-card" href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge" target="_blank" rel="noopener" title="Stdio bridge for terminal Claude — install and add to mcpServers">
       <strong>Claude Code</strong>
       <span class="arch-sub">via stdio bridge</span>
       <code class="arch-meta">npx @nevescloud/mcp-rtc-bridge</code>
-    </div>
-    <div class="arch-card">
+    </a>
+    <a class="arch-card" href="https://neves.cloud/b/" target="_blank" rel="noopener" title="Open the live bridge page — paste a site id in the fragment">
       <strong>Claude.ai</strong>
       <span class="arch-sub">via bridge tab + WebMCP</span>
       <span class="arch-meta-text">Chrome 146+ with consumer</span>
-    </div>
+    </a>
   </div>
 </div>
 
