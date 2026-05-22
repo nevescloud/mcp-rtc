@@ -304,14 +304,15 @@ if (!SITE) {
           ...ctx.history,
         ];
         try {
-          await renderer.generate({
+          // generate() streams into the turn via setReplyText AND returns
+          // the final answer. Return that — if we return "", pip calls
+          // setReplyText again with emptyReply, overwriting the rendered
+          // output with "I don't have a good answer for that…".
+          return await renderer.generate({
             messages,
             turnEl: ctx.turnEl,
             setReplyText: (t) => ctx.setReplyText(ctx.turnEl, t, true),
           });
-          // generate() already painted the reply via setReplyText; return
-          // empty so pip doesn't overwrite with its default-reply fallback.
-          return '';
         } catch (err) {
           return `(local model failed: ${err?.message || err})`;
         }
