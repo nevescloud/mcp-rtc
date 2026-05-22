@@ -100,18 +100,30 @@
 
   /* Pip integration palette — mirrors hatch's design tokens
      (#1D6363 teal accent, ECEEF2 / 2C3039 elevated surfaces, neutral
-     ink). pip-core reads --pip-* off :root so the page palette and
-     pip's panel stay independent — the host page keeps its #1E40AF
-     blue, the pip bubble adopts hatch's teal. */
+     ink). pip-core forces `color-scheme: light` on .pip-panel to
+     avoid surprising hosts — light-dark() always returns the light
+     branch inside pip. We bypass with concrete colors per @media
+     block; the .pip-panel override lets pip's internal light-dark()
+     fallbacks resolve against the host's color scheme. */
   :root {
     --pip-accent:    #1D6363;
     --pip-on-accent: #ffffff;
-    --pip-surface:   light-dark(#ffffff, #22262D);
-    --pip-ink:       light-dark(#1A1D23, #E8EAED);
-    --pip-ink-muted: light-dark(#5F6368, #8B9099);
-    --pip-border:    light-dark(rgba(0,0,0,0.10), rgba(255,255,255,0.10));
-    --pip-input-bg:  light-dark(#ECEEF2, #2C3039);
+    --pip-surface:   #ffffff;
+    --pip-ink:       #1A1D23;
+    --pip-ink-muted: #5F6368;
+    --pip-border:    rgba(0,0,0,0.10);
+    --pip-input-bg:  #ECEEF2;
   }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --pip-surface:   #22262D;
+      --pip-ink:       #E8EAED;
+      --pip-ink-muted: #8B9099;
+      --pip-border:    rgba(255,255,255,0.10);
+      --pip-input-bg:  #2C3039;
+    }
+  }
+  .pip-panel { color-scheme: light dark; }
 </style>
 <script type="importmap">
 {
