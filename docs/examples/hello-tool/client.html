@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>client · mcp-rtc · hello-tool</title>
 <meta name="description" content="In-browser AI client calling get_greeting via mcp-rtc. No API key, no vendor — local model via @nevescloud/pip + transformers.js + WebGPU.">
+
+<!-- Front-load the pip local-model bytes during HTML parse instead of
+     waiting for the <script type="module"> below to run. preconnect
+     opens the TLS sessions to library + model CDNs; modulepreload
+     starts pip's bundle in parallel with document load. When the
+     bundle's local.esm.js evaluates it fires its own injectNetworkHints
+     that adds the transformers.js modulepreload — chain effect. Net:
+     pip + transformers + initial HF index race the rest of page boot
+     instead of serializing after script-module evaluation. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://huggingface.co" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@nevescloud/pip@3.8.0/bundle/local.esm.js" crossorigin>
+
 <style>
   :root {
     color-scheme: light dark;
