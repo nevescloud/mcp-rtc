@@ -3,24 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>client (Path A · deferred) · hello-tool</title>
+<title>client · mcp-rtc · hello-tool</title>
+<meta name="description" content="In-browser AI client calling get_greeting via mcp-rtc. No API key, no vendor — local model via @nevescloud/pip + transformers.js + WebGPU.">
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #f5f5f7; --surface: #fff;
+    --bg: #f5f5f7; --surface: #fff; --surface-2: #fafafc;
     --ink: #1d1d1f; --ink-muted: #6e6e73; --ink-faint: #8e8e93;
     --border: rgba(0,0,0,0.10); --border-soft: rgba(0,0,0,0.06);
-    --accent: #1E40AF; --accent-soft: rgba(30,64,175,0.10);
     --code-bg: rgba(0,0,0,0.06);
-    --warn-fg: #C97D14; --warn-bg: rgba(232,153,35,0.14);
+    --accent: #1E40AF; --accent-strong: #1E3A8A; --accent-soft: rgba(30,64,175,0.10);
+    --st-idle-fg: #8e8e93;
+    --st-connecting-fg: #C97D14; --st-connecting-bg: rgba(232,153,35,0.12);
+    --st-ready-fg: #006d51; --st-ready-bg: rgba(0,109,81,0.10);
+    --st-error-fg: #C84E00; --st-error-bg: rgba(200,78,0,0.08);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #1a1d20; --surface: #262a2e;
+    :root { --bg: #1a1d20; --surface: #262a2e; --surface-2: #21252a;
             --ink: #e9ecef; --ink-muted: #adb5bd; --ink-faint: #6e757c;
             --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
-            --accent: #60A5FA; --accent-soft: rgba(96,165,250,0.14);
             --code-bg: rgba(255,255,255,0.08);
-            --warn-fg: #f5b452; --warn-bg: rgba(245,180,82,0.16); }
+            --accent: #60A5FA; --accent-strong: #93C5FD; --accent-soft: rgba(96,165,250,0.14);
+            --st-connecting-fg: #f5b452; --st-connecting-bg: rgba(245,180,82,0.14);
+            --st-ready-fg: #66b288; --st-ready-bg: rgba(102,178,136,0.14);
+            --st-error-fg: #e57057; --st-error-bg: rgba(229,112,87,0.14); }
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   [hidden] { display: none !important; }
@@ -34,36 +40,79 @@
   .brand { display: flex; align-items: center; gap: 0.55rem;
     color: var(--accent); text-decoration: none; }
   .brand .sig rect { fill: currentColor; }
-  .brand .sig path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .brand .sig path  { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
   .wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
   .wordmark .mcp { color: var(--accent); }
   .wordmark .sep { color: var(--ink-faint); margin: 0 0.1em; font-weight: 400; }
   .wordmark .rtc { color: var(--ink); opacity: 0.85; }
   .pagename { font-size: 12px; color: var(--ink-muted);
     padding-left: 0.85rem; border-left: 1px solid var(--border); }
-  .badge { margin-left: auto; font-size: 11px; padding: 0.2rem 0.6rem; border-radius: 999px;
-    background: var(--warn-bg); color: var(--warn-fg);
-    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  #site-id { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+    background: var(--code-bg); padding: 0.3rem 0.65rem; border-radius: 6px; }
+  #status { margin-left: auto; display: inline-flex; align-items: center;
+    gap: 0.4rem; font-size: 12px; padding: 0.25rem 0.7rem; border-radius: 999px;
+    background: var(--surface-2); border: 1px solid var(--border-soft);
+    color: var(--ink-muted); transition: all 0.2s ease; }
+  #status.idle       { color: var(--st-idle-fg); }
+  #status.connecting { color: var(--st-connecting-fg); background: var(--st-connecting-bg); border-color: transparent; }
+  #status.ready      { color: var(--st-ready-fg); background: var(--st-ready-bg); border-color: transparent; }
+  #status.error      { color: var(--st-error-fg); background: var(--st-error-bg); border-color: transparent; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  #status.connecting .dot { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.7); } }
   main { flex: 1; padding: 2rem 1.25rem; }
-  .container { max-width: 640px; margin: 0 auto; }
-  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--ink-muted); font-weight: 500; margin: 2rem 0 0.75rem; }
-  h2:first-child { margin-top: 0; }
-  p { color: var(--ink-muted); margin: 0.6rem 0; }
-  .lede { font-size: 18px; line-height: 1.5; color: var(--ink); margin: 0 0 1rem;
-    font-weight: 500; }
-  code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px;
-    font-size: 13px; }
-  ul { padding-left: 1.2rem; color: var(--ink-muted); }
-  ul li { margin: 0.35rem 0; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  .container { max-width: 600px; margin: 0 auto; }
+  .sig.lg { color: var(--accent); width: 96px; height: 38px;
+    margin: 0 auto 1.5rem; display: block; opacity: 0.95; }
+  .sig.lg rect { fill: currentColor; }
+  .sig.lg path { stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+  .sig.connecting path { stroke-dasharray: 4 3; animation: dash 1.4s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -14; } }
   .card { background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1rem 0;
-    color: var(--ink-muted); font-size: 14px; line-height: 1.6; }
-  .card .ink { color: var(--ink); }
+    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 0 0 1rem; }
+  .card.error { border-color: var(--st-error-fg); }
+  .card.error h2 { color: var(--st-error-fg); }
+  .card h2 { font-size: 16px; margin-bottom: 0.5rem; color: var(--ink); font-weight: 600; }
+  .card p { color: var(--ink-muted); font-size: 14px; margin: 0.4rem 0; }
+  .card code { font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 12px; }
+  .card a { color: var(--accent); text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
+  .tools { margin: 0.85rem 0 0.25rem; padding: 0.6rem 0; border-top: 1px solid var(--border-soft); }
+  .tool-row { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.35rem 0.25rem; font-size: 13px; }
+  .tool-bullet { width: 5px; height: 5px; border-radius: 50%; background: var(--st-ready-fg);
+    display: inline-block; flex-shrink: 0; transform: translateY(-2px); }
+  .tool-name { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); font-size: 12.5px; }
+  .nudge { font-size: 13px; color: var(--ink-muted); margin-top: 0.85rem;
+    padding-top: 0.85rem; border-top: 1px solid var(--border-soft); }
+  .nudge em { font-style: normal; color: var(--ink); font-weight: 500; }
+  .empty-cta { font-size: 13px; color: var(--ink-muted); text-align: center; }
+  .empty-cta a { color: var(--accent); text-decoration: none; }
+  .empty-cta a:hover { text-decoration: underline; }
+  .knock-stage { text-align: center; padding: 1.5rem 0 1rem; }
+  .knock-text { font-size: 16px; color: var(--st-connecting-fg); font-weight: 500; min-height: 24px; transition: opacity 0.3s ease; }
+  .knock-sub { font-size: 13px; color: var(--ink-muted); margin-top: 0.5rem; }
+  .knock-sub code { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink); }
+  footer { padding: 1.25rem; color: var(--ink-faint); font-size: 12px;
+    border-top: 1px solid var(--border-soft); text-align: center; }
+  footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.4rem; }
+  footer a:hover { color: var(--ink); }
 </style>
+<script type="importmap">
+{
+  "imports": {
+    "@nevescloud/mcp-rtc": "https://esm.sh/@nevescloud/mcp-rtc@0.1.1",
+    "@modelcontextprotocol/sdk/client/index.js":
+      "https://esm.sh/@modelcontextprotocol/sdk@1.29.0/client?external=zod&deps=zod@4.4.3",
+    "zod":         "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
+    "zod/v4":      "https://esm.sh/zod@4.4.3/es2022/v4/classic/external.mjs",
+    "zod/v3":      "https://esm.sh/zod@4.4.3/v3",
+    "zod/v4-mini": "https://esm.sh/zod@4.4.3/v4-mini",
+    "@nevescloud/pip/bundle/local":
+      "https://cdn.jsdelivr.net/npm/@nevescloud/pip@latest/bundle/local.esm.js"
+  }
+}
+</script>
 </head>
 <body>
 <header>
@@ -75,46 +124,204 @@
     </svg>
     <span class="wordmark"><span class="mcp">mcp</span><span class="sep">·</span><span class="rtc">rtc</span></span>
   </a>
-  <span class="pagename">hello-tool · client</span>
-  <span class="badge">Path A · deferred</span>
+  <span class="pagename">client · in-browser AI</span>
+  <span id="site-id" hidden></span>
+  <span id="status" class="idle" hidden><span class="dot"></span><span id="status-text"></span></span>
 </header>
-<main><div class="container">
+<main><div class="container" id="main"></div></main>
+<footer>
+  Path A · in-browser inference, no vendor in the loop.·
+  <a href="https://github.com/jonasneves/mcp-rtc">github</a>·
+  <a href="https://www.npmjs.com/package/@nevescloud/pip">pip</a>·
+  <a href="./README.md">readme</a>
+</footer>
 
-<p class="lede">Path A — in-browser inference calling <code>get_greeting</code> via mcp-rtc — is intentionally not built yet.</p>
+<script type="module">
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { WebRTCClientTransport } from '@nevescloud/mcp-rtc';
+import { createPip, createTransformersRenderer } from '@nevescloud/pip/bundle/local';
 
-<h2>What it would do</h2>
-<p>Open this page in a second browser tab. It would load a small instruction-tuned model entirely client-side (default: Qwen2.5-0.5B-Instruct via <a href="https://webllm.mlc.ai/">WebLLM</a>, with <a href="https://developer.chrome.com/docs/ai/built-in">Chrome's built-in Gemini Nano</a> as a fallback when the browser supports it). The page would connect to <code>hello.html</code> via <code>mcp-rtc</code>, list the tool, prompt the local model with <em>"call get_greeting and tell me what the tab said,"</em> the model would issue a tool call, the call would route peer-to-peer, the model would speak the result.</p>
+// ── site id ─────────────────────────────────────────────────────
+// Bare URL fragment: /client.html#hi-XXXXXX. No fragment → empty CTA.
+const SITE = (location.hash.replace(/^#/, '') || '').trim();
 
-<p>No API key. No external service. No vendor in the loop. The path that would prove <code>mcp-rtc</code> is genuinely model-agnostic.</p>
+const main      = document.getElementById('main');
+const siteIdEl  = document.getElementById('site-id');
+const statusBox = document.getElementById('status');
+const statusText = document.getElementById('status-text');
 
-<h2>Why deferred</h2>
-<p>Reliable structured tool-calling at sub-1B parameters is fragile in May 2026. The honest options today:</p>
-<ul>
-  <li><span class="ink">Qwen2.5-0.5B via WebLLM with prompt-scaffolded tool format</span> — small, fast first load, but tool-call output is inconsistent.</li>
-  <li><span class="ink">Llama-3.2-3B-Instruct via WebLLM</span> — much more reliable but ~2 GB initial download. Hard sell as a demo.</li>
-  <li><span class="ink">Chrome's window.ai / Prompt API</span> — built-in to Chrome 127+, but tool-calling support is limited.</li>
-  <li><span class="ink">Apple Foundation Model</span> — Safari only on Apple Intelligence devices.</li>
-</ul>
-<p>A flaky Path A becomes a liability rather than evidence — it makes someone glance at the demo, see the model misfire, and walk away thinking the rest probably doesn't work either. Worth waiting until the in-browser tool-calling story stabilizes (or until the specific demo can be made deterministic).</p>
+function setStatus(text, kind = 'idle') {
+  statusText.textContent = text;
+  statusBox.className = kind;
+  statusBox.hidden = false;
+}
 
-<h2>What would unblock it</h2>
-<ul>
-  <li>A small-enough model (≤ 1B params) that reliably emits parseable tool calls for a single-tool, single-arg schema.</li>
-  <li>Or: a Chrome Prompt API release that exposes structured tool-use bindings on consumer hardware.</li>
-  <li>Or: a willingness to ship the Llama-3.2-3B demo with a "first run downloads ~2 GB" warning, accepting that as the cost of model-agnostic.</li>
-</ul>
+// ── UI states ───────────────────────────────────────────────────
+const KNOCKS = ['knock knock', 'anyone home?', 'still knocking', 'psst…', 'any minute now…', 'hmm', 'still here'];
 
-<h2>Working paths today</h2>
-<div class="card">
-  <p><span class="ink">Path B — Claude Code via stdio bridge.</span> Add <code>@nevescloud/mcp-rtc-bridge</code> to <code>~/.claude/settings.json</code> and ask Claude. Works against <code>hello.html</code> and any <code>mcp-rtc</code> server.</p>
-  <p><span class="ink">Path C — Claude.ai / Desktop via WebMCP.</span> Open <a href="https://neves.cloud/b/">neves.cloud/b/</a> with a site id in the fragment, in a Chrome 146+ tab with a WebMCP consumer attached (Anthropic Claude extension, <a href="https://github.com/jonasneves/hatch">hatch</a>, etc.). Headline pattern; no install on the AI side.</p>
-</div>
+function renderEmpty() {
+  main.innerHTML = `
+    <svg class="sig lg" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <p class="empty-cta">No site id in URL. Open this page with <code>#hi-XXXXXX</code><br>(the fragment shown on a running <a href="./hello.html">hello-tool host</a>).</p>
+  `;
+}
 
-<h2>Tracking</h2>
-<p>This is tracked at <a href="https://github.com/jonasneves/mcp-rtc/issues/1"><code>jonasneves/mcp-rtc#1</code></a>. Comments, model recommendations, or pull requests welcome — especially from anyone who's exercised in-browser tool-calling at small parameter counts in 2026.</p>
+function showConnecting(site) {
+  siteIdEl.textContent = site;
+  siteIdEl.hidden = false;
+  setStatus('connecting', 'connecting');
+  main.innerHTML = `
+    <svg class="sig lg connecting" viewBox="0 0 60 24" aria-hidden="true">
+      <rect x="2" y="6" width="12" height="12" rx="3"/>
+      <rect x="46" y="6" width="12" height="12" rx="3"/>
+      <path d="M14 12 q5 -5 11 0 t11 0 t11 0"/>
+    </svg>
+    <div class="knock-stage">
+      <div class="knock-text" id="knock-text">${KNOCKS[0]}</div>
+      <div class="knock-sub">connecting · <code>${site}</code></div>
+    </div>
+  `;
+  let i = 1;
+  const knockEl = document.getElementById('knock-text');
+  return setInterval(() => {
+    if (!document.body.contains(knockEl)) return;
+    knockEl.style.opacity = '0';
+    setTimeout(() => { knockEl.textContent = KNOCKS[i % KNOCKS.length]; knockEl.style.opacity = '1'; i++; }, 200);
+  }, 2500);
+}
 
-<p style="margin-top:2rem"><a href="./README.md">← back to hello-tool</a></p>
+function renderReady({ site, tools }) {
+  setStatus(`ready · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'ready');
+  const toolList = tools.length === 0
+    ? '<p>(remote peer advertises no tools)</p>'
+    : `<div class="tools">${tools.map(t => `
+        <div class="tool-row"><span class="tool-bullet"></span><span class="tool-name">${t.name}</span></div>`).join('')}</div>`;
+  const sample = tools[0]?.name;
+  main.innerHTML = `
+    <div class="card">
+      <h2>Client mounted.</h2>
+      <p>Connected peer-to-peer to <code>${site}</code> over WebRTC. A small local model (LiquidAI LFM2.5-350M, q4) lazy-loads on the first prompt — first run downloads weights and warms up WebGPU.</p>
+      ${toolList}
+      ${sample ? `<p class="nudge">Open the chat bubble (bottom-right) and try <em>/${sample}</em> to dispatch the tool deterministically, or type free text to chat with the local model.</p>` : ''}
+    </div>
+  `;
+}
 
-</div></main>
+function renderError(err) {
+  const msg = String(err?.message || err);
+  const noWebGPU = msg.toLowerCase().includes('webgpu');
+  setStatus('error', 'error');
+  main.innerHTML = `
+    <div class="card error">
+      <h2>${noWebGPU ? 'WebGPU not available.' : 'Could not start client.'}</h2>
+      <p>${noWebGPU
+        ? 'The local model needs WebGPU. Try Chrome / Edge 113+ on a desktop with a recent GPU, or fall back to <a href="./README.md#path-b--claude-code-via-stdio-bridge">Path B</a> (terminal Claude) / <a href="./README.md#path-c--claudeai--claude-desktop-via-webmcp">Path C</a> (browser bridge).'
+        : `<code>${msg}</code>`}</p>
+    </div>
+  `;
+}
+
+// ── boot ────────────────────────────────────────────────────────
+if (!SITE) {
+  renderEmpty();
+} else {
+  const knockTimer = showConnecting(SITE);
+  try {
+    // Connect to the host.
+    const transport = new WebRTCClientTransport({ siteId: SITE });
+    const client = new Client(
+      { name: 'hello-tool-client', version: '0.0.1' },
+      { capabilities: {} },
+    );
+    await client.connect(transport);
+    const { tools } = await client.listTools();
+
+    clearInterval(knockTimer);
+    renderReady({ site: SITE, tools });
+
+    // Set up the local renderer. Generate is lazy — model + tokenizer
+    // load on the first call, not now, so the page stays responsive
+    // until the user actually asks something.
+    const renderer = createTransformersRenderer();
+    renderer.setModel({
+      id: 'LiquidAI/LFM2.5-350M-ONNX',
+      dtype: 'q4',
+      maxTokens: 256,
+      genParams: { temperature: 0.1, top_k: 50, repetition_penalty: 1.05 },
+    });
+
+    // System prompt names the connected peer + the tool slash convention,
+    // so when the user types free text the model has context for "what is
+    // this thing." Doesn't drive tool calls — those go through pip's slash
+    // dispatch, which is deterministic. The model is here for chat color
+    // around the deterministic dispatch.
+    const toolMenu = tools.map(t => `/${t.name}`).join(', ') || '(none)';
+    const systemPrompt = `You are a local in-browser assistant running inside a tab connected to a remote MCP server "${SITE}". Available remote tools (invoked by the user via slash commands): ${toolMenu}. Keep replies short.`;
+
+    const pip = createPip({
+      introText: `Connected to ${SITE}. Try /${tools[0]?.name || 'help'} or chat freely.`,
+      placeholder: tools[0] ? `Type /${tools[0].name}, or ask the local model…` : 'Ask the local model…',
+      modelLabel: 'LFM2.5-350M · q4',
+      autoOpen: false,
+      historyLimit: 6,
+      // Free text → local model. The renderer streams into pip's turn UI.
+      // We wrap setReplyText so pip's per-turn helper binds to this turn's
+      // element automatically.
+      onSubmit: async (text, ctx) => {
+        const messages = [
+          { role: 'system', content: systemPrompt },
+          ...ctx.history,
+        ];
+        try {
+          await renderer.generate({
+            messages,
+            turnEl: ctx.turnEl,
+            setReplyText: (t) => ctx.setReplyText(ctx.turnEl, t, true),
+          });
+          // generate() already painted the reply via setReplyText; return
+          // empty so pip doesn't overwrite with its default-reply fallback.
+          return '';
+        } catch (err) {
+          return `(local model failed: ${err?.message || err})`;
+        }
+      },
+    });
+
+    // Register a slash command per discovered remote tool. Deterministic
+    // dispatch: typed input becomes a direct tool call over mcp-rtc, no
+    // model in the loop, no parsing-flakiness risk.
+    for (const tool of tools) {
+      pip.registerSlash({
+        name: tool.name,
+        description: (tool.description || 'remote tool').slice(0, 80),
+        handler: async () => {
+          setStatus('calling tool…', 'connecting');
+          try {
+            const result = await client.callTool({ name: tool.name, arguments: {} });
+            setStatus(`ready · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'ready');
+            const content = result?.content?.[0];
+            const text = content?.type === 'text' ? content.text : JSON.stringify(result);
+            return { reply: text };
+          } catch (err) {
+            setStatus('error', 'error');
+            return { reply: `tool call failed: ${err?.message || err}` };
+          }
+        },
+      });
+    }
+
+    // Clean up when the page goes away — the lobby drops the registration
+    // on connection close, but explicit close keeps the audit trail tidy.
+    window.addEventListener('pagehide', () => { try { client.close(); } catch {} });
+  } catch (err) {
+    clearInterval(knockTimer);
+    renderError(err);
+  }
+}
+</script>
 </body>
 </html>
