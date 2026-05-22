@@ -136,7 +136,7 @@
     "zod/v3":      "https://esm.sh/zod@4.4.3/v3",
     "zod/v4-mini": "https://esm.sh/zod@4.4.3/v4-mini",
     "@nevescloud/pip/bundle/local":
-      "https://cdn.jsdelivr.net/npm/@nevescloud/pip@latest/bundle/local.esm.js"
+      "https://cdn.jsdelivr.net/npm/@nevescloud/pip@3.8.0/bundle/local.esm.js"
   }
 }
 </script>
@@ -166,7 +166,7 @@
 <script type="module">
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { WebRTCClientTransport } from '@nevescloud/mcp-rtc';
-import { createPip, createTransformersRenderer } from '@nevescloud/pip/bundle/local';
+import { createPip, createRuntime, local } from '@nevescloud/pip/bundle/local';
 
 // ── site id ─────────────────────────────────────────────────────
 // Bare URL fragment: /client.html#hi-XXXXXX. No fragment → empty CTA.
@@ -270,64 +270,10 @@ if (!SITE) {
     clearInterval(knockTimer);
     renderReady({ site: SITE, tools });
 
-    // Set up the local renderer. Generate is lazy — model + tokenizer
-    // load on the first call, not now, so the page stays responsive
-    // until the user actually asks something.
-    const renderer = createTransformersRenderer();
-    // Gemma 4 E2B (instruction-tuned) with Google's standardized sampling.
-    // q4f16 over plain q4: smaller download (~1.5 GB decoder vs ~1.9 GB)
-    // and faster on WebGPU since activations stay fp16. temperature=1.0 +
-    // top_k=64 are Gemma 4's documented defaults (NOT 0.7/50 — that's
-    // Llama-family carryover). No repetition_penalty: Google's card
-    // explicitly recommends against one for Gemma.
-    renderer.setModel({
-      id: 'onnx-community/gemma-4-E2B-it-ONNX',
-      dtype: 'q4f16',
-      maxTokens: 1024,
-      genParams: { temperature: 1.0, top_p: 0.95, top_k: 64 },
-    });
-
-    // System prompt names the connected peer + the tool slash convention,
-    // so when the user types free text the model has context for "what is
-    // this thing." Doesn't drive tool calls — those go through pip's slash
-    // dispatch, which is deterministic. The model is here for chat color
-    // around the deterministic dispatch.
-    const toolMenu = tools.map(t => `/${t.name}`).join(', ') || '(none)';
-    const systemPrompt = `You are a local in-browser assistant running inside a tab connected to a remote MCP server "${SITE}". Available remote tools (invoked by the user via slash commands): ${toolMenu}. Keep replies short.`;
-
-    const pip = createPip({
-      introText: `Connected to ${SITE}. Try /${tools[0]?.name || 'help'} or chat freely.`,
-      placeholder: tools[0] ? `Type /${tools[0].name}, or ask the local model…` : 'Ask the local model…',
-      modelLabel: 'gemma-4-E2B-it · q4f16',
-      autoOpen: false,
-      historyLimit: 6,
-      // Free text → local model. The renderer streams into pip's turn UI.
-      // We wrap setReplyText so pip's per-turn helper binds to this turn's
-      // element automatically.
-      onSubmit: async (text, ctx) => {
-        const messages = [
-          { role: 'system', content: systemPrompt },
-          ...ctx.history,
-        ];
-        try {
-          // generate() streams into the turn via setReplyText AND returns
-          // the final answer. Return that — if we return "", pip calls
-          // setReplyText again with emptyReply, overwriting the rendered
-          // output with "I don't have a good answer for that…".
-          return await renderer.generate({
-            messages,
-            turnEl: ctx.turnEl,
-            setReplyText: (t) => ctx.setReplyText(ctx.turnEl, t, true),
-          });
-        } catch (err) {
-          return `(local model failed: ${err?.message || err})`;
-        }
-      },
-    });
-
-    // MCP content blocks → short, chat-friendly text. Images and audio
-    // arrive as huge base64 strings that, if dumped as JSON, swamp pip's
-    // renderer and visually look like nothing happened. Text passes through.
+    // MCP content blocks → chat-friendly text. Used by both the runtime
+    // tool handler (model-driven) and the slash handler (user-driven).
+    // Image/audio come back as huge base64 strings that, if dumped as
+    // JSON, swamp pip's renderer and visually look like nothing happened.
     function describeContent(blocks) {
       if (!Array.isArray(blocks) || blocks.length === 0) return '(tool returned no content)';
       return blocks.map((c) => {
@@ -341,27 +287,89 @@ if (!SITE) {
       }).filter(Boolean).join('\n\n');
     }
 
-    // Register a slash command per discovered remote tool. Deterministic
-    // dispatch: typed input becomes a direct tool call over mcp-rtc, no
-    // model in the loop, no parsing-flakiness risk.
+    async function dispatch(name, args) {
+      setStatus('calling tool…', 'connecting');
+      try {
+        const result = await client.callTool({ name, arguments: args || {} });
+        setStatus(`ready · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'ready');
+        const summary = describeContent(result?.content);
+        return result?.isError ? `❌ ${summary}` : summary;
+      } catch (err) {
+        setStatus('error', 'error');
+        return `tool call failed: ${err?.message || err}`;
+      }
+    }
+
+    // Gemma 4 E2B (instruction-tuned) with Google's standardized sampling.
+    // q4f16 over plain q4: smaller download (~1.5 GB decoder vs ~1.9 GB)
+    // and faster on WebGPU since activations stay fp16. temperature=1.0 +
+    // top_k=64 are Gemma 4's documented defaults; no repetition_penalty
+    // per Google. enable_thinking: false suppresses Gemma 4's inline
+    // <|channel>thought blocks that would otherwise leak through.
+    const provider = local({
+      model: 'onnx-community/gemma-4-E2B-it-ONNX',
+      dtype: 'q4f16',
+      maxTokens: 1024,
+      genParams: { temperature: 1.0, top_p: 0.95, top_k: 64 },
+      chatTemplate: { enable_thinking: false },
+    });
+
+    const systemPrompt = `You are a local in-browser assistant running inside a tab connected to a remote MCP server "${SITE}". You can call any of the tools below to operate on that remote tab. Prefer using a tool over guessing when the user asks something a tool can answer. Keep replies short.`;
+
+    // pip-core 3.8.0 adds prompt-based tool calling to local() — when
+    // runtime passes `tools`, the system prompt gets augmented with JSON
+    // schemas + emit-format and the streaming parser catches
+    // <tool_call>{…}</tool_call> blocks from the model, yielding tool_use
+    // events the runtime dispatches. Free chat now auto-routes to a tool
+    // call when the model decides one's needed; rt.registerSlash keeps
+    // the deterministic /name dispatch path for users who already know.
+    const rt = createRuntime({
+      provider,
+      systemPrompt,
+      maxTurns: 4,
+      historyLimit: 12,
+    });
+
     for (const tool of tools) {
-      pip.registerSlash({
+      rt.registerTool({
+        name: tool.name,
+        description: tool.description || 'remote tool',
+        schema: tool.inputSchema || { type: 'object', properties: {}, required: [] },
+        handler: async (input) => dispatch(tool.name, input),
+      });
+      rt.registerSlash({
         name: tool.name,
         description: (tool.description || 'remote tool').slice(0, 80),
-        handler: async () => {
-          setStatus('calling tool…', 'connecting');
-          try {
-            const result = await client.callTool({ name: tool.name, arguments: {} });
-            setStatus(`ready · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'ready');
-            const summary = describeContent(result?.content);
-            return { reply: result?.isError ? `❌ ${summary}` : summary };
-          } catch (err) {
-            setStatus('error', 'error');
-            return { reply: `tool call failed: ${err?.message || err}` };
-          }
-        },
+        handler: async () => ({ reply: await dispatch(tool.name, {}) }),
       });
     }
+
+    const pip = createPip({
+      introText: `Connected to ${SITE}. Ask the local model, or run a tool directly with /${tools[0]?.name || 'help'}.`,
+      placeholder: tools[0] ? `Try /${tools[0].name}, or ask the local model…` : 'Ask the local model…',
+      modelLabel: 'gemma-4-E2B-it · q4f16',
+      autoOpen: false,
+      historyLimit: 6,
+      onSubmit:    rt.onSubmit,
+      onSlash:     rt.onSlash,
+      slashSource: rt.slashSource,
+    });
+
+    // Tool-tracing pills — a model-driven call surfaces as a visible
+    // artifact in the turn instead of just text in the reply.
+    const pills = new Map();
+    rt.on('toolCall', ({ turnEl, name, id }) => {
+      pills.set(id, pip.appendToolPill(turnEl, name, { label: `${name} …` }));
+    });
+    rt.on('toolResult', ({ name, ok, result, error, id }) => {
+      const pill = pills.get(id);
+      pill?.finish({
+        label: `${name}${ok ? '' : ' — failed'}`,
+        result: ok ? result : undefined,
+        error: ok ? undefined : error,
+      });
+      pills.delete(id);
+    });
 
     // Clean up when the page goes away — the lobby drops the registration
     // on connection close, but explicit close keeps the audit trail tidy.
