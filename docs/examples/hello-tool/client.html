@@ -319,6 +319,22 @@ if (!SITE) {
       },
     });
 
+    // MCP content blocks → short, chat-friendly text. Images and audio
+    // arrive as huge base64 strings that, if dumped as JSON, swamp pip's
+    // renderer and visually look like nothing happened. Text passes through.
+    function describeContent(blocks) {
+      if (!Array.isArray(blocks) || blocks.length === 0) return '(tool returned no content)';
+      return blocks.map((c) => {
+        if (!c) return '';
+        if (c.type === 'text') return c.text || '';
+        const kb = c.data ? Math.round((c.data.length * 3 / 4) / 1024) : 0;
+        if (c.type === 'image') return `📷 image · ${c.mimeType || 'image/*'} · ~${kb} KB base64`;
+        if (c.type === 'audio') return `🎙️ audio · ${c.mimeType || 'audio/*'} · ~${kb} KB base64`;
+        if (c.type === 'resource_link') return `🔗 ${c.uri || c.url || '(resource_link)'}`;
+        return JSON.stringify(c);
+      }).filter(Boolean).join('\n\n');
+    }
+
     // Register a slash command per discovered remote tool. Deterministic
     // dispatch: typed input becomes a direct tool call over mcp-rtc, no
     // model in the loop, no parsing-flakiness risk.
@@ -331,9 +347,8 @@ if (!SITE) {
           try {
             const result = await client.callTool({ name: tool.name, arguments: {} });
             setStatus(`ready · ${tools.length} tool${tools.length === 1 ? '' : 's'}`, 'ready');
-            const content = result?.content?.[0];
-            const text = content?.type === 'text' ? content.text : JSON.stringify(result);
-            return { reply: text };
+            const summary = describeContent(result?.content);
+            return { reply: result?.isError ? `❌ ${summary}` : summary };
           } catch (err) {
             setStatus('error', 'error');
             return { reply: `tool call failed: ${err?.message || err}` };
