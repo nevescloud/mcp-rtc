@@ -146,6 +146,22 @@
     color: var(--accent); border-bottom-color: var(--accent); }
   #surface-ai:checked ~ .surface-pane[data-surface="ai"],
   #surface-code:checked ~ .surface-pane[data-surface="code"] { display: block; }
+  .phone-card { display: flex; gap: 1.25rem; align-items: center;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 1.5rem; margin: 0.75rem 0;
+    animation: fade-up 0.5s 0.1s var(--ease) both; }
+  .phone-card canvas { width: 132px; height: 132px;
+    background: #fff; border-radius: 6px; padding: 8px;
+    image-rendering: pixelated; flex-shrink: 0; }
+  .phone-card .phone-text { flex: 1; min-width: 0; }
+  .phone-card h3 { margin: 0 0 0.4rem; font-size: 16px; }
+  .phone-card p { margin: 0.35rem 0; font-size: 14px; color: var(--ink-muted); }
+  .phone-card a { color: var(--accent); text-decoration: none; }
+  .phone-card a:hover { text-decoration: underline; }
+  @media (max-width: 540px) {
+    .phone-card { flex-direction: column; align-items: stretch; }
+    .phone-card canvas { align-self: center; }
+  }
   footer { padding: 1.5rem 1.25rem; color: var(--ink-muted); font-size: 12px;
     border-top: 1px solid var(--border); text-align: center; }
   footer a { color: var(--ink-muted); text-decoration: none; margin: 0 0.5rem; }
@@ -253,6 +269,17 @@
   </ol>
 </div>
 
+<h2>On your phone</h2>
+
+<div class="phone-card">
+  <canvas id="phone-qr" aria-label="QR code to open neves.cloud/p/ on a phone"></canvas>
+  <div class="phone-text">
+    <h3>Phone as Claude-callable tools.</h3>
+    <p>Scan with your phone's camera, or open <a href="https://neves.cloud/p/" target="_blank" rel="noopener"><strong>neves.cloud/p/</strong></a> on the phone. The page registers <code>take_photo</code>, <code>get_location</code>, <code>read_clipboard</code>, <code>get_orientation</code> — each prompts for permission lazily on the first call.</p>
+    <p>The phone shows a <em>Paste in Claude Code</em> prompt with its site id. Paste it into Claude Code with <code>@nevescloud/mcp-rtc-bridge</code> in your <code>mcpServers</code>, and your laptop's Claude reaches the phone.</p>
+  </div>
+</div>
+
 </div>
 </main>
 <footer>
@@ -268,6 +295,17 @@
       setTimeout(() => btn.classList.remove('copied'), 1400);
     });
   }
+</script>
+<script type="module">
+// QR for the phone-as-tools URL. Lazy-imported so the landing keeps
+// loading if the CDN blips — the link next to the QR is still usable.
+import('https://esm.sh/qrcode@1.5.4')
+  .then(({ default: QRCode }) => QRCode.toCanvas(
+    document.getElementById('phone-qr'),
+    'https://neves.cloud/p/',
+    { errorCorrectionLevel: 'M', margin: 0, width: 264 },
+  ))
+  .catch((err) => console.warn('[qr] phone QR render skipped:', err.message));
 </script>
 </body>
 </html>
