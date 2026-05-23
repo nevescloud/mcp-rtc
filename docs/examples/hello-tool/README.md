@@ -31,20 +31,15 @@ Three independent ways to call the tool from an actual AI. Run any (or all) agai
 
 ### Path B — Claude Code via stdio bridge
 
-If you have Claude Code locally, add the stdio bridge to `~/.claude/settings.json`:
+If you have Claude Code locally, install the bridge once:
 
-```json
-{
-  "mcpServers": {
-    "mcp-rtc-bridge": {
-      "command": "npx",
-      "args": ["-y", "@nevescloud/mcp-rtc-bridge"]
-    }
-  }
-}
+```sh
+claude mcp add mcp-rtc-bridge -- npx -y @nevescloud/mcp-rtc-bridge
 ```
 
-Restart Claude Code. Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side.
+Codex CLI is the same idea: `codex mcp add mcp-rtc-bridge -- npx -y @nevescloud/mcp-rtc-bridge`. For Cursor / Claude Desktop / any other stdio MCP client, add `npx -y @nevescloud/mcp-rtc-bridge` through whatever `mcpServers` UI or config file it exposes.
+
+Then paste the *tell-Claude* prompt from [hello.html](./hello.html) (or any `mcp-rtc` host) into the Claude session — Claude calls the bridge's `connect` tool with the site id and lists the remote tools, then asks you what to do. **No browser, no Chrome extension, no WebMCP** — Path B is fully terminal-side.
 
 ### Path C — Claude.ai / Claude Desktop via WebMCP
 

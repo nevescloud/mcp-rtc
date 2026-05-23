@@ -215,7 +215,7 @@
   </a>
   <span class="arch-link" aria-hidden="true">→</span>
   <div class="arch-targets">
-    <a class="arch-card" href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge" target="_blank" rel="noopener" title="Stdio bridge for terminal Claude — install and add to mcpServers">
+    <a class="arch-card" href="https://www.npmjs.com/package/@nevescloud/mcp-rtc-bridge" target="_blank" rel="noopener" title="Stdio bridge for terminal Claude — install with `claude mcp add mcp-rtc-bridge -- npx -y @nevescloud/mcp-rtc-bridge`">
       <strong>Claude Code</strong>
       <span class="arch-sub">via stdio bridge</span>
       <code class="arch-meta">npx @nevescloud/mcp-rtc-bridge</code>
@@ -254,20 +254,13 @@
         </div>
 
         <div class="surface-pane" data-surface="code">
-          <p>Add to <code>~/.claude/settings.json</code> and restart:</p>
+          <p>Install the bridge once:</p>
           <div class="codeblock">
-            <button class="copy-btn" type="button" data-copy="settings-json">copy</button>
-<pre id="settings-json">{
-  "mcpServers": {
-    "mcp-rtc-bridge": {
-      "command": "npx",
-      "args": ["-y", "@nevescloud/mcp-rtc-bridge"]
-    }
-  }
-}</pre>
+            <button class="copy-btn" type="button">copy</button>
+<pre>claude mcp add mcp-rtc-bridge -- npx -y @nevescloud/mcp-rtc-bridge</pre>
           </div>
-          <p>Copy the <em>"Paste in Claude Code"</em> prompt from the host page and paste it into Claude Code. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</p>
-          <p class="req">Same flow for Cursor, Claude Desktop, MCP Inspector, or any stdio MCP client.</p>
+          <p>Then copy the <em>"Paste in Claude Code"</em> prompt from the host page and paste it. Claude calls <code>connect</code> with the site id, lists the remote tools, then asks what to do.</p>
+          <p class="req">Codex CLI is the same command with <code>codex mcp add …</code>. Cursor, Claude Desktop, and other stdio MCP clients accept <code>npx -y @nevescloud/mcp-rtc-bridge</code> in their <code>mcpServers</code> config UI.</p>
         </div>
       </div>
     </li>
@@ -281,7 +274,7 @@
   <div class="phone-text">
     <h3>Phone as Claude-callable tools.</h3>
     <p>Scan with your phone's camera, or open <a href="https://neves.cloud/p/" target="_blank" rel="noopener"><strong>neves.cloud/p/</strong></a> on the phone. The page registers <code>take_photo</code>, <code>get_location</code>, <code>read_clipboard</code>, <code>get_orientation</code> — each prompts for permission lazily on the first call.</p>
-    <p>The phone shows a <em>Paste in Claude Code</em> prompt with its site id. Paste it into Claude Code with <code>@nevescloud/mcp-rtc-bridge</code> in your <code>mcpServers</code>, and your laptop's Claude reaches the phone.</p>
+    <p>The phone shows a <em>Paste in Claude Code</em> prompt with its site id. Install the bridge once with <code>claude mcp add mcp-rtc-bridge -- npx -y @nevescloud/mcp-rtc-bridge</code>, paste the prompt, and your laptop's Claude reaches the phone.</p>
   </div>
 </div>
 
