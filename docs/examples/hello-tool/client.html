@@ -16,7 +16,7 @@
      instead of serializing after script-module evaluation. -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://huggingface.co" crossorigin>
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@nevescloud/pip@3.8.0/bundle/local.esm.js" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@nevescloud/pip@3.9.1/bundle/local.esm.js" crossorigin>
 
 <style>
   :root {
@@ -149,7 +149,7 @@
     "zod/v3":      "https://esm.sh/zod@4.4.3/v3",
     "zod/v4-mini": "https://esm.sh/zod@4.4.3/v4-mini",
     "@nevescloud/pip/bundle/local":
-      "https://cdn.jsdelivr.net/npm/@nevescloud/pip@3.8.0/bundle/local.esm.js"
+      "https://cdn.jsdelivr.net/npm/@nevescloud/pip@3.9.1/bundle/local.esm.js"
   }
 }
 </script>
@@ -383,6 +383,18 @@ if (!SITE) {
       });
       pills.delete(id);
     });
+
+    // Eager weight download in idle time — provider.warm() shipped in
+    // pip-core 3.9.1. Without this the first message pays the full cold
+    // start (transformers.js import + tokenizer + ~1.5 GB weights). With
+    // this, the page boots, settles, and starts the download while the
+    // visitor reads the card; first prompt hits a warm renderer.
+    const warmNow = () => provider.warm?.().catch(() => {});
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(warmNow, { timeout: 5000 });
+    } else {
+      setTimeout(warmNow, 1500);
+    }
 
     // Clean up when the page goes away — the lobby drops the registration
     // on connection close, but explicit close keeps the audit trail tidy.
