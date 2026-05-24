@@ -17,6 +17,31 @@ Add to `~/.claude/settings.json` (Claude Code) or any MCP client config:
 }
 ```
 
+### Pre-bound install (`--auto-connect`)
+
+When the target peer's id is known up-front (e.g. a stable
+device-paired id), pass it at install time so the peer's tools are
+present without the user calling `connect` each session:
+
+```json
+{
+  "mcpServers": {
+    "eyes": {
+      "command": "npx",
+      "args": ["-y", "@nevescloud/mcp-rtc-bridge", "--auto-connect", "b79c"]
+    }
+  }
+}
+```
+
+Ids may be passed with or without a leading `#` — copy-pasting from
+a fragment-style URL (`neves.cloud/eyes#b79c` → `#b79c`) works as-is.
+
+Optional `--lobby <namespace>` overrides the default `mcp` lobby —
+same semantics as `connect`'s `lobbyNamespace`. Auto-connect failures
+are logged to stderr and the bridge stays usable; `connect` is still
+available at runtime for switching peers.
+
 ## Quick test
 
 Verify the bridge works against an echo server hosted by `@nevescloud/mcp-rtc`:
@@ -41,7 +66,7 @@ If that works end-to-end, the bridge + transport + signaling lobby are all wired
 
 Two built-in tools:
 
-- **`connect({ siteId, lobbyNamespace? })`** — establishes a WebRTC + MCP client connection to a remote peer. Discovers the peer's tools and registers each as `peer_<toolname>` on this bridge. Sends `tools/list_changed` so your client picks them up.
+- **`connect({ id, lobbyNamespace? })`** — establishes a WebRTC + MCP client connection to a remote peer. Discovers the peer's tools and registers each as `peer_<toolname>` on this bridge. Sends `tools/list_changed` so your client picks them up.
 - **`disconnect()`** — closes the connection and removes the `peer_` tools.
 
 After `connect`, your MCP client sees the peer's tools natively. Calling `peer_render({...})` forwards to the peer's `render({...})` over the WebRTC data channel and returns the peer's response.
@@ -49,7 +74,7 @@ After `connect`, your MCP client sees the peer's tools natively. Calling `peer_r
 ## Example
 
 ```
-You:    Connect to mcp-rtc canvas at site "cv-abc123" using lobbyNamespace "pip-relay"
+You:    Connect to mcp-rtc canvas at "cv-abc123" using lobbyNamespace "pip-relay"
 Claude: [calls connect] → "connected to cv-abc123 (2 tools): peer_render, peer_clear"
 You:    Render a hello svg with a green circle
 Claude: [calls peer_render({ html: '<svg>...</svg>' })] → "rendered (180 bytes)"
@@ -62,7 +87,7 @@ The remote peer's `render` tool runs in *its* environment (here, in a browser ta
 `mcp-rtc` defaults to `lobbyNamespace: 'mcp'` for native peers. Confer / pip-relay browser hosts use `'pip-relay'`. Pass it explicitly when connecting to a confer canvas:
 
 ```
-connect({ siteId: 'cv-abc123', lobbyNamespace: 'pip-relay' })
+connect({ id: 'cv-abc123', lobbyNamespace: 'pip-relay' })
 ```
 
 ## Limitations
