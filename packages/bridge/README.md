@@ -21,12 +21,15 @@ Add to `~/.claude/settings.json` (Claude Code) or any MCP client config:
 
 When the target peer's id is known up-front (e.g. a stable
 device-paired id), pass it at install time so the peer's tools are
-present without the user calling `connect` each session:
+present without the user calling `connect` each session. Pick the
+install's MCP name to reflect what the bound peer *does* — the
+example below uses `peer`, but a real install might be `studio`,
+`workshop`, etc.:
 
 ```json
 {
   "mcpServers": {
-    "eyes": {
+    "peer": {
       "command": "npx",
       "args": ["-y", "@nevescloud/mcp-rtc-bridge", "--auto-connect", "b79c"]
     }
@@ -35,7 +38,7 @@ present without the user calling `connect` each session:
 ```
 
 Ids may be passed with or without a leading `#` — copy-pasting from
-a fragment-style URL (`neves.cloud/eyes#b79c` → `#b79c`) works as-is.
+a fragment-style URL (`example.com/page#b79c` → `#b79c`) works as-is.
 
 Optional `--lobby <namespace>` overrides the default `mcp` lobby —
 same semantics as `connect`'s `lobbyNamespace`. Auto-connect failures
