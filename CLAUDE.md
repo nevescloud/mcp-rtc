@@ -23,7 +23,7 @@ to normal evolution rules then.
 
 Artifact priority:
 
-1. **`neves.cloud/h/`** (live) — the capability host. One unified host URL that probes the device on load and registers a tool per available web platform API. Eleven capabilities → fifteen MCP tools when fully bound: heartbeat (`get_greeting`), auto-bound sensors (camera, mic, geolocation, clipboard, orientation), user-bound content (screen share, file picker, directory picker, paired BLE device, paired serial port). Permissions requested lazily on first call. Subsumes phone-as-tools as a device-class projection — same URL works on a phone, a laptop, anything in between. Source: `jonasneves.github.io/docs/h/`. In-repo `docs/examples/hello-tool/hello.html` is a forkable mirror, currently stale from the deployed version (different site-id shape, no capability detection — sync is a follow-up).
+1. **`neves.cloud/h/`** (live) — the capability host. One unified host URL that probes the device on load and registers a tool per available web platform API. Eleven capabilities → fifteen MCP tools when fully bound: heartbeat (`get_greeting`), auto-bound sensors (camera, mic, geolocation, clipboard, orientation), user-bound content (screen share, file picker, directory picker, paired BLE device, paired serial port). Permissions requested lazily on first call. Subsumes phone-as-tools as a device-class projection — same URL works on a phone, a laptop, anything in between. Source: `neves.cloud`'s pages repo at `docs/h/`. In-repo `docs/examples/hello-tool/hello.html` is a forkable mirror, currently stale from the deployed version (different site-id shape, no capability detection — sync is a follow-up).
 2. **`packages/bridge-tab`** — load-bearing library. Browser-side WebMCP↔mcp-rtc adapter; what consumer tabs run to bring remote MCP servers into a local WebMCP-aware Claude.
 3. **`packages/transport`** — necessary substrate. Reference implementation of the wire mapping; ships under `@nevescloud/mcp-rtc` and powers four downstream consumers (`mcp-rtc-bridge-tab`, `mcp-rtc-bridge`, `confer-mcp`, `confer-agent`).
 4. **`SPEC.md`** — supporting documentation. Tone: dry, precise, RFC-shaped. Exists so a second implementation can talk to the first; doesn't drive adoption on its own. *Do not* turn it into a marketing document.
@@ -108,7 +108,8 @@ If `mcp-rtc` later graduates to a neutral home (formal standardization, outside 
 
 ## Repo + GitHub orgs
 
-- Repo lives at `nevescloud/mcp-rtc` — moved from `nevescloud/mcp-rtc` to the `nevescloud` GitHub org on 2026-05-24, aligning the repo with the publisher namespace (`@nevescloud` on npm, `neves.cloud` domain). Public as of 2026-05-08 (flipped when Path B was working end-to-end). GitHub auto-redirects the old `nevescloud/mcp-rtc` URLs.
+- Repo lives at `nevescloud/mcp-rtc` — moved from `jonasneves/mcp-rtc` to the `nevescloud` GitHub org on 2026-05-24, aligning the repo with the publisher namespace (`@nevescloud` on npm, `neves.cloud` domain). Public as of 2026-05-08 (flipped when Path B was working end-to-end). GitHub auto-redirects the old `jonasneves/mcp-rtc` URLs.
+- Landing page `neves.cloud/mcp-rtc/` is served from `neves.cloud`'s pages repo at `docs/mcp-rtc/index.html`. Pages on `nevescloud/mcp-rtc` is disabled; the in-repo `docs/index.html` was removed (no second copy to drift). To edit the landing, edit it in `neves.cloud`'s pages repo directly.
 - GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "publisher identity" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
 
 ## Relationship to existing packages
