@@ -245,16 +245,40 @@ bridge.tool(
 
 await bridge.connect(new StdioServerTransport());
 
-// Auto-connect at startup if --auto-connect was provided. Logs to stderr
-// (stdout is reserved for MCP protocol); failures are non-fatal so the
-// bridge stays usable and the user can `connect` manually later.
-if (autoConnectId) {
+// Auto-connect at startup if --auto-connect was provided. Backoff
+// schedule (exponential with full jitter, cap 30s) mirrors the
+// signal.neevs.io discover client and the standard Anthropic-SDK
+// retry shape: cheap fast retries up front for the common "peer
+// will be up in a second" case, slower polls after that for the
+// "peer is offline for now" case. Indefinite — the bridge has no
+// way to know when the operator will open the page, so we keep
+// listening until they do. Fire-and-forget so MCP tool calls flow
+// through the bridge while we retry in the background; logs go to
+// stderr (stdout is the MCP protocol channel).
+const AUTO_BASE_MS = 1500;
+const AUTO_MAX_MS  = 30_000;
+
+async function autoConnectWithRetry() {
   const ns = autoConnectLobby || DEFAULT_LOBBY;
-  const result = await doConnect(autoConnectId, autoConnectLobby, null);
-  const msg = result?.content?.[0]?.text || '';
-  if (result?.isError) {
-    process.stderr.write(`[mcp-rtc-bridge] auto-connect to ${autoConnectId} (lobby ${ns}) failed: ${msg}\n`);
-  } else {
-    process.stderr.write(`[mcp-rtc-bridge] auto-connected to ${autoConnectId} (lobby ${ns})\n`);
+  let delay = AUTO_BASE_MS;
+  let attempt = 0;
+  while (true) {
+    attempt += 1;
+    const result = await doConnect(autoConnectId, autoConnectLobby, null);
+    if (!result?.isError) {
+      process.stderr.write(`[mcp-rtc-bridge] auto-connected to ${autoConnectId} (lobby ${ns})${attempt > 1 ? ` after ${attempt} tries` : ''}\n`);
+      return;
+    }
+    const msg = result?.content?.[0]?.text || 'unknown error';
+    const wait = delay + Math.floor(Math.random() * 1000);
+    process.stderr.write(`[mcp-rtc-bridge] auto-connect attempt ${attempt} to ${autoConnectId} failed (${msg}); retrying in ${Math.round(wait / 1000)}s\n`);
+    await new Promise((r) => setTimeout(r, wait));
+    delay = Math.min(delay * 2, AUTO_MAX_MS);
   }
+}
+
+if (autoConnectId) {
+  autoConnectWithRetry().catch((err) => {
+    process.stderr.write(`[mcp-rtc-bridge] auto-connect loop crashed: ${err?.stack || err}\n`);
+  });
 }

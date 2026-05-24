@@ -41,9 +41,13 @@ Ids may be passed with or without a leading `#` — copy-pasting from
 a fragment-style URL (`example.com/page#b79c` → `#b79c`) works as-is.
 
 Optional `--lobby <namespace>` overrides the default `mcp` lobby —
-same semantics as `connect`'s `lobbyNamespace`. Auto-connect failures
-are logged to stderr and the bridge stays usable; `connect` is still
-available at runtime for switching peers.
+same semantics as `connect`'s `lobbyNamespace`.
+
+Auto-connect retries indefinitely with exponential backoff (1.5s → 3s
+→ … → cap 30s, full jitter) so the bridge can be installed before the
+peer is online; it logs progress to stderr and binds the moment the
+peer surfaces. The runtime `connect` tool stays available for switching
+peers.
 
 ## Quick test
 
