@@ -20,10 +20,10 @@
   ],
   "author": "Jonas Neves",
   "license": "MIT",
-  "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/transport#readme",
+  "homepage": "https://github.com/nevescloud/mcp-rtc/tree/main/packages/transport#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonasneves/mcp-rtc.git",
+    "url": "git+https://github.com/nevescloud/mcp-rtc.git",
     "directory": "packages/transport"
   },
   "publishConfig": {

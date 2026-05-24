@@ -1,6 +1,6 @@
 # @nevescloud/mcp-rtc-bridge
 
-Stdio MCP server that lets a local MCP client (e.g. Claude Code) reach MCP servers hosted on the [`mcp-rtc`](https://github.com/jonasneves/mcp-rtc) mesh. Built on [`@nevescloud/mcp-rtc`](https://www.npmjs.com/package/@nevescloud/mcp-rtc).
+Stdio MCP server that lets a local MCP client (e.g. Claude Code) reach MCP servers hosted on the [`mcp-rtc`](https://github.com/nevescloud/mcp-rtc) mesh. Built on [`@nevescloud/mcp-rtc`](https://www.npmjs.com/package/@nevescloud/mcp-rtc).
 
 ## Install
 
@@ -106,5 +106,5 @@ connect({ id: 'cv-abc123', lobbyNamespace: 'pip-relay' })
 
 ## Related
 
-- [`@nevescloud/mcp-rtc`](https://github.com/jonasneves/mcp-rtc) — the underlying transport.
+- [`@nevescloud/mcp-rtc`](https://github.com/nevescloud/mcp-rtc) — the underlying transport.
 - [confer canvas](https://github.com/jonasneves/confer) — example consumer (browser MCP server with a `render` tool).

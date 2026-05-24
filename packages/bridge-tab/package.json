@@ -8,10 +8,10 @@
   "keywords": ["mcp", "model-context-protocol", "webrtc", "webmcp", "browser", "bridge", "p2p"],
   "author": "Jonas Neves",
   "license": "MIT",
-  "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/bridge-tab#readme",
+  "homepage": "https://github.com/nevescloud/mcp-rtc/tree/main/packages/bridge-tab#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonasneves/mcp-rtc.git",
+    "url": "git+https://github.com/nevescloud/mcp-rtc.git",
     "directory": "packages/bridge-tab"
   },
   "publishConfig": { "access": "public" },

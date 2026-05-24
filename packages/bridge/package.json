@@ -26,14 +26,14 @@
   ],
   "author": "Jonas Neves",
   "license": "MIT",
-  "homepage": "https://github.com/jonasneves/mcp-rtc/tree/main/packages/bridge#readme",
+  "homepage": "https://github.com/nevescloud/mcp-rtc/tree/main/packages/bridge#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonasneves/mcp-rtc.git",
+    "url": "git+https://github.com/nevescloud/mcp-rtc.git",
     "directory": "packages/bridge"
   },
   "bugs": {
-    "url": "https://github.com/jonasneves/mcp-rtc/issues"
+    "url": "https://github.com/nevescloud/mcp-rtc/issues"
   },
   "publishConfig": {
     "access": "public"

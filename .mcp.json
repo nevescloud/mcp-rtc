@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "confer": {
+      "command": "npx",
+      "args": ["-y", "@nevescloud/confer-mcp"]
+    },
+    "mcp-rtc-bridge": {
+      "command": "npx",
+      "args": ["-y", "@nevescloud/mcp-rtc-bridge"]
+    }
+  }
+}

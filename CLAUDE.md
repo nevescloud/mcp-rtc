@@ -108,8 +108,8 @@ If `mcp-rtc` later graduates to a neutral home (formal standardization, outside 
 
 ## Repo + GitHub orgs
 
-- Repo lives at `jonasneves/mcp-rtc` — public as of 2026-05-08. Flipped on Path B working end-to-end (`hello.html` ↔ Claude Code via the stdio bridge); Path A (in-browser inference) is deferred but documented transparently. The original "wait for A and B" criterion was over-cautious — the transport package was already public on npm by then, so GH-private was just making the package look amateur (404 on the `repository` link). Public also unblocks the standardization narrative; SEP / W3C-CG / community-spec submission requires a public draft regardless.
-- GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "personal scaffold" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
+- Repo lives at `nevescloud/mcp-rtc` — moved from `nevescloud/mcp-rtc` to the `nevescloud` GitHub org on 2026-05-24, aligning the repo with the publisher namespace (`@nevescloud` on npm, `neves.cloud` domain). Public as of 2026-05-08 (flipped when Path B was working end-to-end). GitHub auto-redirects the old `nevescloud/mcp-rtc` URLs.
+- GitHub orgs reserved (Jonas owns): `mcp-rtc`, `mcp-webrtc`, `webmcp-webrtc`. Move the repo under `mcp-rtc` org if/when this graduates from "publisher identity" to "neutral home" (e.g., if outside contributors arrive or before any formal standardization submission). The other two orgs are name-defense / redirect targets.
 
 ## Relationship to existing packages
 
