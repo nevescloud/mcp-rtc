@@ -1,6 +1,6 @@
 {
   "name": "@nevescloud/mcp-rtc",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Reference implementation of the MCP-over-WebRTC transport (see SPEC.md). Implements the @modelcontextprotocol/sdk Transport interface for both server and client, in Node and browser.",
   "type": "module",
   "main": "src/index.mjs",

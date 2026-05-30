@@ -19,15 +19,34 @@ const STUN_FALLBACK = [{ urls: 'stun:stun.cloudflare.com:3478' }];
 const DEFAULT_LOBBY_NAMESPACE = 'mcp';
 const DEFAULT_PAIR_TIMEOUT_MS    = 30_000;
 const DEFAULT_DC_OPEN_TIMEOUT_MS = 30_000;
+const DEFAULT_TURN_TIMEOUT_MS    = 8_000;
+const DEFAULT_WS_OPEN_TIMEOUT_MS = 15_000;
 
-async function fetchIceServers() {
+// Reject `promise` if it doesn't settle within `ms`. The loser is abandoned,
+// so callers must clean up any resource the promise owns (we close the ws).
+function withTimeout(promise, ms, label) {
+  let timer;
+  const guard = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(label)), ms);
+  });
+  return Promise.race([promise, guard]).finally(() => clearTimeout(timer));
+}
+
+// TURN creds are an optimization, not a hard dependency — STUN-only still
+// reaches most peers. So a slow/stalled endpoint must NOT wedge `join()`: abort
+// the fetch on timeout and fall back to STUN (the same path as any other error).
+async function fetchIceServers(timeoutMs = DEFAULT_TURN_TIMEOUT_MS) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const r = await fetch(TURN_ENDPOINT, { method: 'POST' });
+    const r = await fetch(TURN_ENDPOINT, { method: 'POST', signal: ctrl.signal });
     if (!r.ok) throw new Error(`turn: ${r.status}`);
     const { iceServers } = await r.json();
     return [...STUN_FALLBACK, ...iceServers];
   } catch {
-    return STUN_FALLBACK;
+    return STUN_FALLBACK;   // network error, non-2xx, or abort → STUN-only
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -76,6 +95,8 @@ export async function join({
   signalUrl = SIGNAL_BASE,
   pairTimeoutMs = DEFAULT_PAIR_TIMEOUT_MS,
   dcOpenTimeoutMs = DEFAULT_DC_OPEN_TIMEOUT_MS,
+  turnTimeoutMs = DEFAULT_TURN_TIMEOUT_MS,
+  wsOpenTimeoutMs = DEFAULT_WS_OPEN_TIMEOUT_MS,
 } = {}) {
   if (!siteId) throw new Error('join: { siteId } is required');
 
@@ -99,7 +120,7 @@ export async function join({
 
   const myPeerId = 'visitor-' + Math.random().toString(36).slice(2, 8);
   const ws = openRoomWs(ephemeralRoom, myPeerId, signalUrl);
-  const iceServers = await fetchIceServers();
+  const iceServers = await fetchIceServers(turnTimeoutMs);
   const pc = new RTCPeerConnection({ iceServers });
   const dc = pc.createDataChannel('mcp');
 
@@ -113,7 +134,14 @@ export async function join({
     }
   });
 
-  await ws.opened;
+  // Bound the signaling-socket open: a stalled WS connect would otherwise wedge
+  // join() forever. On timeout, tear down everything before surfacing the error.
+  try {
+    await withTimeout(ws.opened, wsOpenTimeoutMs, 'signaling open timeout');
+  } catch (err) {
+    ws.close(); pc.close();
+    throw err;
+  }
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
   ws.send({ offer });
