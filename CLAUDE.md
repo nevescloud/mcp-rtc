@@ -138,7 +138,8 @@ When tweaking palette, status states, or any chunk marked `TEMPLATE-SHARED` in t
 
 - `@jonasneves/mcp-webrtc` (npm) — predecessor reference impl this package was ported from. Superseded; remains published for any external consumers.
 - `signal.neevs.io` — public lobby; the recommended Layer 2 reference.
-- `@nevescloud/pip-relay` (npm, post-migration) — Layer 2 reference impl (lobby + pair-request), this package's substrate.
+- `@nevescloud/stoa` (npm) — **this package's substrate** (`host`/`join`, lobby, signed pair-request, browser+Node from one codebase). `packages/transport@0.2.0` collapsed onto it: `src/lib/` deleted, `host`/`join` re-exported. Reconciled there from this package's Node port + pip-relay's browser copy (both descended from the private `jonasneves/signal` client). See `jonasneves/stoa` MIGRATION.md + issue #1.
+- `@nevescloud/pip-relay` (npm, post-migration) — sibling consumer of `@nevescloud/stoa` (1:1 operator-mediated AI chat); also a Layer 2 lobby/pair-request reference.
 - confer's `canvas.html` — multi-peer canvas product; planned first migrated consumer of `bridge-tab` (currently hand-rolls an equivalent surface).
 
 ## Roadmap

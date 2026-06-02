@@ -6,9 +6,9 @@ Provides server- and client-side Transport classes that conform to the `@modelco
 
 ## Status
 
-**Node entry: ported.** Browser entry: in progress. Both will share the same source where it's runtime-agnostic, with thin runtime-specific shims for `RTCPeerConnection` and key-pair persistence.
+This package is the **MCP Transport wrapper**. As of `0.2.0`, the `host()` / `join()` substrate — WebRTC pairing, lobby, signed pair-requests, browser+Node from one codebase via a runtime shim — lives in **[`@nevescloud/stoa`](https://www.npmjs.com/package/@nevescloud/stoa)**, which this package depends on and re-exports. `@nevescloud/mcp-rtc` keeps only the `@modelcontextprotocol/sdk` Transport classes on top.
 
-The Node entry is functionally a port of `@jonasneves/mcp-webrtc` aligned with the spec; consumers of that package can swap dependencies once published. mcp-webrtc will be deprecated in favor of this package once browser parity lands.
+The substrate was reconciled there from this package's earlier Node port and pip-relay's browser copy (both descended from the private `jonasneves/signal` client) into one canonical implementation.
 
 ## Exports
 
