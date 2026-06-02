@@ -2,7 +2,7 @@
 // from @modelcontextprotocol/sdk. Connects to one MCP server in the
 // matching lobby site.
 
-import { join } from './lib/transport.mjs';
+import { join } from '@nevescloud/stoa';
 
 export class WebRTCClientTransport {
   constructor({

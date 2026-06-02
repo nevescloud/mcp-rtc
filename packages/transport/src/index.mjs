@@ -7,4 +7,4 @@ export { WebRTCClientTransport } from './client-transport.mjs';
 // the WebRTC layer directly without the MCP wrapping — e.g. when riding ad-
 // hoc envelopes over the same lobby for systems that haven't migrated their
 // wire format to MCP yet.
-export { join, host } from './lib/transport.mjs';
+export { join, host } from '@nevescloud/stoa';

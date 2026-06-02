@@ -4,7 +4,7 @@
 // an old session is dead-but-not-yet-cleaned-up replaces it; otherwise
 // the new dial is refused.
 
-import { host } from './lib/transport.mjs';
+import { host } from '@nevescloud/stoa';
 
 export class WebRTCServerTransport {
   constructor({
