@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@nevescloud/mcp-rtc": "^0.1.1",
+    "@nevescloud/mcp-rtc": "^0.2.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^3.25.0"
   }

@@ -114,7 +114,7 @@ If `mcp-rtc` later graduates to a neutral home (formal standardization, outside 
 
 ## Relationship to existing packages
 
-**npm scope migration in progress (2026-05-09):** all of Jonas's packages move from `@jonasneves/*` to `@nevescloud/*` for trust-consistency with the `neves.cloud` domain. In-repo references (this file, README, SPEC, examples, package.jsons) have been updated. The actual npm publishes — claiming the `nevescloud` org, republishing under the new scope, deprecating the old packages with a pointer — happen in one coordinated pass. Until then the docs name packages that don't exist yet on npm; the live `neves.cloud/h/` and `neves.cloud/b/` URLs continue to work because they import from the still-published `@jonasneves/*` versions. Re-deploy the example pages once the new scope is published.
+**npm scope migration done:** all of Jonas's packages moved from `@jonasneves/*` to `@nevescloud/*` for trust-consistency with the `neves.cloud` domain. In-repo references (this file, README, SPEC, examples, package.jsons) and the actual npm publishes are both live — `@nevescloud/mcp-rtc`, `-bridge`, `-bridge-tab`, and `stoa` are published under the new scope; the old `@jonasneves/*` packages are deprecated with a pointer. The `neves.cloud/h/` and `neves.cloud/b/` URLs import from the `@nevescloud/*` versions.
 
 Packages in scope of the migration: `mcp-rtc`, `mcp-rtc-bridge-tab`, `mcp-rtc-bridge` (renamed from `mcp-webrtc-bridge`), `pip-relay`, `confer-mcp`, `confer-agent`. The predecessor `@jonasneves/mcp-webrtc` is *not* migrating — it's superseded and stays at its historical name as a deprecation target.
 
@@ -124,7 +124,7 @@ The terminal bridge was renamed `mcp-webrtc-bridge` → `mcp-rtc-bridge` so the 
 
 1. Read this file's "Strategic intent", "Positioning landscape", and "Capability host architecture" sections before touching framing language anywhere in the repo. The tone constraints are non-obvious and earned.
 2. Read `README.md` for the current public shape.
-3. The headline demo is the capability host (`docs/examples/capability-host`) — planned but not yet built. Until it ships, `docs/examples/hello-tool` is the minimal working example: open `hello.html` + `bridge.html` to see the substrate end-to-end.
+3. The headline demo is the capability host (`/h/`), live but **not in this repo** — its source lives in `neves.cloud`'s pages repo (`jonasneves.github.io` at `docs/h/`), not under `docs/examples/` here. In this repo, `docs/examples/hello-tool` is the minimal working example: open `hello.html` + `bridge.html` to see the substrate end-to-end.
 4. `SPEC.md` is the wire-format contract — read it when changing the wire, not before.
 5. `packages/bridge-tab/src/index.mjs` is small (~30 LOC of real code) and is the project's load-bearing library. Read it to internalize how the WebMCP↔mcp-rtc adapter works.
 

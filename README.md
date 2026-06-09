@@ -46,6 +46,8 @@ Two URLs, one Claude.
 
 Two machines work the same way. `/h/` and `/b/` are the deployed pages; `docs/examples/hello-tool/` is the minimal forkable example.
 
+> **Note for cloners:** the live demos (`/h/`, `/b/`, `/p/`, `/v/`) and the capability-host source are **not in this repo**. They are served from the separate [`neves.cloud` pages repo](https://github.com/jonasneves/jonasneves.github.io) (`docs/h/`, `docs/b/`, …). This repo contains the spec, the npm packages (`packages/`), and one minimal forkable example (`docs/examples/hello-tool/`). If you cloned this looking for the capability host, it lives there, not here.
+
 ## Repo
 
 ```

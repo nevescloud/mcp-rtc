@@ -28,7 +28,7 @@ This document specifies a transport for the Model Context Protocol (MCP) that ca
 
 - **Host** — an endpoint that runs an MCP server and accepts incoming connections.
 - **Client** — an endpoint that runs an MCP client and dials a Host.
-- **Site id** — an opaque string, agreed out-of-band, used as a rendezvous key between Host and Client during signaling.
+- **site id** — an opaque, low-entropy string, agreed out-of-band, used as a rendezvous key between Host and Client during signaling. It is a rendezvous token, not a credential (see § 9). This is the canonical term throughout this document; the reference bridge surfaces the same value through its public API as the parameter `id`.
 - **Lobby** — a service used during signaling to broker opaque messages between peers; sees signaling traffic only.
 - **Data channel** — a WebRTC `RTCDataChannel` carrying JSON-RPC messages after the WebRTC peer connection is established.
 
@@ -40,7 +40,9 @@ Three independently-pluggable layers:
 |---|---|---|
 | 1. Transport | MCP JSON-RPC over WebRTC data channel | yes — wire format below |
 | 2. Signaling | Discovery, pair-request, SDP/ICE exchange | recommended pattern only |
-| 3. Identity | Peer authentication, anti-spoofing | recommended pattern only |
+| 3. Identity | Peer authentication, anti-spoofing | OPTIONAL — not provided by the base transport |
+
+Layers 1 and 2 are sufficient to establish a working, DTLS-encrypted MCP connection. **Layer 3 is OPTIONAL and is NOT part of the base transport.** The base transport is *identity-agnostic*: it admits any peer that completes the Layer 2 rendezvous on a shared `site id` (see § 9 for the resulting security posture). Peer authentication, when required, is supplied by a substrate or application layer above the base transport — see § 8.
 
 Two compliant implementations interoperate at Layer 1 even if their Layer 2 / Layer 3 differ — a Client that knows how to do the same Layer 2 dance as a Host (and meets its Layer 3 requirements, if any) can reach that Host.
 
@@ -107,17 +109,21 @@ Both peers connect to the ephemeral room over WebSocket. SDP offers, answers, an
 
 The reference implementation uses the lobby + pair-request modules from [`@nevescloud/pip-relay`](https://www.npmjs.com/package/@nevescloud/pip-relay) for this layer. Other compliant implementations MAY use any equivalent.
 
-## 8. Layer 3: Identity (pluggable; recommended pattern)
+## 8. Layer 3: Identity (OPTIONAL; provided above the base transport)
 
-This specification does NOT mandate a particular peer-authentication mechanism. The following is RECOMMENDED:
+Peer authentication is an **OPTIONAL** layer. The base transport does **not** provide it (see § 5 and § 9): it admits any peer that completes Layer 2 rendezvous on the shared `site id`. An implementation that needs to authenticate *who* a peer is MUST obtain that capability from a substrate or application layer above the base transport — the base transport is identity-agnostic and supplies no identity primitives, no key material, and no admission policy of its own.
+
+The reference packages illustrate the split: the `WebRTCServerTransport` / `WebRTCClientTransport` (Layer 1) take only rendezvous and signaling parameters and authenticate no one; their signaling substrate, `@nevescloud/stoa`, is where any identity machinery would live. **None of the requirements in this section is imposed on a base-transport implementation.** They describe a recommended *shape* for an identity layer that an implementation MAY add.
+
+Where an implementation does add a Layer 3, the following pattern is RECOMMENDED:
 
 ### 8.1 Signed pair-requests
 
-Each peer holds a persistent P-256 ECDSA key pair. Each pair-request and pair-response is signed with the issuer's private key; receivers verify with the included public key. This prevents a malicious peer in the lobby from forging a pair-response that redirects a Client's WebRTC dial.
+Each peer holds a persistent P-256 ECDSA key pair. Each pair-request and pair-response is signed with the issuer's private key; receivers verify with the included public key. This prevents a malicious peer in the lobby from forging a pair-response that redirects a Client's WebRTC dial. (This protects the *signaling* exchange; on its own it does not establish that a given public key belongs to the party the operator intends to trust — see § 8.2.)
 
 ### 8.2 Trust on first use
 
-Hosts SHOULD prompt their human user (or follow a configured policy) before accepting a connection from an unrecognized public key. Once accepted, the public key MAY be persisted for silent admission on future connections. Reference implementations SHOULD provide a way to revoke trust.
+An identity layer SHOULD prompt its human user (or follow a configured policy) before accepting a connection from an unrecognized public key. Once accepted, the public key MAY be persisted for silent admission on future connections. An identity layer SHOULD provide a way to revoke trust.
 
 ### 8.3 Optional: out-of-band attestation
 
@@ -126,9 +132,9 @@ Implementations MAY layer additional authentication on top (e.g., proof of email
 ## 9. Security considerations
 
 - The lobby (Layer 2) sees signaling traffic but MUST NOT see Layer 1 message contents.
-- Without Layer 3 authentication, any peer that knows a Host's `site id` can attempt to connect. Hosts SHOULD treat `site id` as a low-entropy rendezvous identifier, not a credential.
-- WebRTC data channels are end-to-end encrypted (DTLS); the SDP exchange establishes the keys. Lobby compromise does NOT expose data channel contents.
-- Implementations MUST verify SDP fingerprints against the Layer 3 identity binding when present, to prevent man-in-the-middle attacks at the lobby level.
+- **The base transport does not authenticate peers.** Layer 3 (§ 8) is OPTIONAL and absent from the base transport. Absent a Layer 3 identity binding, there is **no peer authentication**: DTLS gives confidentiality and integrity of the *channel*, but the base protocol establishes nothing about *who* the peer is. The `site id` is a rendezvous token, not a credential — it is low-entropy and explicitly not a secret, so any peer that learns a Host's `site id` can complete the rendezvous and connect. Operators who require knowing who connected MUST add a Layer 3 (§ 8); operators who do not add one MUST treat every admitted peer as unauthenticated.
+- WebRTC data channels are end-to-end encrypted (DTLS); the SDP exchange establishes the keys. Lobby compromise does NOT expose data channel contents. Note, however, that DTLS authenticates the channel against tampering *between the two endpoints that exchanged the SDP* — it does not establish that the far endpoint is the party the operator intended (that is Layer 3's job).
+- When a Layer 3 identity binding is in use, implementations MUST verify SDP fingerprints against that binding, to prevent a lobby-level man-in-the-middle from substituting its own keys during signaling. Absent a Layer 3 binding there is nothing to verify the fingerprint against, and this requirement does not apply.
 
 ## 10. Compatibility with existing MCP transports
 
